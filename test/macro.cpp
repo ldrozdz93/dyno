@@ -29,6 +29,28 @@ struct Model2 {
   std::tuple<int, char> f3(std::string const&) { return {91, '3'}; }
 };
 
+struct ConstructorCounter
+{
+    int def = 0, copy = 0, move = 0 ;
+    void reset(){ *this = ConstructorCounter{}; }
+} ;
+
+struct CountedConstruction
+{
+    inline static ConstructorCounter counter;
+    CountedConstruction(){ counter.def++; }
+    CountedConstruction(const CountedConstruction&){ counter.copy++; }
+    CountedConstruction(CountedConstruction&&){ counter.move++; }
+    ~CountedConstruction() = default;
+};
+
+struct Model3 : CountedConstruction {
+  int f1(int) const { return 91; }
+  char f2(std::pair<long, double>) const { return '3'; }
+  std::tuple<int, char> f3(std::string const&) { return {91, '3'}; }
+};
+
+
 int main() {
   Model1 m1{};
   Concept c1{m1};
@@ -41,4 +63,37 @@ int main() {
   DYNO_CHECK(c2.f1(int{}) == 91);
   DYNO_CHECK(c2.f2(std::pair<long, double>{}) == '3');
   DYNO_CHECK(c2.f3(std::string{}) == std::make_tuple(91, '3'));
+
+  auto& counter = CountedConstruction::counter;
+
+  counter.reset();
+  Concept<dyno::remote_storage> r1 = Model3{};
+  DYNO_CHECK(1 == counter.def);
+  DYNO_CHECK(0 == counter.copy);
+  DYNO_CHECK(1 == counter.move);
+
+  counter.reset();
+  Concept<dyno::remote_storage> r2 = r1;
+  DYNO_CHECK(0 == counter.def);
+  DYNO_CHECK(1 == counter.copy);
+  DYNO_CHECK(0 == counter.move);
+
+  counter.reset();
+  Concept<dyno::remote_storage> r3 = std::move(r2);
+  DYNO_CHECK(0 == counter.def);
+  DYNO_CHECK(0 == counter.copy);
+  DYNO_CHECK(0 == counter.move); // the whole buffer is moved
+
+  counter.reset();
+  Concept<dyno::local_storage<4>> l1 = Model3{};
+  DYNO_CHECK(1 == counter.def);
+  DYNO_CHECK(0 == counter.copy);
+  DYNO_CHECK(1 == counter.move); // the whole buffer is moved
+
+  counter.reset();
+  Concept<dyno::local_storage<4>> l2 = std::move(l1);
+  DYNO_CHECK(0 == counter.def);
+  DYNO_CHECK(0 == counter.copy);
+  DYNO_CHECK(1 == counter.move); // model move contructor invoked
+
 }

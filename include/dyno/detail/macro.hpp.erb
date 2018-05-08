@@ -68,29 +68,49 @@ end
         <% args.each_with_index do |arg, i| %>                                \
           <%= ',' if i > 0 %>                                                 \
           <%= dyno_string(arg) %> = ::dyno::method<DYNO_PP_VARIADIC_TAIL <%= arg %>>\
-        <% end %>                                                             \
+        <% end %>,                                                            \
+        dyno::CopyConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
-                                                                              \
-  class name {                                                                \
-    struct concept_t                                                          \
-      : decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type())        \
-    { };                                                                      \
+template< typename StorageType = dyno::remote_storage>                        \
+  class name {      	                                                      \
+    using concept_t =                                                         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    template< typename >                                                      \
+    friend class name;                                                        \
+    template<typename>                                                        \
+    struct is_a_##name : std::false_type {};                                  \
+    template< typename T >                                                    \
+    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename T >                                                    \
+    auto construct_poly(T&& x)                                                \
+    {                                                                         \
+        using RawT = std::decay_t<T>;                                         \
+        if constexpr(not is_a_##name<RawT>{})                                 \
+        {                                                                     \
+            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+              <% args.each_with_index do |arg, i| %>                          \
+                <%= ',' if i > 0 %>                                           \
+                <%= dyno_string(arg) %> = [](auto&& self, auto&& ...args) -> decltype(auto) {\
+                    return static_cast<decltype(self)&&>(self)                \
+                      .DYNO_PP_VARIADIC_HEAD <%= arg %>                       \
+                        (static_cast<decltype(args)&&>(args)...);             \
+                  }                                                           \
+              <% end %>                                                       \
+            )};                                                               \
+        }                                                                     \
+        if constexpr( is_a_##name<RawT>{} )                                   \
+        {                                                                     \
+            { return poly_t{std::forward<T>(x).poly_}; }                      \
+        }                                                                     \
+    }                                                                         \
   public:                                                                     \
-    template <typename T>                                                     \
+    template <typename T >                                                    \
     name(T&& x)                                                               \
-      : poly_{static_cast<T&&>(x), ::dyno::make_concept_map(                  \
-        <% args.each_with_index do |arg, i| %>                                \
-          <%= ',' if i > 0 %>                                                 \
-          <%= dyno_string(arg) %> = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-              return static_cast<decltype(self)&&>(self)                      \
-                .DYNO_PP_VARIADIC_HEAD <%= arg %>                             \
-                  (static_cast<decltype(args)&&>(args)...);                   \
-            }                                                                 \
-        <% end %>                                                             \
-      )}                                                                      \
-    { }                                                                       \
+      : poly_{construct_poly(std::forward<T>(x))}                             \
+    {}                                                                        \
     <% args.each_with_index do |arg, i| %>                                    \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL <%= arg %>>>()\
@@ -116,9 +136,10 @@ end
       }                                                                       \
     <% end %>                                                                 \
   private:                                                                    \
-    ::dyno::poly<concept_t> poly_;                                            \
+    ::dyno::poly<concept_t, StorageType> poly_;                               \
   }
 
 <% end %>
 
 #endif // DYNO_MACRO_HPP
+
