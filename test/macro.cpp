@@ -84,16 +84,30 @@ int main() {
   DYNO_CHECK(0 == counter.copy);
   DYNO_CHECK(0 == counter.move); // the whole buffer is moved
 
+  Concept<dyno::remote_storage> r4 = Model3{};
+  counter.reset();
+  r4 = r3;
+  DYNO_CHECK(0 == counter.def);
+  DYNO_CHECK(1 == counter.copy);
+  DYNO_CHECK(0 == counter.move);
+
+  counter.reset();
+  r4 = std::move(r3);
+  DYNO_CHECK(0 == counter.def);
+  DYNO_CHECK(0 == counter.copy);
+  DYNO_CHECK(0 == counter.move); // the whole buffer is moved
+
+
   counter.reset();
   Concept<dyno::local_storage<4>> l1 = Model3{};
   DYNO_CHECK(1 == counter.def);
   DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(1 == counter.move); // the whole buffer is moved
+  DYNO_CHECK(1 == counter.move);
 
   counter.reset();
   Concept<dyno::local_storage<4>> l2 = std::move(l1);
   DYNO_CHECK(0 == counter.def);
   DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(1 == counter.move); // model move contructor invoked
+  DYNO_CHECK(1 == counter.move);
 
 }

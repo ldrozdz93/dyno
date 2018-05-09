@@ -107,10 +107,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
     <% args.each_with_index do |arg, i| %>                                    \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL <%= arg %>>>()\

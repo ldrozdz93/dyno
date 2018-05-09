@@ -88,10 +88,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                                                      \
   private:                                                                    \
     ::dyno::poly<concept_t, StorageType> poly_;                               \
@@ -145,10 +157,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -235,10 +259,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -358,10 +394,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -514,10 +562,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -703,10 +763,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -925,10 +997,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -1180,10 +1264,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -1468,10 +1564,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -1789,10 +1897,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -2143,10 +2263,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -2530,10 +2662,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -2950,10 +3094,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -3403,10 +3559,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -3889,10 +4057,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -4408,10 +4588,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -4960,10 +5152,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -5545,10 +5749,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -6163,10 +6379,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -6814,10 +7042,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -7498,10 +7738,22 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
+    name& operator=(name&& x)                                                 \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+    }                                                                         \
+    name& operator=(const name& x)                                            \
+    {                                                                         \
+      this->~name();                                                          \
+      return *::new (static_cast<void*>(this)) name(x);                       \
+    }                                                                         \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
