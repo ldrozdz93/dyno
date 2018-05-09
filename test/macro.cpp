@@ -33,11 +33,10 @@ struct ConstructorCounter
 {
     int def = 0, copy = 0, move = 0 ;
     void reset(){ *this = ConstructorCounter{}; }
-} ;
+} counter;
 
 struct CountedConstruction
 {
-    inline static ConstructorCounter counter;
     CountedConstruction(){ counter.def++; }
     CountedConstruction(const CountedConstruction&){ counter.copy++; }
     CountedConstruction(CountedConstruction&&){ counter.move++; }
@@ -50,6 +49,11 @@ struct Model3 : CountedConstruction {
   std::tuple<int, char> f3(std::string const&) { return {91, '3'}; }
 };
 
+void remote_storage_tests();
+void shared_remote_storage_tests();
+void local_storage_tests();
+void sbo_storage_tests();
+void non_owning_storage_tests();
 
 int main() {
   Model1 m1{};
@@ -64,8 +68,21 @@ int main() {
   DYNO_CHECK(c2.f2(std::pair<long, double>{}) == '3');
   DYNO_CHECK(c2.f3(std::string{}) == std::make_tuple(91, '3'));
 
-  auto& counter = CountedConstruction::counter;
+  remote_storage_tests();
+  shared_remote_storage_tests();
+  local_storage_tests();
+  sbo_storage_tests();
+  non_owning_storage_tests();
 
+
+
+
+
+
+}
+
+void remote_storage_tests()
+{
   counter.reset();
   Concept<dyno::remote_storage> r1 = Model3{};
   DYNO_CHECK(1 == counter.def);
@@ -108,8 +125,10 @@ int main() {
   DYNO_CHECK(0 == counter.def);
   DYNO_CHECK(0 == counter.copy);
   DYNO_CHECK(0 == counter.move); // the whole buffer is moved
+}
 
-
+void shared_remote_storage_tests()
+{
   Concept<dyno::shared_remote_storage> s1 = Model3{};
   counter.reset();
   Concept<dyno::shared_remote_storage> s2 = s1;
@@ -122,16 +141,20 @@ int main() {
   DYNO_CHECK(0 == counter.def);
   DYNO_CHECK(0 == counter.copy);
   DYNO_CHECK(0 == counter.move);
+}
 
-
+void local_storage_tests()
+{
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
   counter.reset();
   Concept<dyno::local_storage<sizeof(Model3)>> l2 = std::move(l1);
   DYNO_CHECK(0 == counter.def);
   DYNO_CHECK(0 == counter.copy);
   DYNO_CHECK(1 == counter.move);
+}
 
-
+void sbo_storage_tests()
+{
   struct BigModel : Model3
   {
     char size[100];
@@ -150,8 +173,17 @@ int main() {
   DYNO_CHECK(0 == counter.def);
   DYNO_CHECK(0 == counter.copy);
   DYNO_CHECK(1 == counter.move);
+}
 
-
-
-
+void non_owning_storage_tests()
+{
+  Model3 m1{};
+  counter.reset();
+  Concept<dyno::non_owning_storage> n1 = m1;
+  Concept<dyno::non_owning_storage> n2 = n1;
+//  n2 = n1;
+//  n2 = m1;
+  DYNO_CHECK(0 == counter.def);
+  DYNO_CHECK(0 == counter.copy);
+  DYNO_CHECK(0 == counter.move);
 }
