@@ -110,16 +110,31 @@ int main() {
   DYNO_CHECK(0 == counter.move); // the whole buffer is moved
 
 
+  Concept<dyno::shared_remote_storage> s1 = Model3{};
   counter.reset();
-  Concept<dyno::local_storage<4>> l1 = Model3{};
-  DYNO_CHECK(1 == counter.def);
+  Concept<dyno::shared_remote_storage> s2 = s1;
+  DYNO_CHECK(0 == counter.def);
   DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(1 == counter.move);
+  DYNO_CHECK(0 == counter.move);
 
   counter.reset();
-  Concept<dyno::local_storage<4>> l2 = std::move(l1);
+  Concept<dyno::shared_remote_storage> s3 = std::move(s2);
+  DYNO_CHECK(0 == counter.def);
+  DYNO_CHECK(0 == counter.copy);
+  DYNO_CHECK(0 == counter.move);
+
+
+  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  counter.reset();
+  Concept<dyno::local_storage<sizeof(Model3)>> l2 = std::move(l1);
   DYNO_CHECK(0 == counter.def);
   DYNO_CHECK(0 == counter.copy);
   DYNO_CHECK(1 == counter.move);
+
+
+
+
+
+
 
 }
