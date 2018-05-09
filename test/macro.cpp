@@ -132,9 +132,9 @@ int main() {
   DYNO_CHECK(1 == counter.move);
 
 
-  struct BigModel
+  struct BigModel : Model3
   {
-    char size[sizeof(Model3 * 10)];
+    char size[100];
   };
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = BigModel{};
   counter.reset();
@@ -143,9 +143,10 @@ int main() {
   DYNO_CHECK(0 == counter.copy);
   DYNO_CHECK(0 == counter.move); // the whole buffer is moved
 
-  Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = Model3{};
+
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb3 = Model3{};
   counter.reset();
-  Concept<dyno::sbo_storage<sizeof(Model3)>> sb2 = std::move(sb1);
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb4 = std::move(sb3);
   DYNO_CHECK(0 == counter.def);
   DYNO_CHECK(0 == counter.copy);
   DYNO_CHECK(1 == counter.move);
