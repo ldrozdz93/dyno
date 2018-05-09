@@ -64,7 +64,8 @@
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -88,22 +89,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                                                      \
   private:                                                                    \
     ::dyno::poly<concept_t, StorageType> poly_;                               \
@@ -126,7 +122,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -157,22 +154,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -221,7 +213,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -259,22 +252,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -349,7 +337,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -394,22 +383,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -510,7 +494,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -562,22 +547,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -704,7 +684,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -763,22 +744,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -931,7 +907,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -997,22 +974,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -1191,7 +1163,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -1264,22 +1237,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -1484,7 +1452,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -1564,22 +1533,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -1810,7 +1774,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -1897,22 +1862,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -2169,7 +2129,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -2263,22 +2224,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -2561,7 +2517,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -2662,22 +2619,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -2986,7 +2938,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -3094,22 +3047,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -3444,7 +3392,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -3559,22 +3508,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -3935,7 +3879,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -4057,22 +4002,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -4459,7 +4399,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -4588,22 +4529,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -5016,7 +4952,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -5152,22 +5089,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -5606,7 +5538,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -5749,22 +5682,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -6229,7 +6157,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -6379,22 +6308,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -6885,7 +6809,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -7042,22 +6967,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
@@ -7574,7 +7494,8 @@ template< typename StorageType = dyno::remote_storage>                        \
 template< typename StorageType = dyno::remote_storage>                        \
   class name {      	                                                      \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());      	  \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+    using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
@@ -7738,22 +7659,17 @@ template< typename StorageType = dyno::remote_storage>                        \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    name(const name&) = default;                                              \
-    name(name&&) = default;                                                   \
     template <typename T >                                                    \
     name(T&& x)                                                               \
       : poly_{construct_poly(std::forward<T>(x))}                             \
     {}                                                                        \
-    name& operator=(name&& x)                                                 \
+    template <typename T >                                                    \
+    name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(std::move(x));            \
+      return *::new (static_cast<void*>(this)) typename this_t:: template name<>(std::forward<T>(x));      \
     }                                                                         \
-    name& operator=(const name& x)                                            \
-    {                                                                         \
-      this->~name();                                                          \
-      return *::new (static_cast<void*>(this)) name(x);                       \
-    }                                                                         \
+                                                                              \
                                         \
       template <typename ...Args, typename = decltype(                        \
         ::std::declval<::boost::callable_traits::function_type_t<DYNO_PP_VARIADIC_TAIL arg1>>()\
