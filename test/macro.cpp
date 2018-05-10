@@ -173,14 +173,37 @@ void sbo_storage_tests()
   DYNO_CHECK(0 == counter.def);
   DYNO_CHECK(0 == counter.copy);
   DYNO_CHECK(1 == counter.move);
+
+  Concept<dyno::remote_storage> sb5 = BigModel{};
+  auto bm1 = BigModel{};
+  counter.reset();
+  sb5 = bm1;
+  DYNO_CHECK(0 == counter.def);
+  DYNO_CHECK(1 == counter.copy);
+  DYNO_CHECK(0 == counter.move);
+
+//  counter.reset();
+//  sb5 = std::move(sb4);
+//  DYNO_CHECK(0 == counter.def);
+//  DYNO_CHECK(0 == counter.copy);
+//  DYNO_CHECK(0 == counter.move); // the whole buffer is moved
 }
+
+DYNO_INTERFACE(SimpleConcept,
+  (fun, void())
+);
 
 void non_owning_storage_tests()
 {
-  Model3 m1{};
+  struct SimpleModel
+  {
+    void fun(){}
+  };
+
+  SimpleModel m1{};
   counter.reset();
-  Concept<dyno::non_owning_storage> n1 = m1;
-  Concept<dyno::non_owning_storage> n2 = n1;
+  SimpleConcept<dyno::non_owning_storage> n1 = m1;
+  SimpleConcept<dyno::non_owning_storage> n2 = n1;
 //  n2 = n1;
 //  n2 = m1;
   DYNO_CHECK(0 == counter.def);
