@@ -29,6 +29,14 @@ struct Model2 {
   std::tuple<int, char> f3(std::string const&) { return {91, '3'}; }
 };
 
+enum
+{
+  EOnlyMovedBuffer = 0,
+  EDefaultConstructed = 1,
+  ECopied = 1 << 4,
+  EMoved = 1 << 8
+};
+
 struct ConstructorCounter
 {
     int def = 0, copy = 0, move = 0 ;
@@ -43,7 +51,8 @@ struct CountedConstruction
     ~CountedConstruction() = default;
 };
 
-struct Model3 : CountedConstruction {
+struct Model3 : CountedConstruction
+{
   int f1(int) const { return 91; }
   char f2(std::pair<long, double>) const { return '3'; }
   std::tuple<int, char> f3(std::string const&) { return {91, '3'}; }
