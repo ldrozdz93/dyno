@@ -31,11 +31,13 @@ struct Model2 {
 
 enum
 {
-  EOnlyBufferMoved = 0,
+  ENoConstructorInvocation = 0,
   EDefaultConstructed = 1,
   ECopied = 1 << 4,
   EMoved = 1 << 8
 };
+constexpr auto EOnlyBufferMoved = ENoConstructorInvocation;
+constexpr auto ESharedPointerCopied = ENoConstructorInvocation;
 
 struct ConstructorCounter
 {
@@ -133,9 +135,7 @@ void shared_remote_storage_tests()
   Concept<dyno::shared_remote_storage> s1 = Model3{};
   counter.reset();
   Concept<dyno::shared_remote_storage> s2 = s1;
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(0 == counter.move);
+  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
 
   counter.reset();
   Concept<dyno::shared_remote_storage> s3 = std::move(s2);
