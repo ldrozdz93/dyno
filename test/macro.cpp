@@ -39,9 +39,14 @@ enum
 
 struct ConstructorCounter
 {
-    int def = 0, copy = 0, move = 0 ;
+    uint32_t def = 0, copy = 0, move = 0 ;
     void reset(){ *this = ConstructorCounter{}; }
-    bool assert(const uint_32t);
+    bool check(const uint32_t expected)
+    {
+      return expected == (def * EDefaultConstructed |
+                          copy * ECopied |
+                          move * EMoved);
+    }
 } counter;
 
 struct CountedConstruction
@@ -95,46 +100,32 @@ void remote_storage_tests()
 {
   counter.reset();
   Concept<dyno::remote_storage> r1 = Model3{};
-  DYNO_CHECK(1 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(1 == counter.move);
+  DYNO_CHECK(counter.check( EDefaultConstructed | EMoved ));
 
   counter.reset();
   Concept<dyno::remote_storage> r2 = r1;
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(1 == counter.copy);
-  DYNO_CHECK(0 == counter.move);
+  DYNO_CHECK(counter.check( ECopied ));
 
   counter.reset();
   Concept<dyno::remote_storage> r3 = std::move(r2);
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(0 == counter.move); // the whole buffer is moved
+  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
 
   Model3 m3{};
   counter.reset();
   r3 = m3;
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(1 == counter.copy);
-  DYNO_CHECK(0 == counter.move);
+  DYNO_CHECK(counter.check( ECopied ));
 
   counter.reset();
   r3 = Model3{};
-  DYNO_CHECK(1 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(1 == counter.move);
+  DYNO_CHECK(counter.check( EDefaultConstructed | EMoved ));
 
   counter.reset();
   r3 = r2;
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(1 == counter.copy);
-  DYNO_CHECK(0 == counter.move);
+  DYNO_CHECK(counter.check( ECopied ));
 
   counter.reset();
   r3 = std::move(r2);
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(0 == counter.move); // the whole buffer is moved
+  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
 }
 
 void shared_remote_storage_tests()
