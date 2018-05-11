@@ -31,7 +31,7 @@ struct Model2 {
 
 enum
 {
-  EOnlyMovedBuffer = 0,
+  EOnlyBufferMoved = 0,
   EDefaultConstructed = 1,
   ECopied = 1 << 4,
   EMoved = 1 << 8
@@ -41,6 +41,7 @@ struct ConstructorCounter
 {
     int def = 0, copy = 0, move = 0 ;
     void reset(){ *this = ConstructorCounter{}; }
+    bool assert(const uint_32t);
 } counter;
 
 struct CountedConstruction
