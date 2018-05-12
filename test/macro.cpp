@@ -71,6 +71,7 @@ void shared_remote_storage_tests();
 void local_storage_tests();
 void sbo_storage_tests();
 void non_owning_storage_tests();
+void mixed_convertion_storage_tests();
 
 int main() {
   Model1 m1{};
@@ -172,22 +173,21 @@ void sbo_storage_tests()
   DYNO_CHECK(counter.check( 2*EMoved )); // TODO: fix generic assignment operator in macro
 }
 
-DYNO_INTERFACE(SimpleConcept,
-  (fun, void())
-);
-
 void non_owning_storage_tests()
 {
-  struct SimpleModel
-  {
-    void fun(){}
-  };
-
-  SimpleModel m1{};
+  Model3 m1{};
   counter.reset();
-  SimpleConcept<dyno::non_owning_storage> n1 = m1;
-  SimpleConcept<dyno::non_owning_storage> n2 = n1;
+  Concept<dyno::non_owning_storage> n1 = m1;
+  Concept<dyno::non_owning_storage> n2 = n1;
   n2 = n1;
   n2 = m1;
   DYNO_CHECK(counter.check( ENoConstructorInvocation ));
+}
+
+void mixed_convertion_storage_tests()
+{
+  Concept<dyno::local_storage<4>> l1 = Model3{};
+  counter.reset();
+//  Concept<dyno::remote_storage>> r1 = std::move(l1);
+//  DYNO_CHECK(counter.check( EMoved ));
 }
