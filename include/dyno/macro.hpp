@@ -48,7 +48,8 @@
 // - Try to get rid of commas in the method definition. Use a BOOST_PP_SEQ
 
 #define DYNO_INTERFACE(name, ...) \
-  DYNO_PP_CONCAT(DYNO_PP_INTERFACE_IMPL_, DYNO_PP_NARG(__VA_ARGS__))(name, __VA_ARGS__)
+  DYNO_PP_CONCAT(DYNO_PP_INTERFACE_IMPL_, DYNO_PP_NARG(__VA_ARGS__))(name, __VA_ARGS__)\
+
 
 
 

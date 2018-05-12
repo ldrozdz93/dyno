@@ -52,11 +52,7 @@
 
 #define DYNO_INTERFACE(name, ...) \
   DYNO_PP_CONCAT(DYNO_PP_INTERFACE_IMPL_, DYNO_PP_NARG(__VA_ARGS__))(name, __VA_ARGS__)\
-namespace detail{
-struct constructor_methods_for_##name
-{
-};
-}
+
 
 <% (0..MAX_NUMBER_OF_METHODS).each do |n|
 args = (1..n).map { |i| "arg#{i}" }
