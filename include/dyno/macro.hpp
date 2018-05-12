@@ -69,10 +69,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -127,10 +125,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -218,10 +214,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -342,10 +336,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -499,10 +491,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -689,10 +679,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -912,10 +900,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -1168,10 +1154,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -1457,10 +1441,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -1779,10 +1761,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -2134,10 +2114,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -2522,10 +2500,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -2943,10 +2919,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -3397,10 +3371,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -3884,10 +3856,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -4404,10 +4374,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -4957,10 +4925,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -5543,10 +5509,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -6162,10 +6126,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -6814,10 +6776,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
@@ -7499,10 +7459,8 @@ template< typename StorageType = dyno::remote_storage>                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename >                                                      \
     friend class name;                                                        \
-    template<typename>                                                        \
-    struct is_a_##name : std::false_type {};                                  \
-    template< typename T >                                                    \
-    struct is_a_##name<name<T> > : std::true_type {};                         \
+    template< typename> struct is_a_##name : std::false_type {};              \
+    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template< typename T >                                                    \
     auto construct_poly(T&& x)                                                \
     {                                                                         \
