@@ -90,12 +90,6 @@ int main() {
   local_storage_tests();
   sbo_storage_tests();
   non_owning_storage_tests();
-
-
-
-
-
-
 }
 
 void remote_storage_tests()
@@ -135,13 +129,11 @@ void shared_remote_storage_tests()
   Concept<dyno::shared_remote_storage> s1 = Model3{};
   counter.reset();
   Concept<dyno::shared_remote_storage> s2 = s1;
-  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
+  DYNO_CHECK(counter.check( ESharedPointerCopied ));
 
   counter.reset();
   Concept<dyno::shared_remote_storage> s3 = std::move(s2);
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(0 == counter.move);
+  DYNO_CHECK(counter.check( ESharedPointerCopied ));
 }
 
 void local_storage_tests()
@@ -149,9 +141,7 @@ void local_storage_tests()
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
   counter.reset();
   Concept<dyno::local_storage<sizeof(Model3)>> l2 = std::move(l1);
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(1 == counter.move);
+  DYNO_CHECK(counter.check( EMoved ));
 }
 
 void sbo_storage_tests()
@@ -163,31 +153,23 @@ void sbo_storage_tests()
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = BigModel{};
   counter.reset();
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb2 = std::move(sb1);
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(0 == counter.move); // the whole buffer is moved
+  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
 
 
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb3 = Model3{};
   counter.reset();
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb4 = std::move(sb3);
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(1 == counter.move);
+  DYNO_CHECK(counter.check( EMoved ));
 
-  Concept<dyno::remote_storage> sb5 = BigModel{};
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb5 = BigModel{};
   auto bm1 = BigModel{};
   counter.reset();
   sb5 = bm1;
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(1 == counter.copy);
-  DYNO_CHECK(0 == counter.move);
+  DYNO_CHECK(counter.check( ECopied ));
 
-//  counter.reset();
-//  sb5 = std::move(sb4);
-//  DYNO_CHECK(0 == counter.def);
-//  DYNO_CHECK(0 == counter.copy);
-//  DYNO_CHECK(0 == counter.move); // the whole buffer is moved
+  counter.reset();
+  sb5 = std::move(sb4);
+  DYNO_CHECK(counter.check( 2*EMoved )); // TODO: fix generic assignment operator in macro
 }
 
 DYNO_INTERFACE(SimpleConcept,
@@ -207,7 +189,5 @@ void non_owning_storage_tests()
   SimpleConcept<dyno::non_owning_storage> n2 = n1;
 //  n2 = n1;
 //  n2 = m1;
-  DYNO_CHECK(0 == counter.def);
-  DYNO_CHECK(0 == counter.copy);
-  DYNO_CHECK(0 == counter.move);
+  DYNO_CHECK(counter.check( ENoConstructorInvocation ));
 }
