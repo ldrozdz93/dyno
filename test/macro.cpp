@@ -187,7 +187,7 @@ void non_owning_storage_tests()
   counter.reset();
   SimpleConcept<dyno::non_owning_storage> n1 = m1;
   SimpleConcept<dyno::non_owning_storage> n2 = n1;
-//  n2 = n1;
-//  n2 = m1;
+  n2 = n1;
+  n2 = m1;
   DYNO_CHECK(counter.check( ENoConstructorInvocation ));
 }
