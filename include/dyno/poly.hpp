@@ -73,19 +73,16 @@ private:
   ));
   using VTable = typename VTablePolicy::template apply<ActualConcept>;
 
-  template<typename>
-  struct is_a_poly : std::false_type {};
-  template< typename T1, typename T2, typename T3 >
-  struct is_a_poly<poly<T1, T2, T3> > : std::true_type {};
+  template<typename> struct is_a_poly : std::false_type {};
+  template< typename T1, typename T2, typename T3 > struct is_a_poly<poly<T1, T2, T3> > : std::true_type {};
 
   template< typename T, typename RawT = std::decay_t<T> >
-  decltype(auto) construct_poly(T&& t)
+  poly construct_poly(T&& t)
   {
-      /*if constexpr( is_a_poly<RawT>{} ) {
+      if constexpr( is_a_poly<RawT>{} ) {
           assert(!"This constructor is not implemented yet!");
-      }*/
-
-      if constexpr( dyno::models<ActualConcept, RawT> ) {
+      }
+      else if constexpr( dyno::models<ActualConcept, RawT> ) {
           return poly{std::forward<T>(t), dyno::concept_map<ActualConcept, RawT>};
       }
 
@@ -100,7 +97,8 @@ public:
 
   template <typename T, typename RawT = std::decay_t<T>,
     typename = std::enable_if_t<!std::is_same<RawT, poly>::value>,
-    typename = std::enable_if_t<dyno::models<ActualConcept, RawT>>>
+    typename = std::enable_if_t< dyno::models<ActualConcept, RawT> ||
+                                 is_a_poly<RawT>{}>>
   poly(T&& t)
     : poly{construct_poly(std::forward<T>(t))}
   { }

@@ -387,6 +387,9 @@ private:
 // object.
 template <std::size_t Size, std::size_t Align = static_cast<std::size_t>(-1)>
 class local_storage {
+  template< typename > struct is_a_local_storage : std::false_type {};
+  template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage<local_storage<sz1, sz2> > : std::true_type {};
+
   static constexpr std::size_t SBAlign = Align == static_cast<std::size_t>(-1)
                                             ? alignof(std::aligned_storage_t<Size>)
                                             : Align;
@@ -406,14 +409,20 @@ public:
 
   template <typename T, typename RawT = std::decay_t<T>>
   explicit local_storage(T&& t) {
-    // TODO: We could also construct the object at an aligned address within
-    // the buffer, which would require computing the right address everytime
-    // we access the buffer as a T, but would allow more Ts to fit inside it.
-    static_assert(can_store(dyno::storage_info_for<RawT>),
-      "dyno::local_storage: Trying to construct from an object that won't fit "
-      "in the local storage.");
+    if constexpr( !is_a_local_storage<RawT>{} )
+    {
+      // TODO: We could also construct the object at an aligned address within
+      // the buffer, which would require computing the right address everytime
+      // we access the buffer as a T, but would allow more Ts to fit inside it.
+      static_assert(can_store(dyno::storage_info_for<RawT>),
+                    "dyno::local_storage: Trying to construct from an object that won't fit "
+                    "in the local storage.");
 
-    new (&buffer_) RawT(std::forward<T>(t));
+      new (&buffer_) RawT(std::forward<T>(t));
+    } else
+    {
+      assert(!"Not implemented yet!");
+    }
   }
 
   template <typename VTable>

@@ -91,6 +91,7 @@ int main() {
   local_storage_tests();
   sbo_storage_tests();
   non_owning_storage_tests();
+  mixed_convertion_storage_tests();
 }
 
 void remote_storage_tests()
@@ -188,6 +189,6 @@ void mixed_convertion_storage_tests()
 {
   Concept<dyno::local_storage<4>> l1 = Model3{};
   counter.reset();
-//  Concept<dyno::local_storage<8>> r1 = std::move(l1);
+  Concept<dyno::local_storage<8>> r1 = std::move(l1);
 //  DYNO_CHECK(counter.check( EMoved ));
 }
