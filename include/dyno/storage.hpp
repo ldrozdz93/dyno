@@ -411,20 +411,20 @@ public:
 
   template <typename T, typename RawT = std::decay_t<T>>
   explicit local_storage(T&& t) {
-    if constexpr( !is_a_local_storage<RawT>{} )
-    {
-      // TODO: We could also construct the object at an aligned address within
-      // the buffer, which would require computing the right address everytime
-      // we access the buffer as a T, but would allow more Ts to fit inside it.
-      static_assert(can_store(dyno::storage_info_for<RawT>),
-                    "dyno::local_storage: Trying to construct from an object that won't fit "
-                    "in the local storage.");
+    // TODO: We could also construct the object at an aligned address within
+    // the buffer, which would require computing the right address everytime
+    // we access the buffer as a T, but would allow more Ts to fit inside it.
+    static_assert(can_store(dyno::storage_info_for<RawT>),
+                  "dyno::local_storage: Trying to construct from an object that won't fit "
+                  "in the local storage.");
 
-      new (&buffer_) RawT(std::forward<T>(t));
-    } else
-    {
-      assert(!"Not implemented yet at here" );
-    }
+    new (&buffer_) RawT(std::forward<T>(t));
+  }
+
+  template <typename OtherStorage, typename VTable, typename RawStorage = std::decay_t<OtherStorage>>
+  explicit local_storage(OtherStorage&& /*other_storage*/, VTable const& /*vtable*/) {
+    static_assert(is_a_local_storage<RawStorage>{}, "only local storage conversion is supported yet!");
+    assert(!"Not implemented yet at here" );
   }
 
   template <typename VTable>
