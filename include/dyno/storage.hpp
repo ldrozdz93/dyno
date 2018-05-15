@@ -421,12 +421,19 @@ public:
     new (&buffer_) RawT(std::forward<T>(t));
   }
 
-  template <typename OtherStorage, typename VTable, typename RawStorage = std::decay_t<OtherStorage>>
-  explicit local_storage(OtherStorage&& other_storage, VTable const& /*vtable*/) {
-    static_assert(is_a_local_storage<RawStorage>{}, "only local storage conversion is supported yet!");
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
+    static_assert(is_a_local_storage<RawOtherStorage>{}, "only local storage conversion is supported yet!");
     static_assert(other_storage.requested_size <= requested_size,
                   "local storage can only be created from a local_storage of the same, or smaller size!");
-    assert(!"Not implemented yet at here" );
+    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+    {
+      vtable["copy-construct"_s](this->get(), other_storage.get());
+    }
+    else // OtherStorage initialized with a rvalue
+    {
+      vtable["move-construct"_s](this->get(), other_storage.get());
+    }
   }
 
   template <typename VTable>
