@@ -422,8 +422,10 @@ public:
   }
 
   template <typename OtherStorage, typename VTable, typename RawStorage = std::decay_t<OtherStorage>>
-  explicit local_storage(OtherStorage&& /*other_storage*/, VTable const& /*vtable*/) {
+  explicit local_storage(OtherStorage&& other_storage, VTable const& /*vtable*/) {
     static_assert(is_a_local_storage<RawStorage>{}, "only local storage conversion is supported yet!");
+    static_assert(other_storage.requested_size <= requested_size,
+                  "local storage can only be created from a local_storage of the same, or smaller size!");
     assert(!"Not implemented yet at here" );
   }
 
