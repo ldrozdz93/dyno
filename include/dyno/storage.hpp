@@ -387,6 +387,7 @@ private:
 // object.
 template <std::size_t Size, std::size_t Align = static_cast<std::size_t>(-1)>
 class local_storage {
+  template< std::size_t, std::size_t > friend class local_storage;
   template< typename > struct is_a_local_storage : std::false_type {};
   template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage<local_storage<sz1, sz2> > : std::true_type {};
 
@@ -395,6 +396,7 @@ class local_storage {
                                             : Align;
   using SBStorage = std::aligned_storage_t<Size, SBAlign>;
   SBStorage buffer_;
+  static constexpr auto requested_size = Size;
 
 public:
   local_storage() = delete;
@@ -421,7 +423,7 @@ public:
       new (&buffer_) RawT(std::forward<T>(t));
     } else
     {
-      assert(!"Not implemented yet!");
+      assert(!"Not implemented yet at here" );
     }
   }
 

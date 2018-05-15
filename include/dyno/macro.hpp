@@ -87,7 +87,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -156,7 +156,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -258,7 +258,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -393,7 +393,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -561,7 +561,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -762,7 +762,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -996,7 +996,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -1263,7 +1263,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -1563,7 +1563,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -1896,7 +1896,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -2262,7 +2262,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -2661,7 +2661,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -3093,7 +3093,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -3558,7 +3558,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -4056,7 +4056,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -4587,7 +4587,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -5151,7 +5151,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -5748,7 +5748,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -6378,7 +6378,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -7041,7 +7041,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \
@@ -7737,7 +7737,7 @@ template< typename StorageType = dyno::remote_storage>                        \
             { return poly_t{std::forward<T>(x).poly_}; }                      \
           else                                                                \
           {                                                                   \
-            assert(!"Not implemented yet!");                                  \
+            /*assert(!"Not implemented yet!");  */                            \
             return poly_t{std::forward<T>(x).poly_};                          \
           }                                                                   \
         }                                                                     \

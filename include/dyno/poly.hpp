@@ -66,6 +66,7 @@ template <
 >
 struct poly {
 private:
+  template< typename, typename, typename > friend struct poly;
   using ActualConcept = decltype(dyno::requires(
     Concept{},
     dyno::Destructible{},
@@ -80,13 +81,19 @@ private:
   poly construct_poly(T&& t)
   {
       if constexpr( is_a_poly<RawT>{} ) {
-          assert(!"This constructor is not implemented yet!");
+        return poly{std::forward<T>(t).vtable_, std::forward<T>(t).storage_, 0};
       }
       else if constexpr( dyno::models<ActualConcept, RawT> ) {
           return poly{std::forward<T>(t), dyno::concept_map<ActualConcept, RawT>};
       }
 
   }
+
+  template <typename OtherVTable, typename OtherStorage, typename RawT = std::decay_t<T>, typename AdditionalT /*TODO: find a better way to overload constructor*/>
+  poly(OtherVTable&& vtable, OtherStorage&& storage, AdditionalT&&)
+    : vtable_{std::forward<OtherVTable>(vtable)}
+    , storage_{std::forward<OtherStorage>(storage)}
+  { }
 
 public:
   template <typename T, typename RawT = std::decay_t<T>, typename ConceptMap>
