@@ -171,7 +171,7 @@ void sbo_storage_tests()
 
   counter.reset();
   sb5 = std::move(sb4);
-  DYNO_CHECK(counter.check( 2*EMoved )); // TODO: fix generic assignment operator in macro
+  DYNO_CHECK(counter.check( EMoved ));
 }
 
 void non_owning_storage_tests()
@@ -191,4 +191,5 @@ void mixed_convertion_storage_tests()
   counter.reset();
   Concept<dyno::local_storage<8>> r1 = std::move(l1);
   DYNO_CHECK(counter.check( EMoved ));
+  DYNO_CHECK(r1.f1(int{}) == 91);
 }
