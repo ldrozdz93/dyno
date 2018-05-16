@@ -61,6 +61,8 @@ struct CountedConstruction
 
 struct Model3 : CountedConstruction
 {
+  char additionalSize[4];
+
   int f1(int) const { return 91; }
   char f2(std::pair<long, double>) const { return '3'; }
   std::tuple<int, char> f3(std::string const&) { return {91, '3'}; }
@@ -118,7 +120,7 @@ void remote_storage_tests()
   DYNO_CHECK(counter.check( EDefaultConstructed | EMoved ));
 
   counter.reset();
-  r3 = r2;
+  r2 = r3;
   DYNO_CHECK(counter.check( ECopied ));
 
   counter.reset();
@@ -200,4 +202,10 @@ void local_storage_convertion_tests()
   counter.reset();
   l2 = std::move(l1);
   DYNO_CHECK(counter.check( EMoved ));
+
+  Concept<dyno::remote_storage> r1 = Model3{};
+  counter.reset();
+  Concept<dyno::local_storage<20>> l3 = r1;
+  DYNO_CHECK(counter.check( ECopied ));
+
 }
