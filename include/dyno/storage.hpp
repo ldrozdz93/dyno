@@ -254,6 +254,122 @@ private:
   bool uses_heap() const { return uses_heap_; }
 };
 
+// Class implementing unconditional storage in a local buffer.
+//
+// This is like a small buffer optimization, except the behavior is undefined
+// when the object can't fit inside the buffer. Since we know the object always
+// sits inside the local buffer, we can get rid of a branch when accessing the
+// object.
+template <std::size_t Size, std::size_t Align = static_cast<std::size_t>(-1)>
+class local_storage {
+  template< std::size_t, std::size_t > friend class local_storage;
+  template< typename > struct is_a_local_storage : std::false_type {};
+  template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage<local_storage<sz1, sz2> > : std::true_type {};
+//  template< typename > struct is_a_remote_storage : std::false_type {};
+//  template< > struct is_a_remote_storage<remote_storage > : std::true_type {};
+
+  static constexpr std::size_t SBAlign = Align == static_cast<std::size_t>(-1)
+                                            ? alignof(std::aligned_storage_t<Size>)
+                                            : Align;
+  using SBStorage = std::aligned_storage_t<Size, SBAlign>;
+  SBStorage buffer_;
+  static constexpr auto requested_size = Size;
+
+public:
+  local_storage() = delete;
+  local_storage(local_storage const&) = delete;
+  local_storage(local_storage&&) = delete;
+  local_storage& operator=(local_storage&&) = delete;
+  local_storage& operator=(local_storage const&) = delete;
+
+  static constexpr bool can_store(dyno::storage_info info) {
+    return info.size <= sizeof(SBStorage) && alignof(SBStorage) % info.alignment == 0;
+  }
+
+  template <typename T, typename RawT = std::decay_t<T>>
+  explicit local_storage(T&& t) {
+    // TODO: We could also construct the object at an aligned address within
+    // the buffer, which would require computing the right address everytime
+    // we access the buffer as a T, but would allow more Ts to fit inside it.
+    static_assert(can_store(dyno::storage_info_for<RawT>),
+                  "dyno::local_storage: Trying to construct from an object that won't fit "
+                  "in the local storage.");
+
+    new (&buffer_) RawT(std::forward<T>(t));
+  }
+
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
+    if constexpr( true )
+    {
+      static_assert(is_a_local_storage<RawOtherStorage>{},
+                    "only local storage conversion is supported yet!");
+      static_assert(other_storage.requested_size <= requested_size,
+                    "local_storage can only be created from a local_storage of the same, or smaller size!");
+      if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+      {
+        vtable["copy-construct"_s](this->get(), other_storage.get());
+      }
+      else // other_storage initialized with a rvalue
+      {
+        vtable["move-construct"_s](this->get(), other_storage.get());
+      }
+    }
+  }
+
+  template <typename VTable>
+  local_storage(local_storage const& other, VTable const& vtable) {
+    assert(can_store(vtable["storage_info"_s]()) &&
+      "dyno::local_storage: Trying to copy-construct using a vtable that "
+      "describes an object that won't fit in the storage.");
+
+    vtable["copy-construct"_s](this->get(), other.get());
+  }
+
+  template <typename VTable>
+  local_storage(local_storage&& other, VTable const& vtable) {
+    assert(can_store(vtable["storage_info"_s]()) &&
+      "dyno::local_storage: Trying to move-construct using a vtable that "
+      "describes an object that won't fit in the storage.");
+
+    vtable["move-construct"_s](this->get(), other.get());
+  }
+
+  template <typename MyVTable, typename OtherVTable>
+  void swap(MyVTable const& this_vtable, local_storage& other, OtherVTable const& other_vtable) {
+    if (this == &other)
+      return;
+
+    // Move `other` into temporary local storage, destructively.
+    SBStorage tmp;
+    other_vtable["move-construct"_s](&tmp, &other.buffer_);
+    other_vtable["destruct"_s](&other.buffer_);
+
+    // Move `*this` into `other`, destructively.
+    this_vtable["move-construct"_s](&other.buffer_, &this->buffer_);
+    this_vtable["destruct"_s](&this->buffer_);
+
+    // Now, bring `tmp` into `*this`, destructively.
+    other_vtable["move-construct"_s](&this->buffer_, &tmp);
+    other_vtable["destruct"_s](&tmp);
+  }
+
+  template <typename VTable>
+  void destruct(VTable const& vtable) {
+    vtable["destruct"_s](&buffer_);
+  }
+
+  template <typename T = void>
+  T* get() {
+    return static_cast<T*>(static_cast<void*>(&buffer_));
+  }
+
+  template <typename T = void>
+  T const* get() const {
+    return static_cast<T const*>(static_cast<void const*>(&buffer_));
+  }
+};
+
 // Class implementing storage on the heap. Just like the `sbo_storage`, it
 // only handles allocation and deallocation; construction and destruction
 // must be handled externally.
@@ -386,119 +502,7 @@ private:
   std::shared_ptr<void> ptr_;
 };
 
-// Class implementing unconditional storage in a local buffer.
-//
-// This is like a small buffer optimization, except the behavior is undefined
-// when the object can't fit inside the buffer. Since we know the object always
-// sits inside the local buffer, we can get rid of a branch when accessing the
-// object.
-template <std::size_t Size, std::size_t Align = static_cast<std::size_t>(-1)>
-class local_storage {
-  template< std::size_t, std::size_t > friend class local_storage;
-  template< typename > struct is_a_local_storage : std::false_type {};
-  template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage<local_storage<sz1, sz2> > : std::true_type {};
 
-  static constexpr std::size_t SBAlign = Align == static_cast<std::size_t>(-1)
-                                            ? alignof(std::aligned_storage_t<Size>)
-                                            : Align;
-  using SBStorage = std::aligned_storage_t<Size, SBAlign>;
-  SBStorage buffer_;
-  static constexpr auto requested_size = Size;
-
-public:
-  local_storage() = delete;
-  local_storage(local_storage const&) = delete;
-  local_storage(local_storage&&) = delete;
-  local_storage& operator=(local_storage&&) = delete;
-  local_storage& operator=(local_storage const&) = delete;
-
-  static constexpr bool can_store(dyno::storage_info info) {
-    return info.size <= sizeof(SBStorage) && alignof(SBStorage) % info.alignment == 0;
-  }
-
-  template <typename T, typename RawT = std::decay_t<T>>
-  explicit local_storage(T&& t) {
-    // TODO: We could also construct the object at an aligned address within
-    // the buffer, which would require computing the right address everytime
-    // we access the buffer as a T, but would allow more Ts to fit inside it.
-    static_assert(can_store(dyno::storage_info_for<RawT>),
-                  "dyno::local_storage: Trying to construct from an object that won't fit "
-                  "in the local storage.");
-
-    new (&buffer_) RawT(std::forward<T>(t));
-  }
-
-  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
-  explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    if constexpr( true )
-    {
-      static_assert(is_a_local_storage<RawOtherStorage>{},
-                    "only local storage conversion is supported yet!");
-      static_assert(other_storage.requested_size <= requested_size,
-                    "local_storage can only be created from a local_storage of the same, or smaller size!");
-      if constexpr( std::is_lvalue_reference_v<OtherStorage> )
-      {
-        vtable["copy-construct"_s](this->get(), other_storage.get());
-      }
-      else // other_storage initialized with a rvalue
-      {
-        vtable["move-construct"_s](this->get(), other_storage.get());
-      }
-    }
-  }
-
-  template <typename VTable>
-  local_storage(local_storage const& other, VTable const& vtable) {
-    assert(can_store(vtable["storage_info"_s]()) &&
-      "dyno::local_storage: Trying to copy-construct using a vtable that "
-      "describes an object that won't fit in the storage.");
-
-    vtable["copy-construct"_s](this->get(), other.get());
-  }
-
-  template <typename VTable>
-  local_storage(local_storage&& other, VTable const& vtable) {
-    assert(can_store(vtable["storage_info"_s]()) &&
-      "dyno::local_storage: Trying to move-construct using a vtable that "
-      "describes an object that won't fit in the storage.");
-
-    vtable["move-construct"_s](this->get(), other.get());
-  }
-
-  template <typename MyVTable, typename OtherVTable>
-  void swap(MyVTable const& this_vtable, local_storage& other, OtherVTable const& other_vtable) {
-    if (this == &other)
-      return;
-
-    // Move `other` into temporary local storage, destructively.
-    SBStorage tmp;
-    other_vtable["move-construct"_s](&tmp, &other.buffer_);
-    other_vtable["destruct"_s](&other.buffer_);
-
-    // Move `*this` into `other`, destructively.
-    this_vtable["move-construct"_s](&other.buffer_, &this->buffer_);
-    this_vtable["destruct"_s](&this->buffer_);
-
-    // Now, bring `tmp` into `*this`, destructively.
-    other_vtable["move-construct"_s](&this->buffer_, &tmp);
-    other_vtable["destruct"_s](&tmp);
-  }
-
-  template <typename VTable>
-  void destruct(VTable const& vtable) {
-    vtable["destruct"_s](&buffer_);
-  }
-
-  template <typename T = void>
-  T* get() {
-    return static_cast<T*>(static_cast<void*>(&buffer_));
-  }
-
-  template <typename T = void>
-  T const* get() const {
-    return static_cast<T const*>(static_cast<void const*>(&buffer_));
-  }
-};
 
 // Class implementing a non-owning polymorphic reference. Unlike the other
 // storage classes, this one does not own the object it holds, and hence it
