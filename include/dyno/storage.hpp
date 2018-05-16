@@ -273,7 +273,6 @@ class local_storage {
                                             : Align;
   using SBStorage = std::aligned_storage_t<Size, SBAlign>;
   SBStorage buffer_;
-  static constexpr auto requested_size = Size;
 
 public:
   local_storage() = delete;
@@ -302,7 +301,7 @@ public:
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
     if constexpr(is_a_local_storage<RawOtherStorage>{})
     {
-      static_assert(other_storage.requested_size <= requested_size,
+      static_assert(sizeof(other_storage.buffer_) <= sizeof(SBStorage),
                     "local_storage can only be created from a local_storage of the same, or smaller size!");
     }
     else
