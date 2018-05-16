@@ -425,12 +425,12 @@ public:
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
     static_assert(is_a_local_storage<RawOtherStorage>{}, "only local storage conversion is supported yet!");
     static_assert(other_storage.requested_size <= requested_size,
-                  "local storage can only be created from a local_storage of the same, or smaller size!");
+                  "local_storage can only be created from a local_storage of the same, or smaller size!");
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       vtable["copy-construct"_s](this->get(), other_storage.get());
     }
-    else // OtherStorage initialized with a rvalue
+    else // other_storage initialized with a rvalue
     {
       vtable["move-construct"_s](this->get(), other_storage.get());
     }
