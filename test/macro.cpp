@@ -61,7 +61,7 @@ struct CountedConstruction
 
 struct Model3 : CountedConstruction
 {
-  char additionalSize[4];
+  char additionalSize[40]; // useful for local_storage tests
 
   int f1(int) const { return 91; }
   char f2(std::pair<long, double>) const { return '3'; }
@@ -73,6 +73,7 @@ void shared_remote_storage_tests();
 void local_storage_tests();
 void sbo_storage_tests();
 void non_owning_storage_tests();
+void remote_storage_convertion_tests();
 void local_storage_convertion_tests();
 
 int main() {
@@ -187,12 +188,28 @@ void non_owning_storage_tests()
   DYNO_CHECK(counter.check( ENoConstructorInvocation ));
 }
 
-void local_storage_convertion_tests()
+void remote_storage_convertion_tests()
 {
-  Concept<dyno::local_storage<4>> l1 = Model3{};
+  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = Model3{};
+  Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb2 = Model3{};
 
   counter.reset();
-  Concept<dyno::local_storage<8>> l2 = l1;
+  Concept<dyno::remote_storage> r1 = l1;
+  DYNO_CHECK(counter.check( ECopied ));
+
+  counter.reset();
+  r1 = std::move(l1);
+  DYNO_CHECK(counter.check( EMoved ));
+}
+
+void local_storage_convertion_tests()
+{
+  constexpr auto model_size = sizeof(Model3);
+  Concept<dyno::local_storage<model_size>> l1 = Model3{};
+
+  counter.reset();
+  Concept<dyno::local_storage<model_size * 2>> l2 = l1;
   DYNO_CHECK(counter.check( ECopied ));
 
   counter.reset();
@@ -205,7 +222,6 @@ void local_storage_convertion_tests()
 
   Concept<dyno::remote_storage> r1 = Model3{};
   counter.reset();
-  Concept<dyno::local_storage<20>> l3 = r1;
+  Concept<dyno::local_storage<model_size>> l3 = r1;
   DYNO_CHECK(counter.check( ECopied ));
-
 }
