@@ -101,7 +101,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                                                      \
@@ -170,7 +170,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -272,7 +272,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -407,7 +407,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -575,7 +575,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -776,7 +776,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -1010,7 +1010,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -1277,7 +1277,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -1577,7 +1577,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -1910,7 +1910,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -2276,7 +2276,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -2675,7 +2675,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -3107,7 +3107,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -3572,7 +3572,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -4070,7 +4070,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -4601,7 +4601,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -5165,7 +5165,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -5762,7 +5762,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -6392,7 +6392,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -7055,7 +7055,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
@@ -7751,7 +7751,7 @@ template< typename StorageType = dyno::remote_storage>                        \
     name& operator=(T&& x)                                                    \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));       \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
     }                                                                         \
                                                                               \
                                         \
