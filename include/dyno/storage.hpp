@@ -432,8 +432,8 @@ public:
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
     if constexpr( true )
     {
-      static_assert(is_a_local_storage<RawOtherStorage>{},
-                    "only local storage conversion is supported yet!");
+//      static_assert(is_a_local_storage<RawOtherStorage>{},
+//                    "only local storage conversion is supported yet!");
       static_assert(other_storage.requested_size <= requested_size,
                     "local_storage can only be created from a local_storage of the same, or smaller size!");
       if constexpr( std::is_lvalue_reference_v<OtherStorage> )
