@@ -300,20 +300,24 @@ public:
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    if constexpr( true )
+    if constexpr(is_a_local_storage<RawOtherStorage>{})
     {
-      static_assert(is_a_local_storage<RawOtherStorage>{},
-                    "only local storage conversion is supported yet!");
       static_assert(other_storage.requested_size <= requested_size,
                     "local_storage can only be created from a local_storage of the same, or smaller size!");
-      if constexpr( std::is_lvalue_reference_v<OtherStorage> )
-      {
-        vtable["copy-construct"_s](this->get(), other_storage.get());
-      }
-      else // other_storage initialized with a rvalue
-      {
-        vtable["move-construct"_s](this->get(), other_storage.get());
-      }
+    }
+    else
+    {
+      assert(can_store(vtable["storage_info"_s]()) &&
+        "dyno::local_storage: Trying to construct using a vtable that "
+        "describes an object that won't fit in the storage.");
+    }
+    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+    {
+      vtable["copy-construct"_s](this->get(), other_storage.get());
+    }
+    else // other_storage initialized with an rvalue
+    {
+      vtable["move-construct"_s](this->get(), other_storage.get());
     }
   }
 
