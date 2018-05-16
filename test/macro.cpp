@@ -94,6 +94,7 @@ int main() {
   local_storage_tests();
   sbo_storage_tests();
   non_owning_storage_tests();
+  remote_storage_convertion_tests();
   local_storage_convertion_tests();
 }
 
@@ -191,8 +192,8 @@ void non_owning_storage_tests()
 void remote_storage_convertion_tests()
 {
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
-  Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = Model3{};
-  Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb2 = Model3{};
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_local = Model3{};
+  Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_remote = Model3{};
 
   counter.reset();
   Concept<dyno::remote_storage> r1 = l1;
@@ -201,6 +202,10 @@ void remote_storage_convertion_tests()
   counter.reset();
   r1 = std::move(l1);
   DYNO_CHECK(counter.check( EMoved ));
+
+  counter.reset();
+  r1 = sb1_local;
+  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
 }
 
 void local_storage_convertion_tests()
