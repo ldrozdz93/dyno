@@ -188,8 +188,17 @@ void non_owning_storage_tests()
 void mixed_convertion_storage_tests()
 {
   Concept<dyno::local_storage<4>> l1 = Model3{};
+
   counter.reset();
-  Concept<dyno::local_storage<8>> r1 = std::move(l1);
+  Concept<dyno::local_storage<8>> l2 = l1;
+  DYNO_CHECK(counter.check( ECopied ));
+
+  counter.reset();
+  l2 = l1;
+  DYNO_CHECK(counter.check( ECopied ));
+
+  counter.reset();
+  l2 = std::move(l1);
   DYNO_CHECK(counter.check( EMoved ));
-  DYNO_CHECK(r1.f1(int{}) == 91);
+
 }
