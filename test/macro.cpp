@@ -71,7 +71,7 @@ void shared_remote_storage_tests();
 void local_storage_tests();
 void sbo_storage_tests();
 void non_owning_storage_tests();
-void mixed_convertion_storage_tests();
+void local_storage_convertion_tests();
 
 int main() {
   Model1 m1{};
@@ -91,7 +91,7 @@ int main() {
   local_storage_tests();
   sbo_storage_tests();
   non_owning_storage_tests();
-  mixed_convertion_storage_tests();
+  local_storage_convertion_tests();
 }
 
 void remote_storage_tests()
@@ -185,7 +185,7 @@ void non_owning_storage_tests()
   DYNO_CHECK(counter.check( ENoConstructorInvocation ));
 }
 
-void mixed_convertion_storage_tests()
+void local_storage_convertion_tests()
 {
   Concept<dyno::local_storage<4>> l1 = Model3{};
 
@@ -200,5 +200,4 @@ void mixed_convertion_storage_tests()
   counter.reset();
   l2 = std::move(l1);
   DYNO_CHECK(counter.check( EMoved ));
-
 }
