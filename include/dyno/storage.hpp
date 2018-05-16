@@ -88,6 +88,13 @@ namespace dyno {
 //  Semantics: Return whether the polymorphic storage can store an object with
 //             the specified type information.
 
+namespace detail
+{
+template< std::size_t, std::size_t > class local_storage;
+template< typename > struct is_a_local_storage : std::false_type {};
+template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage<local_storage<sz1, sz2> > : std::true_type {};
+}
+
 // Class implementing the small buffer optimization (SBO).
 //
 // This class represents a value of an unknown type that is stored either on
@@ -423,16 +430,20 @@ public:
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    static_assert(is_a_local_storage<RawOtherStorage>{}, "only local storage conversion is supported yet!");
-    static_assert(other_storage.requested_size <= requested_size,
-                  "local_storage can only be created from a local_storage of the same, or smaller size!");
-    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+    if constexpr( true )
     {
-      vtable["copy-construct"_s](this->get(), other_storage.get());
-    }
-    else // other_storage initialized with a rvalue
-    {
-      vtable["move-construct"_s](this->get(), other_storage.get());
+      static_assert(is_a_local_storage<RawOtherStorage>{},
+                    "only local storage conversion is supported yet!");
+      static_assert(other_storage.requested_size <= requested_size,
+                    "local_storage can only be created from a local_storage of the same, or smaller size!");
+      if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+      {
+        vtable["copy-construct"_s](this->get(), other_storage.get());
+      }
+      else // other_storage initialized with a rvalue
+      {
+        vtable["move-construct"_s](this->get(), other_storage.get());
+      }
     }
   }
 

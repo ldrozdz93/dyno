@@ -89,8 +89,8 @@ private:
 
   }
 
-  template <typename OtherVTable, typename OtherStorage, typename RawT = std::decay_t<T>, typename AdditionalT /*TODO: find a better way to overload constructor*/>
-  poly(OtherVTable&& vtable, OtherStorage&& storage, AdditionalT&&)
+  template <typename OtherVTable, typename OtherStorage, typename RawT = std::decay_t<T>, typename TagT /*TODO: find a better way to overload constructor*/>
+  poly(OtherVTable&& vtable, OtherStorage&& storage, TagT&&)
     : vtable_{std::forward<OtherVTable>(vtable)}
     , storage_{std::forward<OtherStorage>(storage), vtable_}
   { }
