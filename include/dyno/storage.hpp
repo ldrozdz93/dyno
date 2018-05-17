@@ -414,23 +414,16 @@ class remote_storage {
 public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
-//    if constexpr( is_a_sbo_storage<RawOtherStorage>{} )
-//    {
-//      if( other_storage.uses_heap() )
-//      {
-//        if constexpr( std::is_lvalue_reference_v<OtherStorage> )
-//        {
-//          construct_with_vtable(std::forward<OtherStorage>(other_storage), vtable);
-//        }
-//        else // other_storage initialized with an rvalue
-//        {
-//            ptr_ = other_storage.get();
-//            other_storage.get() = nullptr;
-//        }
-//      }
-//      else
-//    }
-//    else
+    if constexpr( is_a_sbo_storage<RawOtherStorage>{} &&
+                  !std::is_lvalue_reference_v<OtherStorage>)
+    {
+      if( other_storage.uses_heap() )
+      {
+        ptr_ = other_storage.get();
+        other_storage.get() = nullptr;
+        return;
+      }
+    }
 
     construct_with_vtable(std::forward<OtherStorage>(other_storage), vtable);
   }
