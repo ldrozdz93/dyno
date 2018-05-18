@@ -219,27 +219,33 @@ void remote_storage_convertion_tests()
   counter.reset();
   r1 = sr1;
   DYNO_CHECK(counter.check( ECopied ));
+
+// TODO: find a better way to test this...
+// r1 = std::move(sr1); // moving shared_remote_storage -> remote_storage should't compile!
 }
 
 void local_storage_convertion_tests()
 {
   constexpr auto model_size = sizeof(Model3);
   Concept<dyno::local_storage<model_size>> l1 = Model3{};
+  Concept<dyno::remote_storage> r1 = Model3{};
 
   counter.reset();
-  Concept<dyno::local_storage<model_size * 2>> l2 = l1;
+  Concept<dyno::local_storage<model_size * 2>> l_big = l1;
   DYNO_CHECK(counter.check( ECopied ));
 
   counter.reset();
-  l2 = l1;
+  l_big = l1;
   DYNO_CHECK(counter.check( ECopied ));
 
   counter.reset();
-  l2 = std::move(l1);
+  l_big = std::move(l1);
   DYNO_CHECK(counter.check( EMoved ));
 
-  Concept<dyno::remote_storage> r1 = Model3{};
+// TODO: find a better way to test this...
+// l1 = l_big; // constructing a local_storage from a bigger local_storage should't compile!
+
   counter.reset();
-  Concept<dyno::local_storage<model_size>> l3 = r1;
+  l1 = r1;
   DYNO_CHECK(counter.check( ECopied ));
 }

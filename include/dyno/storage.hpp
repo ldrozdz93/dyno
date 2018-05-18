@@ -99,8 +99,9 @@ template< typename > struct is_a_local_storage_t : std::false_type {};
 template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage_t<local_storage<sz1, sz2> > : std::true_type {};
 template< typename T > inline constexpr auto is_a_local_storage_v = is_a_local_storage_t<T>{};
 
-template< typename > struct is_a_sbo_storage : std::false_type {};
-template< std::size_t sz1, std::size_t sz2 > struct is_a_sbo_storage<sbo_storage<sz1, sz2> > : std::true_type {};
+template< typename > struct is_a_sbo_storage_t : std::false_type {};
+template< std::size_t sz1, std::size_t sz2 > struct is_a_sbo_storage_t<sbo_storage<sz1, sz2> > : std::true_type {};
+template< typename T > inline constexpr auto is_a_sbo_storage_v = is_a_sbo_storage_t<T>{};
 
 template< typename T > inline constexpr auto is_a_remote_storage_v = std::is_same_v<T, remote_storage>;
 template< typename T > inline constexpr auto is_a_shared_remote_storage_v = std::is_same_v<T, shared_remote_storage>;
@@ -420,7 +421,7 @@ class remote_storage {
 public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    if constexpr( detail::is_a_sbo_storage<RawOtherStorage>{} &&
+    if constexpr( detail::is_a_sbo_storage_v<RawOtherStorage> &&
                   !std::is_lvalue_reference_v<OtherStorage>)
     {
       if( other_storage.uses_heap() )
@@ -430,6 +431,10 @@ public:
         return;
       }
     }
+    static_assert(not (detail::is_a_shared_remote_storage_v<RawOtherStorage> &&
+                       !std::is_lvalue_reference_v<OtherStorage>),
+                  "Can't move from a shared_remote_storage into a plain remote_storage. "
+                  "It would violate shared ownership!");
 
     construct_with_vtable(std::forward<OtherStorage>(other_storage), vtable);
   }
