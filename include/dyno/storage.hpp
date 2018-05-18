@@ -528,13 +528,37 @@ struct shared_remote_storage {
     };
   }
 
+  template< typename VTable >
+  void* allocate_ptr_(VTable const& vtable)
+  {
+    void* ptr = std::malloc(vtable["storage_info"_s]().size);
+    // TODO: That's not a really nice way to handle this
+    assert(ptr != nullptr && "std::malloc failed, we're doomed");
+    return ptr;
+  }
+
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  void* get_storage(OtherStorage&& other_storage, VTable const& vtable)
+  {
+    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+    {
+      void* ptr = allocate_ptr_(vtable);
+      vtable["copy-construct"_s](ptr, other_storage.get());
+      return ptr;
+    }
+    else // other_storage initialized with an rvalue
+    {
+      void* ptr = other_storage.ptr_;
+      other_storage.ptr_ = nullptr;
+      return ptr;
+    }
+  }
+
   // TODO: implement convertion constructor
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit shared_remote_storage(OtherStorage&& other_storage, VTable const& vtable)
-    :  ptr_{other_storage.ptr_, deleter_for_vtable(vtable)}
-  {
-    other_storage.ptr_ = nullptr;
-  }
+    :  ptr_{get_storage(std::forward<OtherStorage>(other_storage), vtable), deleter_for_vtable(vtable)}
+  { }
 
   template <typename T, typename RawT = std::decay_t<T>>
   explicit shared_remote_storage(T&& t)
