@@ -280,6 +280,21 @@ void shared_remote_storage_convertion_tests()
   {
     sr1 = std::move(l1);
   }));
+
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    sr1 = sb1_stack;
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    sr1 = std::move(sb1_stack);
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EOnlyBufferPointerMoved, [&]
+  {
+    sr1 = std::move(sb1_heap);
+  }));
 }
 
 void local_storage_convertion_tests()

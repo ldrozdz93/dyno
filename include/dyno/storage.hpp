@@ -120,6 +120,7 @@ template< typename T > inline constexpr auto is_a_shared_remote_storage_v = std:
 template <std::size_t Size, std::size_t Align = -1u>
 class sbo_storage {
   friend class remote_storage;
+  friend struct shared_remote_storage;
 
   static constexpr std::size_t SBSize = Size < sizeof(void*) ? sizeof(void*) : Size;
   static constexpr std::size_t SBAlign = Align == -1u ? alignof(std::aligned_storage_t<SBSize>) : Align;
@@ -540,15 +541,24 @@ struct shared_remote_storage {
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   void* get_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
-    if constexpr( detail::is_a_remote_storage_v<RawOtherStorage> &&
-                  !std::is_lvalue_reference_v<OtherStorage>)
+    if constexpr( !std::is_lvalue_reference_v<OtherStorage> &&
+                  (detail::is_a_remote_storage_v<RawOtherStorage> || detail::is_a_sbo_storage_v<RawOtherStorage>))
     {
-      void* ptr = other_storage.ptr_;
-      other_storage.ptr_ = nullptr;
-      return ptr;
+      bool shouldMove = true;
+      if constexpr( detail::is_a_sbo_storage_v<RawOtherStorage> )
+      {
+        shouldMove = other_storage.uses_heap();
+      }
+
+      if( shouldMove )
+      {
+          void* ptr = other_storage.ptr_;
+          other_storage.ptr_ = nullptr;
+          return ptr;
+      }
     }
 
-    else if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       void* ptr = allocate_ptr_(vtable);
       vtable["copy-construct"_s](ptr, other_storage.get());
