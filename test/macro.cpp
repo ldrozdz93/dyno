@@ -36,7 +36,7 @@ enum
   ECopied = 1 << 4,
   EMoved = 1 << 8
 };
-constexpr auto EOnlyBufferMoved = ENoConstructorInvocation;
+constexpr auto EOnlyBufferPointerMoved = ENoConstructorInvocation;
 constexpr auto ESharedPointerCopied = ENoConstructorInvocation;
 
 struct ConstructorCounter
@@ -110,7 +110,7 @@ void remote_storage_tests()
 
   counter.reset();
   Concept<dyno::remote_storage> r3 = std::move(r2);
-  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
+  DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
 
   Model3 m3{};
   counter.reset();
@@ -127,7 +127,7 @@ void remote_storage_tests()
 
   counter.reset();
   r3 = std::move(r2);
-  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
+  DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
 }
 
 void shared_remote_storage_tests()
@@ -159,7 +159,7 @@ void sbo_storage_tests()
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = BigModel{};
   counter.reset();
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb2 = std::move(sb1);
-  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
+  DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
 
 
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb3 = Model3{};
@@ -213,7 +213,7 @@ void remote_storage_convertion_tests()
 
   counter.reset();
   r1 = std::move(sb1_heap);
-  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
+  DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
 }
 
 void local_storage_convertion_tests()
