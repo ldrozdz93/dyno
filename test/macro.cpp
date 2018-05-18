@@ -68,12 +68,13 @@ struct Model3 : CountedConstruction
   std::tuple<int, char> f3(std::string const&) { return {91, '3'}; }
 };
 
-void remote_storage_tests();
-void shared_remote_storage_tests();
-void local_storage_tests();
-void sbo_storage_tests();
-void non_owning_storage_tests();
+void remote_storage_simple_construction_tests();
+void shared_remote_storage_simple_construction_tests();
+void local_storage_simple_construction_tests();
+void sbo_storage_simple_construction_tests();
+void non_owning_storage_simple_construction_tests();
 void remote_storage_convertion_tests();
+void shared_remote_storage_convertion_tests();
 void local_storage_convertion_tests();
 
 int main() {
@@ -89,16 +90,16 @@ int main() {
   DYNO_CHECK(c2.f2(std::pair<long, double>{}) == '3');
   DYNO_CHECK(c2.f3(std::string{}) == std::make_tuple(91, '3'));
 
-  remote_storage_tests();
-  shared_remote_storage_tests();
-  local_storage_tests();
-  sbo_storage_tests();
-  non_owning_storage_tests();
+  remote_storage_simple_construction_tests();
+  shared_remote_storage_simple_construction_tests();
+  local_storage_simple_construction_tests();
+  sbo_storage_simple_construction_tests();
+  non_owning_storage_simple_construction_tests();
   remote_storage_convertion_tests();
   local_storage_convertion_tests();
 }
 
-void remote_storage_tests()
+void remote_storage_simple_construction_tests()
 {
   counter.reset();
   Concept<dyno::remote_storage> r1 = Model3{};
@@ -130,7 +131,7 @@ void remote_storage_tests()
   DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
 }
 
-void shared_remote_storage_tests()
+void shared_remote_storage_simple_construction_tests()
 {
   Concept<dyno::shared_remote_storage> s1 = Model3{};
   counter.reset();
@@ -142,7 +143,7 @@ void shared_remote_storage_tests()
   DYNO_CHECK(counter.check( ESharedPointerCopied ));
 }
 
-void local_storage_tests()
+void local_storage_simple_construction_tests()
 {
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
   counter.reset();
@@ -150,7 +151,7 @@ void local_storage_tests()
   DYNO_CHECK(counter.check( EMoved ));
 }
 
-void sbo_storage_tests()
+void sbo_storage_simple_construction_tests()
 {
   struct BigModel : Model3
   {
@@ -178,7 +179,7 @@ void sbo_storage_tests()
   DYNO_CHECK(counter.check( EMoved ));
 }
 
-void non_owning_storage_tests()
+void non_owning_storage_simple_construction_tests()
 {
   Model3 m1{};
   counter.reset();
