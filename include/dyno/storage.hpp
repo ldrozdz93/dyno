@@ -88,11 +88,22 @@ namespace dyno {
 //  Semantics: Return whether the polymorphic storage can store an object with
 //             the specified type information.
 
+template< std::size_t, std::size_t > class local_storage;
+template< std::size_t sz1, std::size_t sz2 > class sbo_storage;
+struct shared_remote_storage;
+class remote_storage;
+
 namespace detail
 {
-template< std::size_t, std::size_t > class local_storage;
-template< typename > struct is_a_local_storage : std::false_type {};
-template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage<local_storage<sz1, sz2> > : std::true_type {};
+template< typename > struct is_a_local_storage_t : std::false_type {};
+template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage_t<local_storage<sz1, sz2> > : std::true_type {};
+template< typename T > inline constexpr auto is_a_local_storage_v = is_a_local_storage_t<T>{};
+
+template< typename > struct is_a_sbo_storage : std::false_type {};
+template< std::size_t sz1, std::size_t sz2 > struct is_a_sbo_storage<sbo_storage<sz1, sz2> > : std::true_type {};
+
+template< typename T > inline constexpr auto is_a_remote_storage_v = std::is_same_v<T, remote_storage>;
+template< typename T > inline constexpr auto is_a_shared_remote_storage_v = std::is_same_v<T, shared_remote_storage>;
 }
 
 // Class implementing the small buffer optimization (SBO).
@@ -263,11 +274,6 @@ private:
 template <std::size_t Size, std::size_t Align = static_cast<std::size_t>(-1)>
 class local_storage {
   template< std::size_t, std::size_t > friend class local_storage;
-  template< typename > struct is_a_local_storage : std::false_type {};
-  template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage<local_storage<sz1, sz2> > : std::true_type {};
-//  template< typename > struct is_a_remote_storage : std::false_type {};
-//  template< > struct is_a_remote_storage<remote_storage > : std::true_type {};
-
   static constexpr std::size_t SBAlign = Align == static_cast<std::size_t>(-1)
                                             ? alignof(std::aligned_storage_t<Size>)
                                             : Align;
@@ -299,7 +305,7 @@ public:
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    if constexpr(is_a_local_storage<RawOtherStorage>{})
+    if constexpr(detail::is_a_local_storage_v<RawOtherStorage>)
     {
       static_assert(sizeof(other_storage.buffer_) <= sizeof(SBStorage),
                     "local_storage can only be created from a local_storage of the same, or smaller size!");
@@ -379,8 +385,6 @@ public:
 class remote_storage {
   // TODO: change access specifiers
   template< std::size_t, std::size_t > friend class sbo_storage;
-  template< typename > struct is_a_sbo_storage : std::false_type {};
-  template< std::size_t sz1, std::size_t sz2 > struct is_a_sbo_storage<sbo_storage<sz1, sz2> > : std::true_type {};
 
   remote_storage() = delete;
   remote_storage(remote_storage const&) = delete;
@@ -414,7 +418,7 @@ class remote_storage {
 public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    if constexpr( is_a_sbo_storage<RawOtherStorage>{} &&
+    if constexpr( detail::is_a_sbo_storage<RawOtherStorage>{} &&
                   !std::is_lvalue_reference_v<OtherStorage>)
     {
       if( other_storage.uses_heap() )

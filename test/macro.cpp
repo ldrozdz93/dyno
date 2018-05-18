@@ -18,7 +18,7 @@ DYNO_INTERFACE(Concept,
 );
 
 struct Model1 {
-  int f1(int) const { return 1; }
+  int f1(int) const  { return 1; }
   char f2(std::pair<long, double>) const { return '2'; }
   std::tuple<int, char> f3(std::string const&) { return {1, '2'}; }
 };
@@ -63,7 +63,7 @@ struct Model3 : CountedConstruction
 {
   char additionalSize[40]; // useful for local_storage tests
 
-  int f1(int) const { return 91; }
+  int f1(int) const  { return 91; }
   char f2(std::pair<long, double>) const { return '3'; }
   std::tuple<int, char> f3(std::string const&) { return {91, '3'}; }
 };
