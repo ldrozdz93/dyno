@@ -266,10 +266,10 @@ void shared_remote_storage_convertion_tests()
     sr1 = l1;
   }));
 
-  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
-  {
-    sr1 = std::move(l1);
-  }));
+//  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+//  {
+//    sr1 = std::move(l1);
+//  }));
 
 }
 
