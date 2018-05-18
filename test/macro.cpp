@@ -261,10 +261,10 @@ void shared_remote_storage_convertion_tests()
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
 
-  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
-  {
-    sr1 = l1;
-  }));
+//  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+//  {
+//    sr1 = l1;
+//  }));
 
 //  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
 //  {
