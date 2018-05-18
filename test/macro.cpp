@@ -271,8 +271,16 @@ void shared_remote_storage_convertion_tests()
     sr1 = std::move(r1);
   }));
 
-}
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    sr1 = l1;
+  }));
 
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    sr1 = std::move(l1);
+  }));
+}
 
 void local_storage_convertion_tests()
 {

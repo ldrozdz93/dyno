@@ -540,7 +540,15 @@ struct shared_remote_storage {
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   void* get_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
-    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+    if constexpr( detail::is_a_remote_storage_v<RawOtherStorage> &&
+                  !std::is_lvalue_reference_v<OtherStorage>)
+    {
+      void* ptr = other_storage.ptr_;
+      other_storage.ptr_ = nullptr;
+      return ptr;
+    }
+
+    else if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       void* ptr = allocate_ptr_(vtable);
       vtable["copy-construct"_s](ptr, other_storage.get());
@@ -548,8 +556,8 @@ struct shared_remote_storage {
     }
     else // other_storage initialized with an rvalue
     {
-      void* ptr = other_storage.ptr_;
-      other_storage.ptr_ = nullptr;
+      void* ptr = allocate_ptr_(vtable);
+      vtable["move-construct"_s](ptr, other_storage.get());
       return ptr;
     }
   }
