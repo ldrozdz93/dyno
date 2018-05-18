@@ -388,6 +388,7 @@ public:
 class remote_storage {
   // TODO: change access specifiers
   template< std::size_t, std::size_t > friend class sbo_storage;
+  friend class shared_remote_storage;
 
   remote_storage() = delete;
   remote_storage(remote_storage const&) = delete;
@@ -517,11 +518,23 @@ struct shared_remote_storage {
   shared_remote_storage& operator=(shared_remote_storage&&) = delete;
   shared_remote_storage& operator=(shared_remote_storage const&) = delete;
 
-  // TODO: implement convertion constructor
-//  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
-//  explicit shared_remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
+  template< typename VTable >
+  auto deleter_for_vtable(VTable const& vtable)
+  {
+    return [vtable](void* ptr)
+    {
+      vtable["destruct"_s](ptr);
+      std::free(ptr);
+    };
+  }
 
-//  }
+  // TODO: implement convertion constructor
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  explicit shared_remote_storage(OtherStorage&& other_storage, VTable const& vtable)
+    :  ptr_{other_storage.ptr_, deleter_for_vtable(vtable)}
+  {
+    other_storage.ptr_ = nullptr;
+  }
 
   template <typename T, typename RawT = std::decay_t<T>>
   explicit shared_remote_storage(T&& t)
