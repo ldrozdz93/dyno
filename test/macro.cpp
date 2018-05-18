@@ -194,6 +194,7 @@ void remote_storage_convertion_tests()
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
+  Concept<dyno::shared_remote_storage> sr1 = Model3{};
 
   counter.reset();
   Concept<dyno::remote_storage> r1 = l1;
@@ -214,6 +215,10 @@ void remote_storage_convertion_tests()
   counter.reset();
   r1 = std::move(sb1_heap);
   DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
+
+  counter.reset();
+  r1 = sr1;
+  DYNO_CHECK(counter.check( ECopied ));
 }
 
 void local_storage_convertion_tests()
