@@ -96,6 +96,7 @@ int main() {
   sbo_storage_simple_construction_tests();
   non_owning_storage_simple_construction_tests();
   remote_storage_convertion_tests();
+  shared_remote_storage_convertion_tests();
   local_storage_convertion_tests();
 }
 
@@ -223,6 +224,18 @@ void remote_storage_convertion_tests()
 
 // TODO: find a better way to test this...
 // r1 = std::move(sr1); // moving shared_remote_storage -> remote_storage should't compile!
+}
+
+void shared_remote_storage_convertion_tests()
+{
+  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
+  Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
+  Concept<dyno::remote_storage> r1 = Model3{};
+
+  counter.reset();
+//  Concept<dyno::shared_remote_storage> sr1 = l1;
+//  DYNO_CHECK(counter.check( ECopied ));
 }
 
 void local_storage_convertion_tests()
