@@ -541,23 +541,6 @@ struct shared_remote_storage {
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   void* get_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
-    if constexpr( !std::is_lvalue_reference_v<OtherStorage> &&
-                  (detail::is_a_remote_storage_v<RawOtherStorage> || detail::is_a_sbo_storage_v<RawOtherStorage>))
-    {
-      bool shouldMove = true;
-      if constexpr( detail::is_a_sbo_storage_v<RawOtherStorage> )
-      {
-        shouldMove = other_storage.uses_heap();
-      }
-
-      if( shouldMove )
-      {
-          void* ptr = other_storage.ptr_;
-          other_storage.ptr_ = nullptr;
-          return ptr;
-      }
-    }
-
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       void* ptr = allocate_ptr_(vtable);
@@ -566,6 +549,21 @@ struct shared_remote_storage {
     }
     else // other_storage initialized with an rvalue
     {
+      [[maybe_unused]] auto steal_buffer_from = [](auto&& other_storage)
+      {
+        void* ptr = other_storage.ptr_;
+        other_storage.ptr_ = nullptr;
+        return ptr;
+      };
+
+      if constexpr( detail::is_a_remote_storage_v<RawOtherStorage> )
+        return steal_buffer_from(other_storage);
+
+      else if constexpr( detail::is_a_sbo_storage_v<RawOtherStorage> )
+      {
+        if( other_storage.uses_heap() ) return steal_buffer_from(other_storage);
+      }
+
       void* ptr = allocate_ptr_(vtable);
       vtable["move-construct"_s](ptr, other_storage.get());
       return ptr;
