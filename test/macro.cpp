@@ -33,30 +33,32 @@ enum
 {
   ENoConstructorInvocation = 0,
   EDefaultConstructed = 1,
-  ECopied = 1 << 4,
-  EMoved = 1 << 8
+  ECopiedWithVTable = 1 << 4,
+  EMovedWithVTable = 1 << 8
 };
 constexpr auto EOnlyBufferPointerMoved = ENoConstructorInvocation;
 constexpr auto ESharedPointerCopied = ENoConstructorInvocation;
 
-struct ConstructorCounter
+
+struct ConstructionCounter
 {
     uint32_t def = 0, copy = 0, move = 0 ;
-    void reset(){ *this = ConstructorCounter{}; }
+    void reset(){ *this = ConstructionCounter{}; }
     bool check(const uint32_t expected)
     {
       return expected == (def * EDefaultConstructed |
-                          copy * ECopied |
-                          move * EMoved);
+                          copy * ECopiedWithVTable |
+                          move * EMovedWithVTable);
     }
-} counter;
+};
 
 struct CountedConstruction
 {
-    CountedConstruction(){ counter.def++; }
-    CountedConstruction(const CountedConstruction&){ counter.copy++; }
-    CountedConstruction(CountedConstruction&&){ counter.move++; }
-    ~CountedConstruction() = default;
+  static inline ConstructionCounter counter{};
+  CountedConstruction(){ counter.def++; }
+  CountedConstruction(const CountedConstruction&){ counter.copy++; }
+  CountedConstruction(CountedConstruction&&){ counter.move++; }
+  ~CountedConstruction() = default;
 };
 
 struct Model3 : CountedConstruction
@@ -66,6 +68,13 @@ struct Model3 : CountedConstruction
   int f1(int) const  { return 91; }
   char f2(std::pair<long, double>) const { return '3'; }
   std::tuple<int, char> f3(std::string const&) { return {91, '3'}; }
+};
+
+auto expectModel3Constructor = [](const auto expected_result, auto&& test) -> bool
+{
+  CountedConstruction::counter.reset();
+  test();
+  return CountedConstruction::counter.check(expected_result);
 };
 
 void remote_storage_simple_construction_tests();
@@ -102,125 +111,143 @@ int main() {
 
 void remote_storage_simple_construction_tests()
 {
-  counter.reset();
   Concept<dyno::remote_storage> r1 = Model3{};
-  DYNO_CHECK(counter.check( EDefaultConstructed | EMoved ));
+  Concept<dyno::remote_storage> r2 = Model3{};
+  Model3 m1{};
 
-  counter.reset();
-  Concept<dyno::remote_storage> r2 = r1;
-  DYNO_CHECK(counter.check( ECopied ));
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EMovedWithVTable, [&]
+  {
+    r1 = Model3{};
+  }));
 
-  counter.reset();
-  Concept<dyno::remote_storage> r3 = std::move(r2);
-  DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    r1 = r2;
+  }));
 
-  Model3 m3{};
-  counter.reset();
-  r3 = m3;
-  DYNO_CHECK(counter.check( ECopied ));
+  DYNO_CHECK(expectModel3Constructor( EOnlyBufferPointerMoved, [&]
+  {
+    r1 = std::move(r2);
+  }));
 
-  counter.reset();
-  r3 = Model3{};
-  DYNO_CHECK(counter.check( EDefaultConstructed | EMoved ));
-
-  counter.reset();
-  r2 = r3;
-  DYNO_CHECK(counter.check( ECopied ));
-
-  counter.reset();
-  r3 = std::move(r2);
-  DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    r1 = m1;
+  }));
 }
 
 void shared_remote_storage_simple_construction_tests()
 {
   Concept<dyno::shared_remote_storage> s1 = Model3{};
-  counter.reset();
-  Concept<dyno::shared_remote_storage> s2 = s1;
-  DYNO_CHECK(counter.check( ESharedPointerCopied ));
 
-  counter.reset();
-  Concept<dyno::shared_remote_storage> s3 = std::move(s2);
-  DYNO_CHECK(counter.check( ESharedPointerCopied ));
+  DYNO_CHECK(expectModel3Constructor( ESharedPointerCopied, [&]
+  {
+    Concept<dyno::shared_remote_storage> s2 = s1;
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( ESharedPointerCopied, [&]
+  {
+    Concept<dyno::shared_remote_storage> s2 = std::move(s1);
+  }));
 }
 
 void local_storage_simple_construction_tests()
 {
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
-  counter.reset();
-  Concept<dyno::local_storage<sizeof(Model3)>> l2 = std::move(l1);
-  DYNO_CHECK(counter.check( EMoved ));
+
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    Concept<dyno::local_storage<sizeof(Model3)>> l2 = l1;
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    Concept<dyno::local_storage<sizeof(Model3)>> l2 = std::move(l1);
+  }));
 }
 
 void sbo_storage_simple_construction_tests()
 {
   struct BigModel : Model3
   {
-    char size[100];
+    char additional_size[100];
   };
-  Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = BigModel{};
-  counter.reset();
-  Concept<dyno::sbo_storage<sizeof(Model3)>> sb2 = std::move(sb1);
-  DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb = Model3{};
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb_heap = BigModel{};
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb_stack = Model3{};
 
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    sb = sb_heap;
+  }));
 
-  Concept<dyno::sbo_storage<sizeof(Model3)>> sb3 = Model3{};
-  counter.reset();
-  Concept<dyno::sbo_storage<sizeof(Model3)>> sb4 = std::move(sb3);
-  DYNO_CHECK(counter.check( EMoved ));
+  DYNO_CHECK(expectModel3Constructor( EOnlyBufferPointerMoved, [&]
+  {
+    sb = std::move(sb_heap);
+  }));
 
-  Concept<dyno::sbo_storage<sizeof(Model3)>> sb5 = BigModel{};
-  auto bm1 = BigModel{};
-  counter.reset();
-  sb5 = bm1;
-  DYNO_CHECK(counter.check( ECopied ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    sb = sb_stack;
+  }));
 
-  counter.reset();
-  sb5 = std::move(sb4);
-  DYNO_CHECK(counter.check( EMoved ));
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    sb = std::move(sb_stack);
+  }));
 }
 
 void non_owning_storage_simple_construction_tests()
 {
   Model3 m1{};
-  counter.reset();
-  Concept<dyno::non_owning_storage> n1 = m1;
-  Concept<dyno::non_owning_storage> n2 = n1;
-  n2 = n1;
-  n2 = m1;
-  DYNO_CHECK(counter.check( ENoConstructorInvocation ));
+
+  DYNO_CHECK(expectModel3Constructor( ENoConstructorInvocation, [&]
+  {
+    Concept<dyno::non_owning_storage> n1 = m1;
+    Concept<dyno::non_owning_storage> n2 = n1;
+    n2 = n1;
+    n2 = std::move(n1);
+    n2 = m1;
+  }));
 }
 
 void remote_storage_convertion_tests()
 {
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::remote_storage> r1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
   Concept<dyno::shared_remote_storage> sr1 = Model3{};
 
-  counter.reset();
-  Concept<dyno::remote_storage> r1 = l1;
-  DYNO_CHECK(counter.check( ECopied ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    r1 = l1;
+  }));
 
-  counter.reset();
-  r1 = std::move(l1);
-  DYNO_CHECK(counter.check( EMoved ));
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    r1 = std::move(l1);
+  }));
 
-  counter.reset();
-  r1 = sb1_stack;
-  DYNO_CHECK(counter.check( ECopied ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    r1 = sb1_stack;
+  }));
 
-  counter.reset();
-  r1 = std::move(sb1_stack);
-  DYNO_CHECK(counter.check( EMoved ));
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    r1 = std::move(sb1_stack);
+  }));
 
-  counter.reset();
-  r1 = std::move(sb1_heap);
-  DYNO_CHECK(counter.check( EOnlyBufferPointerMoved ));
+  DYNO_CHECK(expectModel3Constructor( EOnlyBufferPointerMoved, [&]
+  {
+    r1 = std::move(sb1_heap);
+  }));
 
-  counter.reset();
-  r1 = sr1;
-  DYNO_CHECK(counter.check( ECopied ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    r1 = sr1;
+  }));
 
 // TODO: find a better way to test this...
 // r1 = std::move(sr1); // moving shared_remote_storage -> remote_storage should't compile!
@@ -233,33 +260,38 @@ void shared_remote_storage_convertion_tests()
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
 
-  counter.reset();
 //  Concept<dyno::shared_remote_storage> sr1 = l1;
-//  DYNO_CHECK(counter.check( ECopied ));
+//  DYNO_CHECK(counter.check( ECopiedWithVTable ));
 }
+
 
 void local_storage_convertion_tests()
 {
   constexpr auto model_size = sizeof(Model3);
   Concept<dyno::local_storage<model_size>> l1 = Model3{};
+  Concept<dyno::local_storage<model_size * 2>> l_big = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
 
-  counter.reset();
-  Concept<dyno::local_storage<model_size * 2>> l_big = l1;
-  DYNO_CHECK(counter.check( ECopied ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    l_big = l1;
+  }));
 
-  counter.reset();
-  l_big = l1;
-  DYNO_CHECK(counter.check( ECopied ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    l_big = l1;
+  }));
 
-  counter.reset();
-  l_big = std::move(l1);
-  DYNO_CHECK(counter.check( EMoved ));
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    l_big = std::move(l1);
+  }));
 
 // TODO: find a better way to test this...
 // l1 = l_big; // constructing a local_storage from a bigger local_storage should't compile!
 
-  counter.reset();
-  l1 = r1;
-  DYNO_CHECK(counter.check( ECopied ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    l1 = r1;
+  }));
 }
