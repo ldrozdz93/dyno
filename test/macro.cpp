@@ -189,6 +189,8 @@ void non_owning_storage_tests()
   DYNO_CHECK(counter.check( ENoConstructorInvocation ));
 }
 
+
+
 void remote_storage_convertion_tests()
 {
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
