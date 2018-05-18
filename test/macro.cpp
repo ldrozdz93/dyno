@@ -189,8 +189,6 @@ void non_owning_storage_tests()
   DYNO_CHECK(counter.check( ENoConstructorInvocation ));
 }
 
-
-
 void remote_storage_convertion_tests()
 {
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
@@ -208,6 +206,14 @@ void remote_storage_convertion_tests()
   counter.reset();
   r1 = sb1_stack;
   DYNO_CHECK(counter.check( ECopied ));
+
+  counter.reset();
+  r1 = std::move(sb1_stack);
+  DYNO_CHECK(counter.check( EMoved ));
+
+  counter.reset();
+  r1 = std::move(sb1_heap);
+  DYNO_CHECK(counter.check( EOnlyBufferMoved ));
 }
 
 void local_storage_convertion_tests()

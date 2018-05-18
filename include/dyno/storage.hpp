@@ -118,6 +118,8 @@ template< typename T > inline constexpr auto is_a_shared_remote_storage_v = std:
 //         `uses_heap_`.
 template <std::size_t Size, std::size_t Align = -1u>
 class sbo_storage {
+  friend class remote_storage;
+
   static constexpr std::size_t SBSize = Size < sizeof(void*) ? sizeof(void*) : Size;
   static constexpr std::size_t SBAlign = Align == -1u ? alignof(std::aligned_storage_t<SBSize>) : Align;
   using SBStorage = std::aligned_storage_t<SBSize, SBAlign>;
@@ -423,8 +425,8 @@ public:
     {
       if( other_storage.uses_heap() )
       {
-        ptr_ = other_storage.get();
-        other_storage.get() = nullptr;
+        ptr_ = other_storage.ptr_;
+        other_storage.ptr_ = nullptr;
         return;
       }
     }
