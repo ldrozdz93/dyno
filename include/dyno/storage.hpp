@@ -419,7 +419,7 @@ public:
     {
       static_assert(!detail::is_a_shared_remote_storage_v<RawOtherStorage>,
                     "Can't move from a shared_remote_storage into a plain remote_storage. "
-                    "It would violate shared ownership!");
+                    "It would violate the shared ownership!");
       if constexpr( detail::is_a_sbo_storage_v<RawOtherStorage> )
       {
         if( other_storage.uses_heap() )
