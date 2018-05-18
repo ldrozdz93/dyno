@@ -405,9 +405,11 @@ class remote_storage {
     assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
   }
 
-  template< typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage > >
-  void construct_with_vtable(OtherStorage&& other_storage, VTable const& vtable)
-  {
+public:
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
+
+
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       allocate_ptr_(vtable);
@@ -415,30 +417,22 @@ class remote_storage {
     }
     else // other_storage initialized with an rvalue
     {
+      static_assert(!detail::is_a_shared_remote_storage_v<RawOtherStorage>,
+                    "Can't move from a shared_remote_storage into a plain remote_storage. "
+                    "It would violate shared ownership!");
+      if constexpr( detail::is_a_sbo_storage_v<RawOtherStorage> )
+      {
+        if( other_storage.uses_heap() )
+        {
+          ptr_ = other_storage.ptr_;
+          other_storage.ptr_ = nullptr;
+          return;
+        }
+      }
+
       allocate_ptr_(vtable);
       vtable["move-construct"_s](this->get(), other_storage.get());
     }
-  }
-
-public:
-  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
-  explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    if constexpr( detail::is_a_sbo_storage_v<RawOtherStorage> &&
-                  !std::is_lvalue_reference_v<OtherStorage>)
-    {
-      if( other_storage.uses_heap() )
-      {
-        ptr_ = other_storage.ptr_;
-        other_storage.ptr_ = nullptr;
-        return;
-      }
-    }
-    static_assert(not (detail::is_a_shared_remote_storage_v<RawOtherStorage> &&
-                       !std::is_lvalue_reference_v<OtherStorage>),
-                  "Can't move from a shared_remote_storage into a plain remote_storage. "
-                  "It would violate shared ownership!");
-
-    construct_with_vtable(std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename T, typename RawT = std::decay_t<T>>
