@@ -213,8 +213,8 @@ void non_owning_storage_simple_construction_tests()
 
 void remote_storage_convertion_tests()
 {
-  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
+  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
   Concept<dyno::shared_remote_storage> sr1 = Model3{};
@@ -255,13 +255,22 @@ void remote_storage_convertion_tests()
 
 void shared_remote_storage_convertion_tests()
 {
+  Concept<dyno::shared_remote_storage> sr1 = Model3{};
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
 
-//  Concept<dyno::shared_remote_storage> sr1 = l1;
-//  DYNO_CHECK(counter.check( ECopiedWithVTable ));
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    sr1 = l1;
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    sr1 = std::move(l1);
+  }));
+
 }
 
 
