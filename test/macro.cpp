@@ -291,6 +291,11 @@ void shared_remote_storage_convertion_tests()
   {
     sr1 = std::move(sb1_stack);
   }));
+
+  DYNO_CHECK(expectModel3Constructor( EOnlyBufferPointerMoved, [&]
+  {
+    sr1 = std::move(sb1_heap);
+  }));
 }
 
 void local_storage_convertion_tests()
@@ -339,6 +344,5 @@ void non_owning_storage_convertion_tests()
     n1 = l1;
     n1 = sb1;
     n1 = r1;
-    n1 = std::move(r1);
   }));
 }
