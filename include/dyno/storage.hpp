@@ -627,6 +627,14 @@ struct non_owning_storage {
   non_owning_storage& operator=(non_owning_storage&&) = delete;
   non_owning_storage& operator=(non_owning_storage const&) = delete;
 
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  non_owning_storage(OtherStorage&& other_storage, VTable const&)
+    : ptr_{other_storage.get()}
+  {
+    static_assert(std::is_lvalue_reference_v<OtherStorage>,
+                  "non_owning_storage can't be created from an rvalue storage!");
+  }
+
   template <typename T>
   explicit non_owning_storage(T& t)
     : ptr_{&t}
