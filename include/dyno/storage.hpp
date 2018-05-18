@@ -517,6 +517,12 @@ struct shared_remote_storage {
   shared_remote_storage& operator=(shared_remote_storage&&) = delete;
   shared_remote_storage& operator=(shared_remote_storage const&) = delete;
 
+  // TODO: implement convertion constructor
+//  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+//  explicit shared_remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
+
+//  }
+
   template <typename T, typename RawT = std::decay_t<T>>
   explicit shared_remote_storage(T&& t)
     : ptr_{std::make_shared<RawT>(std::forward<T>(t))}
