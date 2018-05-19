@@ -103,19 +103,19 @@ template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage_t<local_s
 template< typename > struct is_a_sbo_storage_t : std::false_type {};
 template< std::size_t sz1, std::size_t sz2 > struct is_a_sbo_storage_t<sbo_storage<sz1, sz2> > : std::true_type {};
 
-template< typename T > inline constexpr auto is_a_local_storage_v = is_a_local_storage_t<T>{};
-template< typename T > inline constexpr auto is_a_sbo_storage_v = is_a_sbo_storage_t<T>{};
-template< typename T > inline constexpr auto is_a_remote_storage_v = std::is_same_v<T, remote_storage>;
-template< typename T > inline constexpr auto is_a_shared_remote_storage_v = std::is_same_v<T, shared_remote_storage>;
-template< typename T > inline constexpr auto is_a_non_owning_storage_v = std::is_same_v<T, non_owning_storage>;
+template< typename T > inline constexpr auto is_a_local_storage = is_a_local_storage_t<T>{};
+template< typename T > inline constexpr auto is_a_sbo_storage = is_a_sbo_storage_t<T>{};
+template< typename T > inline constexpr auto is_a_remote_storage = std::is_same_v<T, remote_storage>;
+template< typename T > inline constexpr auto is_a_shared_remote_storage = std::is_same_v<T, shared_remote_storage>;
+template< typename T > inline constexpr auto is_a_non_owning_storage = std::is_same_v<T, non_owning_storage>;
 
 template< typename T >
 constexpr void static_assert_storage_is_supported()
 {
-  static_assert(   is_a_local_storage_v<T>
-                || is_a_sbo_storage_v<T>
-                || is_a_remote_storage_v<T>
-                || is_a_shared_remote_storage_v<T>
+  static_assert(   is_a_local_storage<T>
+                || is_a_sbo_storage<T>
+                || is_a_remote_storage<T>
+                || is_a_shared_remote_storage<T>
                 ,"Trying to create a storage using an unsupported other_storage!");
 }
 } // namespace detail
@@ -324,7 +324,7 @@ public:
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
     detail::static_assert_storage_is_supported<RawOtherStorage>();
 
-    if constexpr(detail::is_a_local_storage_v<RawOtherStorage>)
+    if constexpr(detail::is_a_local_storage<RawOtherStorage>)
     {
       static_assert(sizeof(other_storage.buffer_) <= sizeof(SBStorage),
                     "local_storage can only be created from a local_storage of the same, or smaller size!");
@@ -432,10 +432,10 @@ public:
     }
     else // other_storage initialized with an rvalue
     {
-      static_assert(!detail::is_a_shared_remote_storage_v<RawOtherStorage>,
+      static_assert(!detail::is_a_shared_remote_storage<RawOtherStorage>,
                     "Can't move from a shared_remote_storage into a plain remote_storage. "
                     "It would violate the shared ownership!");
-      if constexpr( detail::is_a_sbo_storage_v<RawOtherStorage> )
+      if constexpr( detail::is_a_sbo_storage<RawOtherStorage> )
       {
         if( other_storage.uses_heap() )
         {
@@ -566,10 +566,10 @@ struct shared_remote_storage {
         return ptr;
       };
 
-      if constexpr( detail::is_a_remote_storage_v<RawOtherStorage> )
+      if constexpr( detail::is_a_remote_storage<RawOtherStorage> )
         return steal_buffer_from(other_storage);
 
-      else if constexpr( detail::is_a_sbo_storage_v<RawOtherStorage> )
+      else if constexpr( detail::is_a_sbo_storage<RawOtherStorage> )
       {
         if( other_storage.uses_heap() ) return steal_buffer_from(other_storage);
       }
