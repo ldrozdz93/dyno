@@ -88,24 +88,42 @@ namespace dyno {
 //  Semantics: Return whether the polymorphic storage can store an object with
 //             the specified type information.
 
+// helpers:
 template< std::size_t, std::size_t > class local_storage;
 template< std::size_t sz1, std::size_t sz2 > class sbo_storage;
+struct remote_storage;
 struct shared_remote_storage;
-class remote_storage;
+struct non_owning_storage;
 
 namespace detail
 {
 template< typename > struct is_a_local_storage_t : std::false_type {};
 template< std::size_t sz1, std::size_t sz2 > struct is_a_local_storage_t<local_storage<sz1, sz2> > : std::true_type {};
-template< typename T > inline constexpr auto is_a_local_storage_v = is_a_local_storage_t<T>{};
 
 template< typename > struct is_a_sbo_storage_t : std::false_type {};
 template< std::size_t sz1, std::size_t sz2 > struct is_a_sbo_storage_t<sbo_storage<sz1, sz2> > : std::true_type {};
-template< typename T > inline constexpr auto is_a_sbo_storage_v = is_a_sbo_storage_t<T>{};
 
+template< typename T > inline constexpr auto is_a_local_storage_v = is_a_local_storage_t<T>{};
+template< typename T > inline constexpr auto is_a_sbo_storage_v = is_a_sbo_storage_t<T>{};
 template< typename T > inline constexpr auto is_a_remote_storage_v = std::is_same_v<T, remote_storage>;
 template< typename T > inline constexpr auto is_a_shared_remote_storage_v = std::is_same_v<T, shared_remote_storage>;
+template< typename T > inline constexpr auto is_a_non_owning_storage_v = std::is_same_v<T, non_owning_storage>;
+
+template< typename T >
+constexpr void static_assert_storage_is_supported()
+{
+  auto any = [](auto... args) -> bool
+  {
+    return (... || args);
+  };
+
+  static_assert(any(is_a_local_storage_v<T>,
+                    is_a_sbo_storage_v<T>,
+                    is_a_remote_storage_v<T>,
+                    is_a_shared_remote_storage_v<T>),
+                "Trying to create a storage using an unsupported other_storage!");
 }
+} // namespace detail
 
 // Class implementing the small buffer optimization (SBO).
 //
@@ -119,7 +137,7 @@ template< typename T > inline constexpr auto is_a_shared_remote_storage_v = std:
 //         `uses_heap_`.
 template <std::size_t Size, std::size_t Align = -1u>
 class sbo_storage {
-  friend class remote_storage;
+  friend struct remote_storage;
   friend struct shared_remote_storage;
 
   static constexpr std::size_t SBSize = Size < sizeof(void*) ? sizeof(void*) : Size;
@@ -309,6 +327,8 @@ public:
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
+    detail::static_assert_storage_is_supported<RawOtherStorage>();
+
     if constexpr(detail::is_a_local_storage_v<RawOtherStorage>)
     {
       static_assert(sizeof(other_storage.buffer_) <= sizeof(SBStorage),
@@ -386,7 +406,7 @@ public:
 // Class implementing storage on the heap. Just like the `sbo_storage`, it
 // only handles allocation and deallocation; construction and destruction
 // must be handled externally.
-class remote_storage {
+struct remote_storage {
   // TODO: change access specifiers
   template< std::size_t, std::size_t > friend class sbo_storage;
   friend class shared_remote_storage;
@@ -408,7 +428,7 @@ class remote_storage {
 public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
-
+    detail::static_assert_storage_is_supported<RawOtherStorage>();
 
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
@@ -535,6 +555,7 @@ struct shared_remote_storage {
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   void* get_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
+    detail::static_assert_storage_is_supported<RawOtherStorage>();
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       void* ptr = allocate_ptr_(vtable);
