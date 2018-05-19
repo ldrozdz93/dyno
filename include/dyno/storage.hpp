@@ -112,16 +112,11 @@ template< typename T > inline constexpr auto is_a_non_owning_storage_v = std::is
 template< typename T >
 constexpr void static_assert_storage_is_supported()
 {
-  auto any = [](auto... args) -> bool
-  {
-    return (... || args);
-  };
-
-  static_assert(any(is_a_local_storage_v<T>,
-                    is_a_sbo_storage_v<T>,
-                    is_a_remote_storage_v<T>,
-                    is_a_shared_remote_storage_v<T>),
-                "Trying to create a storage using an unsupported other_storage!");
+  static_assert(   is_a_local_storage_v<T>
+                || is_a_sbo_storage_v<T>
+                || is_a_remote_storage_v<T>
+                || is_a_shared_remote_storage_v<T>
+                ,"Trying to create a storage using an unsupported other_storage!");
 }
 } // namespace detail
 
