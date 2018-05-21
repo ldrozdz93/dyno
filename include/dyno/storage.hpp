@@ -402,12 +402,7 @@ public:
   explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
     detail::static_assert_storage_is_supported<RawOtherStorage>();
 
-    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
-    {
-      ptr_ = detail::alloc_with_vtable(vtable);
-      detail::construct_with_vtable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
-    }
-    else // other_storage initialized with an rvalue
+    if constexpr( not std::is_lvalue_reference_v<OtherStorage> ) // other_storage initialized with an rvalue
     {
       static_assert(!detail::is_a_shared_remote_storage<RawOtherStorage>,
                     "Can't move from a shared_remote_storage into a plain remote_storage. "
@@ -421,10 +416,10 @@ public:
           return;
         }
       }
-
-      ptr_ = detail::alloc_with_vtable(vtable);
-      detail::construct_with_vtable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
     }
+
+    ptr_ = detail::alloc_with_vtable(vtable);
+    detail::construct_with_vtable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename T, typename RawT = std::decay_t<T>>
