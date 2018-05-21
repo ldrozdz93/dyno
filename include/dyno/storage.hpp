@@ -129,12 +129,12 @@ public:
   }
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
-  explicit sbo_storage(OtherStorage&& other_storage, VTable const& vtable) {
+  explicit sbo_storage(OtherStorage&& other_storage, VTable const& vtable)
+  {
     detail::static_assert_can_construct_from_storage<OtherStorage>();
-    constexpr bool should_be_moved = not std::is_lvalue_reference_v<OtherStorage>;
     const bool fits_in_local_storage = can_store(vtable["storage_info"_s]());
 
-    if constexpr( should_be_moved && detail::is_a_remote_storage<RawOtherStorage> )
+    if constexpr( detail::can_move_ptr_from_other_storage::compile_time_check<OtherStorage>() )
     {
       if(not fits_in_local_storage)
       {
@@ -412,11 +412,11 @@ struct remote_storage {
 
 public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
-  explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
+  explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable)
+  {
     detail::static_assert_can_construct_from_storage<OtherStorage>();
-    constexpr bool should_be_moved = not std::is_lvalue_reference_v<OtherStorage>;
 
-    if constexpr( should_be_moved && detail::is_a_sbo_storage<RawOtherStorage> )
+    if constexpr( detail::can_move_ptr_from_other_storage::compile_time_check<OtherStorage>() )
     {
         if( other_storage.uses_heap() )
         {

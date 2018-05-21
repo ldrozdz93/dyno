@@ -75,6 +75,19 @@ void* movePtrFrom(OtherStorage& other_storage)
   return ptr;
 }
 
+namespace can_move_ptr_from_other_storage
+{
+
+template <typename OtherStorage, typename RawOtherStorage = std::decay_t<OtherStorage>>
+constexpr bool compile_time_check()
+{
+  constexpr bool should_be_moved_from = not std::is_lvalue_reference_v<OtherStorage>;
+  return should_be_moved_from &&
+         (is_a_sbo_storage<RawOtherStorage> || is_a_remote_storage<RawOtherStorage>);
+}
+
+} // namespace canPtrBeMovedFromOtherStorage
+
 } // namespace detail
 
 } // namespace dyno
