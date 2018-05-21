@@ -335,7 +335,12 @@ void sbo_storage_convertion_tests()
     sb1_stack = std::move(r2);
   }));
 
-  // TODO: find a better way to test this...
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    sb1_heap = sr1;
+  }));
+
+  // TODO: find way to test this...
   // sb1_heap = std::move(sr1); // moving shared_remote_storage -> sbo_storage should't compile!
 }
 
@@ -361,12 +366,17 @@ void local_storage_convertion_tests()
     l_big = std::move(l1);
   }));
 
-// TODO: find a better way to test this...
+// TODO: find way to test this...
 // l1 = l_big; // constructing a local_storage from a bigger local_storage should't compile!
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
   {
     l1 = r1;
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    l1 = std::move(r1);
   }));
 }
 
