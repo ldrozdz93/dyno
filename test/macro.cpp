@@ -330,7 +330,7 @@ void sbo_storage_convertion_tests()
     sb1_heap = std::move(r1);
   }));
 
-  DYNO_CHECK(expectModel3Constructor( EOnlyBufferPointerMoved, [&]
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
   {
     sb1_stack = std::move(r2);
   }));

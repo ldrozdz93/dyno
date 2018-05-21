@@ -132,31 +132,34 @@ public:
     detail::static_assert_storage_is_supported<RawOtherStorage>();
     detail::static_assert_cant_move_from_shared_storage<OtherStorage>();
     constexpr bool should_be_moved = not std::is_lvalue_reference_v<OtherStorage>;
+    const bool fits_in_local_storage = can_store(vtable["storage_info"_s]());
 
     if constexpr( should_be_moved && detail::is_a_remote_storage<RawOtherStorage> )
     {
-      uses_heap_ = true;
-      ptr_ = other_storage.ptr_;
-      other_storage.ptr_ = nullptr;
+      if(not fits_in_local_storage)
+      {
+        uses_heap_ = true;
+        ptr_ = other_storage.ptr_;
+        other_storage.ptr_ = nullptr;
+        return;
+      }
     }
-    else
-    {
-      void* ptr = [&]{
-        if( can_store(vtable["storage_info"_s]()) )
-        {
-          uses_heap_ = false;
-          return static_cast<void*>(&sb_);
-        }
-        else
-        {
-          ptr_ = detail::alloc_with_vtable(vtable);
-          uses_heap_ = true;
-          return ptr_;
-        }
-      }();
 
-      detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
-    }
+    void* ptr = [&]{
+      if( fits_in_local_storage )
+      {
+        uses_heap_ = false;
+        return static_cast<void*>(&sb_);
+      }
+      else
+      {
+        ptr_ = detail::alloc_with_vtable(vtable);
+        uses_heap_ = true;
+        return ptr_;
+      }
+    }();
+
+    detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename T, typename RawT = std::decay_t<T>>
