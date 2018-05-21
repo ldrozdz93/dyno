@@ -105,6 +105,8 @@ class sbo_storage {
   friend struct shared_remote_storage;
   template< std::size_t, std::size_t > friend class sbo_storage;
   template< typename T > friend void* detail::movePtrFrom(T&);
+  template< typename T, typename >
+  friend bool detail::can_move_ptr_from_other_storage::runtime_check(const T&);
 
   static constexpr std::size_t SBSize = Size < sizeof(void*) ? sizeof(void*) : Size;
   static constexpr std::size_t SBAlign = Align == -1u ? alignof(std::aligned_storage_t<SBSize>) : Align;
@@ -550,6 +552,20 @@ struct shared_remote_storage {
       detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
       return ptr;
     }
+
+//    detail::static_assert_can_construct_from_storage<OtherStorage>();
+
+//    if constexpr( detail::can_move_ptr_from_other_storage::compile_time_check<OtherStorage>() )
+//    {
+//        if( detail::can_move_ptr_from_other_storage::runtime_check(other_storage) )
+//        {
+//          ptr_ = detail::movePtrFrom(other_storage);
+//          return;
+//        }
+//    }
+
+//    ptr_ = detail::alloc_with_vtable(vtable);
+//    detail::construct_with_vtable(ptr_, std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>

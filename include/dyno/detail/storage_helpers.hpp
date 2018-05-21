@@ -88,7 +88,7 @@ constexpr bool compile_time_check()
 
 // below should be preceeded with a compile-time check
 template <typename OtherStorage, typename RawOtherStorage = std::decay_t<OtherStorage>>
-bool runtime_check(OtherStorage&& other_storage)
+bool runtime_check(const OtherStorage& other_storage)
 {
   if constexpr( is_a_sbo_storage<RawOtherStorage> )
   {
