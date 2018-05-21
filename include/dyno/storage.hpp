@@ -147,7 +147,7 @@ public:
       }
     }();
 
-    detail::constructWithVTable(ptr, std::forward<OtherStorage>(other_storage), vtable);
+    detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename T, typename RawT = std::decay_t<T>>
@@ -329,7 +329,7 @@ public:
         "describes an object that won't fit in the storage.");
     }
 
-    detail::constructWithVTable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
+    detail::construct_with_vtable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename VTable>
@@ -415,7 +415,7 @@ public:
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       allocate_ptr_(vtable);
-      detail::constructWithVTable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
+      detail::construct_with_vtable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
     }
     else // other_storage initialized with an rvalue
     {
@@ -433,7 +433,7 @@ public:
       }
 
       allocate_ptr_(vtable);
-      detail::constructWithVTable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
+      detail::construct_with_vtable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
     }
   }
 
@@ -541,7 +541,7 @@ struct shared_remote_storage {
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       void* ptr = allocate_ptr_(vtable);
-      detail::constructWithVTable(ptr, std::forward<OtherStorage>(other_storage), vtable);
+      detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
       return ptr;
     }
     else // other_storage initialized with an rvalue
@@ -562,7 +562,7 @@ struct shared_remote_storage {
       }
 
       void* ptr = allocate_ptr_(vtable);
-      detail::constructWithVTable(ptr, std::forward<OtherStorage>(other_storage), vtable);
+      detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
       return ptr;
     }
   }

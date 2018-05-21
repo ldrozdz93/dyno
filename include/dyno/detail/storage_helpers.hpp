@@ -36,7 +36,7 @@ constexpr void static_assert_storage_is_supported()
 }
 
 template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
-void constructWithVTable(void* ptr, OtherStorage&& other_storage, const VTable& vtable)
+void construct_with_vtable(void* ptr, OtherStorage&& other_storage, const VTable& vtable)
 {
   if constexpr( std::is_lvalue_reference_v<OtherStorage> )
   {
