@@ -2,6 +2,11 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
+#ifndef DYNO_STORAGE_HELPERS_HPP
+#define DYNO_STORAGE_HELPERS_HPP
+
+#include <cassert>
+
 namespace dyno
 {
 
@@ -48,6 +53,17 @@ void construct_with_vtable(void* ptr, OtherStorage&& other_storage, const VTable
   }
 }
 
+template< typename VTable >
+void* alloc_with_vtable(const VTable& vtable)
+{
+  void* ptr_ = std::malloc(vtable["storage_info"_s]().size);
+  // TODO: That's not a really nice way to handle this
+  assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
+  return ptr_;
+}
+
 } // namespace detail
 
 } // namespace dyno
+
+#endif

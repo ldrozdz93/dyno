@@ -139,9 +139,7 @@ public:
       }
       else
       {
-        ptr_ = std::malloc(vtable["storage_info"_s]().size);
-        // TODO: That's not a really nice way to handle this
-        assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
+        ptr_ = detail::alloc_with_vtable(vtable);
         uses_heap_ = true;
         return ptr_;
       }
@@ -399,14 +397,6 @@ struct remote_storage {
   remote_storage& operator=(remote_storage&&) = delete;
   remote_storage& operator=(remote_storage const&) = delete;
 
-  template< typename VTable >
-  void allocate_ptr_(VTable const& vtable)
-  {
-    ptr_ = std::malloc(vtable["storage_info"_s]().size);
-    // TODO: That's not a really nice way to handle this
-    assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
-  }
-
 public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
@@ -414,7 +404,7 @@ public:
 
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
-      allocate_ptr_(vtable);
+      ptr_ = detail::alloc_with_vtable(vtable);
       detail::construct_with_vtable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
     }
     else // other_storage initialized with an rvalue
@@ -432,7 +422,7 @@ public:
         }
       }
 
-      allocate_ptr_(vtable);
+      ptr_ = detail::alloc_with_vtable(vtable);
       detail::construct_with_vtable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
     }
   }
@@ -561,13 +551,12 @@ struct shared_remote_storage {
         if( other_storage.uses_heap() ) return steal_buffer_from(other_storage);
       }
 
-      void* ptr = allocate_ptr_(vtable);
+      void* ptr = detail::alloc_with_vtable(vtable);
       detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
       return ptr;
     }
   }
 
-  // TODO: implement convertion constructor
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit shared_remote_storage(OtherStorage&& other_storage, VTable const& vtable)
     :  ptr_{get_storage(std::forward<OtherStorage>(other_storage), vtable), deleter_for_vtable(vtable)}
