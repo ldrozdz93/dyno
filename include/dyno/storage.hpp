@@ -430,36 +430,6 @@ public:
 
     ptr_ = detail::alloc_with_vtable(vtable);
     detail::construct_with_vtable(ptr_, std::forward<OtherStorage>(other_storage), vtable);
-
-
-    const bool fits_in_local_storage = can_store(vtable["storage_info"_s]());
-
-    if constexpr( should_be_moved && detail::is_a_remote_storage<RawOtherStorage> )
-    {
-      if(not fits_in_local_storage)
-      {
-        uses_heap_ = true;
-        ptr_ = other_storage.ptr_;
-        other_storage.ptr_ = nullptr;
-        return;
-      }
-    }
-
-    void* ptr = [&]{
-      if( fits_in_local_storage )
-      {
-        uses_heap_ = false;
-        return static_cast<void*>(&sb_);
-      }
-      else
-      {
-        ptr_ = detail::alloc_with_vtable(vtable);
-        uses_heap_ = true;
-        return ptr_;
-      }
-    }();
-
-    detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename T, typename RawT = std::decay_t<T>>
