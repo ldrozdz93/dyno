@@ -130,6 +130,7 @@ public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit sbo_storage(OtherStorage&& other_storage, VTable const& vtable) {
     detail::static_assert_storage_is_supported<RawOtherStorage>();
+    detail::static_assert_cant_move_from_shared_storage<OtherStorage>();
     constexpr bool should_be_moved = not std::is_lvalue_reference_v<OtherStorage>;
 
     if constexpr( should_be_moved && detail::is_a_remote_storage<RawOtherStorage> )

@@ -308,6 +308,7 @@ void sbo_storage_convertion_tests()
   Concept<dyno::shared_remote_storage> sr1 = Model3{};
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
+  Concept<dyno::remote_storage> r2 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
   {
@@ -328,6 +329,14 @@ void sbo_storage_convertion_tests()
   {
     sb1_heap = std::move(r1);
   }));
+
+  DYNO_CHECK(expectModel3Constructor( EOnlyBufferPointerMoved, [&]
+  {
+    sb1_stack = std::move(r2);
+  }));
+
+  // TODO: find a better way to test this...
+  // sb1_heap = std::move(sr1); // moving shared_remote_storage -> sbo_storage should't compile!
 }
 
 void local_storage_convertion_tests()
