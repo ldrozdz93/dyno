@@ -30,20 +30,16 @@ template< typename T > inline constexpr auto is_a_remote_storage = std::is_same_
 template< typename T > inline constexpr auto is_a_shared_remote_storage = std::is_same_v<T, shared_remote_storage>;
 template< typename T > inline constexpr auto is_a_non_owning_storage = std::is_same_v<T, non_owning_storage>;
 
-template< typename T >
-constexpr void static_assert_storage_is_supported()
+template< typename T, typename RawT = std::decay_t<T> >
+constexpr void static_assert_can_construct_from_storage()
 {
-  static_assert(   is_a_local_storage<T>
-                || is_a_sbo_storage<T>
-                || is_a_remote_storage<T>
-                || is_a_shared_remote_storage<T>
+  static_assert(   is_a_local_storage<RawT>
+                || is_a_sbo_storage<RawT>
+                || is_a_remote_storage<RawT>
+                || is_a_shared_remote_storage<RawT>
                 ,"Trying to create a storage using an unsupported other_storage!");
-}
 
-template< typename T >
-constexpr void static_assert_cant_move_from_shared_storage()
-{
-  static_assert(not (detail::is_a_shared_remote_storage<std::decay_t<T>> &&
+  static_assert(not (detail::is_a_shared_remote_storage<RawT> &&
                      !std::is_lvalue_reference_v<T>),
                 "Can't move from a shared_remote_storage into a non-shared storage. "
                 "It would violate the shared ownership!");

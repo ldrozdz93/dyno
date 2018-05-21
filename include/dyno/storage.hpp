@@ -130,8 +130,7 @@ public:
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit sbo_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    detail::static_assert_storage_is_supported<RawOtherStorage>();
-    detail::static_assert_cant_move_from_shared_storage<OtherStorage>();
+    detail::static_assert_can_construct_from_storage<OtherStorage>();
     constexpr bool should_be_moved = not std::is_lvalue_reference_v<OtherStorage>;
     const bool fits_in_local_storage = can_store(vtable["storage_info"_s]());
 
@@ -326,7 +325,7 @@ public:
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    detail::static_assert_storage_is_supported<RawOtherStorage>();
+    detail::static_assert_can_construct_from_storage<OtherStorage>();
 
     if constexpr(detail::is_a_local_storage<RawOtherStorage>)
     {
@@ -414,8 +413,7 @@ struct remote_storage {
 public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
-    detail::static_assert_storage_is_supported<RawOtherStorage>();
-    detail::static_assert_cant_move_from_shared_storage<OtherStorage>();
+    detail::static_assert_can_construct_from_storage<OtherStorage>();
     constexpr bool should_be_moved = not std::is_lvalue_reference_v<OtherStorage>;
 
     if constexpr( should_be_moved && detail::is_a_sbo_storage<RawOtherStorage> )
@@ -531,7 +529,7 @@ struct shared_remote_storage {
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   void* get_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
-    detail::static_assert_storage_is_supported<RawOtherStorage>();
+    detail::static_assert_can_construct_from_storage<OtherStorage>();
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       void* ptr = allocate_ptr_(vtable);
