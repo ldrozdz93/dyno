@@ -2996,6 +2996,7 @@ include/dyno/detail/has_duplicates.hpp
 include/dyno/detail/is_placeholder.hpp
 include/dyno/detail/preprocessor.hpp
 include/dyno/detail/transform_signature.hpp
+include/dyno/detail/storage_helpers.hpp
 include/dyno/experimental/unrolled_vtable.hpp
 include/dyno/experimental/vtable.hpp
 include/dyno/macro.hpp
