@@ -532,40 +532,19 @@ struct shared_remote_storage {
   void* get_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
     detail::static_assert_can_construct_from_storage<OtherStorage>();
-    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
-    {
-      void* ptr = allocate_ptr_(vtable);
-      detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
-      return ptr;
-    }
-    else // other_storage initialized with an rvalue
-    {
-      if constexpr( detail::is_a_remote_storage<RawOtherStorage> )
-        return detail::movePtrFrom(other_storage);
 
-      else if constexpr( detail::is_a_sbo_storage<RawOtherStorage> )
-      {
-        if( other_storage.uses_heap() ) return detail::movePtrFrom(other_storage);
-      }
-
-      void* ptr = detail::alloc_with_vtable(vtable);
-      detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
-      return ptr;
+    if constexpr( detail::can_move_ptr_from_other_storage::compile_time_check<OtherStorage>() )
+    {
+        if( detail::can_move_ptr_from_other_storage::runtime_check(other_storage) )
+        {
+          void* ptr = detail::movePtrFrom(other_storage);
+          return ptr;
+        }
     }
 
-//    detail::static_assert_can_construct_from_storage<OtherStorage>();
-
-//    if constexpr( detail::can_move_ptr_from_other_storage::compile_time_check<OtherStorage>() )
-//    {
-//        if( detail::can_move_ptr_from_other_storage::runtime_check(other_storage) )
-//        {
-//          ptr_ = detail::movePtrFrom(other_storage);
-//          return;
-//        }
-//    }
-
-//    ptr_ = detail::alloc_with_vtable(vtable);
-//    detail::construct_with_vtable(ptr_, std::forward<OtherStorage>(other_storage), vtable);
+    void* ptr = detail::alloc_with_vtable(vtable);
+    detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
+    return ptr;
   }
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
