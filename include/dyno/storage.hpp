@@ -326,7 +326,8 @@ public:
   }
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
-  explicit local_storage(OtherStorage&& other_storage, VTable const& vtable) {
+  explicit local_storage(OtherStorage&& other_storage, VTable const& vtable)
+  {
     detail::static_assert_can_construct_from_storage<OtherStorage>();
 
     if constexpr(detail::is_a_local_storage<RawOtherStorage>)
@@ -517,15 +518,6 @@ struct shared_remote_storage {
       vtable["destruct"_s](ptr);
       std::free(ptr);
     };
-  }
-
-  template< typename VTable >
-  void* allocate_ptr_(VTable const& vtable)
-  {
-    void* ptr = std::malloc(vtable["storage_info"_s]().size);
-    // TODO: That's not a really nice way to handle this
-    assert(ptr != nullptr && "std::malloc failed, we're doomed");
-    return ptr;
   }
 
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
