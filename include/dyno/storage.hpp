@@ -418,7 +418,7 @@ public:
 
     if constexpr( detail::can_move_ptr_from_other_storage::compile_time_check<OtherStorage>() )
     {
-        if( other_storage.uses_heap() )
+        if( detail::can_move_ptr_from_other_storage::runtime_check(other_storage) )
         {
           ptr_ = detail::movePtrFrom(other_storage);
           return;
