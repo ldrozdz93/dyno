@@ -130,22 +130,32 @@ public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit sbo_storage(OtherStorage&& other_storage, VTable const& vtable) {
     detail::static_assert_storage_is_supported<RawOtherStorage>();
+    constexpr bool should_be_moved = not std::is_lvalue_reference_v<OtherStorage>;
 
-    void* ptr = [&]{
-      if( can_store(vtable["storage_info"_s]()) )
-      {
-        uses_heap_ = false;
-        return static_cast<void*>(&sb_);
-      }
-      else
-      {
-        ptr_ = detail::alloc_with_vtable(vtable);
-        uses_heap_ = true;
-        return ptr_;
-      }
-    }();
+    if constexpr( should_be_moved && detail::is_a_remote_storage<RawOtherStorage> )
+    {
+      uses_heap_ = true;
+      ptr_ = other_storage.ptr_;
+      other_storage.ptr_ = nullptr;
+    }
+    else
+    {
+      void* ptr = [&]{
+        if( can_store(vtable["storage_info"_s]()) )
+        {
+          uses_heap_ = false;
+          return static_cast<void*>(&sb_);
+        }
+        else
+        {
+          ptr_ = detail::alloc_with_vtable(vtable);
+          uses_heap_ = true;
+          return ptr_;
+        }
+      }();
 
-    detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
+      detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
+    }
   }
 
   template <typename T, typename RawT = std::decay_t<T>>
@@ -401,12 +411,10 @@ public:
   template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
   explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable) {
     detail::static_assert_storage_is_supported<RawOtherStorage>();
+    detail::static_assert_cant_move_from_shared_storage<OtherStorage>();
 
     if constexpr( not std::is_lvalue_reference_v<OtherStorage> ) // other_storage initialized with an rvalue
     {
-      static_assert(!detail::is_a_shared_remote_storage<RawOtherStorage>,
-                    "Can't move from a shared_remote_storage into a plain remote_storage. "
-                    "It would violate the shared ownership!");
       if constexpr( detail::is_a_sbo_storage<RawOtherStorage> )
       {
         if( other_storage.uses_heap() )

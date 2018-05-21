@@ -40,6 +40,15 @@ constexpr void static_assert_storage_is_supported()
                 ,"Trying to create a storage using an unsupported other_storage!");
 }
 
+template< typename T >
+constexpr void static_assert_cant_move_from_shared_storage()
+{
+  static_assert(not (detail::is_a_shared_remote_storage<std::decay_t<T>> &&
+                     !std::is_lvalue_reference_v<T>),
+                "Can't move from a shared_remote_storage into a non-shared storage. "
+                "It would violate the shared ownership!");
+}
+
 template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
 void construct_with_vtable(void* ptr, OtherStorage&& other_storage, const VTable& vtable)
 {
