@@ -85,6 +85,7 @@ void non_owning_storage_simple_construction_tests();
 void remote_storage_convertion_tests();
 void shared_remote_storage_convertion_tests();
 void local_storage_convertion_tests();
+void sbo_storage_convertion_tests();
 void non_owning_storage_convertion_tests();
 
 int main() {
@@ -108,6 +109,8 @@ int main() {
   remote_storage_convertion_tests();
   shared_remote_storage_convertion_tests();
   local_storage_convertion_tests();
+  sbo_storage_convertion_tests();
+  non_owning_storage_convertion_tests();
 }
 
 void remote_storage_simple_construction_tests()
@@ -295,6 +298,25 @@ void shared_remote_storage_convertion_tests()
   DYNO_CHECK(expectModel3Constructor( EOnlyBufferPointerMoved, [&]
   {
     sr1 = std::move(sb1_heap);
+  }));
+}
+
+void sbo_storage_convertion_tests()
+{
+  Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
+  Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
+  Concept<dyno::shared_remote_storage> sr1 = Model3{};
+  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::remote_storage> r1 = Model3{};
+
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    sb1_stack = l1;
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    sb1_heap = l1;
   }));
 }
 

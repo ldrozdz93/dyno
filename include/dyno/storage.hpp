@@ -134,6 +134,7 @@ template <std::size_t Size, std::size_t Align = -1u>
 class sbo_storage {
   friend struct remote_storage;
   friend struct shared_remote_storage;
+  template< std::size_t, std::size_t > friend class sbo_storage;
 
   static constexpr std::size_t SBSize = Size < sizeof(void*) ? sizeof(void*) : Size;
   static constexpr std::size_t SBAlign = Align == -1u ? alignof(std::aligned_storage_t<SBSize>) : Align;
@@ -155,6 +156,37 @@ public:
 
   static constexpr bool can_store(dyno::storage_info info) {
     return info.size <= sizeof(SBStorage) && alignof(SBStorage) % info.alignment == 0;
+  }
+
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  explicit sbo_storage(OtherStorage&& other_storage, VTable const& vtable) {
+    detail::static_assert_storage_is_supported<RawOtherStorage>();
+
+    void* ptr = [&]{
+      if( can_store(vtable["storage_info"_s]()) )
+      {
+        uses_heap_ = false;
+        return static_cast<void*>(&sb_);
+      }
+      else
+      {
+        ptr_ = std::malloc(vtable["storage_info"_s]().size);
+        // TODO: That's not a really nice way to handle this
+        assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
+        uses_heap_ = true;
+        return ptr_;
+      }
+    }();
+
+
+    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+    {
+      vtable["copy-construct"_s](ptr, other_storage.get());
+    }
+    else // other_storage initialized with an rvalue
+    {
+      vtable["move-construct"_s](ptr, other_storage.get());
+    }
   }
 
   template <typename T, typename RawT = std::decay_t<T>>
