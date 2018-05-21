@@ -318,6 +318,16 @@ void sbo_storage_convertion_tests()
   {
     sb1_heap = l1;
   }));
+
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    sb1_heap = r1;
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EOnlyBufferPointerMoved, [&]
+  {
+    sb1_heap = std::move(r1);
+  }));
 }
 
 void local_storage_convertion_tests()
