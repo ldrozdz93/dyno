@@ -71,6 +71,14 @@ void* alloc_with_vtable(const VTable& vtable)
   return ptr_;
 }
 
+template< typename OtherStorage >
+void* movePtrFrom(OtherStorage& other_storage)
+{
+  void* ptr = other_storage.ptr_;
+  other_storage.ptr_ = nullptr;
+  return ptr;
+}
+
 } // namespace detail
 
 } // namespace dyno

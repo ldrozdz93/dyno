@@ -104,6 +104,7 @@ class sbo_storage {
   friend struct remote_storage;
   friend struct shared_remote_storage;
   template< std::size_t, std::size_t > friend class sbo_storage;
+  template< typename T > friend void* detail::movePtrFrom(T&);
 
   static constexpr std::size_t SBSize = Size < sizeof(void*) ? sizeof(void*) : Size;
   static constexpr std::size_t SBAlign = Align == -1u ? alignof(std::aligned_storage_t<SBSize>) : Align;
@@ -139,8 +140,7 @@ public:
       if(not fits_in_local_storage)
       {
         uses_heap_ = true;
-        ptr_ = other_storage.ptr_;
-        other_storage.ptr_ = nullptr;
+        ptr_ = detail::movePtrFrom(other_storage);
         return;
       }
     }
@@ -153,9 +153,8 @@ public:
       }
       else
       {
-        ptr_ = detail::alloc_with_vtable(vtable);
         uses_heap_ = true;
-        return ptr_;
+        return ptr_ = detail::alloc_with_vtable(vtable);
       }
     }();
 
@@ -404,6 +403,7 @@ struct remote_storage {
   // TODO: change access specifiers
   template< std::size_t, std::size_t > friend class sbo_storage;
   friend class shared_remote_storage;
+  template< typename T > friend void* detail::movePtrFrom(T&);
 
   remote_storage() = delete;
   remote_storage(remote_storage const&) = delete;
@@ -422,8 +422,7 @@ public:
     {
         if( other_storage.uses_heap() )
         {
-          ptr_ = other_storage.ptr_;
-          other_storage.ptr_ = nullptr;
+          ptr_ = detail::movePtrFrom(other_storage);
           return;
         }
     }
@@ -541,19 +540,12 @@ struct shared_remote_storage {
     }
     else // other_storage initialized with an rvalue
     {
-      [[maybe_unused]] auto steal_buffer_from = [](auto&& other_storage)
-      {
-        void* ptr = other_storage.ptr_;
-        other_storage.ptr_ = nullptr;
-        return ptr;
-      };
-
       if constexpr( detail::is_a_remote_storage<RawOtherStorage> )
-        return steal_buffer_from(other_storage);
+        return detail::movePtrFrom(other_storage);
 
       else if constexpr( detail::is_a_sbo_storage<RawOtherStorage> )
       {
-        if( other_storage.uses_heap() ) return steal_buffer_from(other_storage);
+        if( other_storage.uses_heap() ) return detail::movePtrFrom(other_storage);
       }
 
       void* ptr = detail::alloc_with_vtable(vtable);
