@@ -147,15 +147,7 @@ public:
       }
     }();
 
-
-    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
-    {
-      vtable["copy-construct"_s](ptr, other_storage.get());
-    }
-    else // other_storage initialized with an rvalue
-    {
-      vtable["move-construct"_s](ptr, other_storage.get());
-    }
+    detail::constructWithVTable(ptr, std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename T, typename RawT = std::decay_t<T>>
@@ -336,14 +328,8 @@ public:
         "dyno::local_storage: Trying to construct using a vtable that "
         "describes an object that won't fit in the storage.");
     }
-    if constexpr( std::is_lvalue_reference_v<OtherStorage> )
-    {
-      vtable["copy-construct"_s](this->get(), other_storage.get());
-    }
-    else // other_storage initialized with an rvalue
-    {
-      vtable["move-construct"_s](this->get(), other_storage.get());
-    }
+
+    detail::constructWithVTable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename VTable>
@@ -429,7 +415,7 @@ public:
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       allocate_ptr_(vtable);
-      vtable["copy-construct"_s](this->get(), other_storage.get());
+      detail::constructWithVTable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
     }
     else // other_storage initialized with an rvalue
     {
@@ -447,7 +433,7 @@ public:
       }
 
       allocate_ptr_(vtable);
-      vtable["move-construct"_s](this->get(), other_storage.get());
+      detail::constructWithVTable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
     }
   }
 
@@ -555,7 +541,7 @@ struct shared_remote_storage {
     if constexpr( std::is_lvalue_reference_v<OtherStorage> )
     {
       void* ptr = allocate_ptr_(vtable);
-      vtable["copy-construct"_s](ptr, other_storage.get());
+      detail::constructWithVTable(ptr, std::forward<OtherStorage>(other_storage), vtable);
       return ptr;
     }
     else // other_storage initialized with an rvalue
@@ -576,7 +562,7 @@ struct shared_remote_storage {
       }
 
       void* ptr = allocate_ptr_(vtable);
-      vtable["move-construct"_s](ptr, other_storage.get());
+      detail::constructWithVTable(ptr, std::forward<OtherStorage>(other_storage), vtable);
       return ptr;
     }
   }

@@ -34,6 +34,20 @@ constexpr void static_assert_storage_is_supported()
                 || is_a_shared_remote_storage<T>
                 ,"Trying to create a storage using an unsupported other_storage!");
 }
+
+template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+void constructWithVTable(void* ptr, OtherStorage&& other_storage, const VTable& vtable)
+{
+  if constexpr( std::is_lvalue_reference_v<OtherStorage> )
+  {
+    vtable["copy-construct"_s](ptr, other_storage.get());
+  }
+  else // other_storage initialized with an rvalue
+  {
+    vtable["move-construct"_s](ptr, other_storage.get());
+  }
+}
+
 } // namespace detail
 
 } // namespace dyno
