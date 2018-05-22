@@ -101,9 +101,6 @@ namespace dyno {
 //         `uses_heap_`.
 template <std::size_t Size, std::size_t Align = -1u>
 class sbo_storage {
-  friend struct remote_storage;
-  friend struct shared_remote_storage;
-  template< std::size_t, std::size_t > friend class sbo_storage;
   template< typename T > friend void* detail::movePtrFrom(T&);
   template< typename T, typename >
   friend bool detail::can_move_ptr_from_other_storage::runtime_check(const T&);
