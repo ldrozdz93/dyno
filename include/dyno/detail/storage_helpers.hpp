@@ -6,6 +6,7 @@
 #define DYNO_STORAGE_HELPERS_HPP
 
 #include <cassert>
+#include <cstdlib>
 
 namespace dyno
 {
