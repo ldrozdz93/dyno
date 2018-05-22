@@ -80,12 +80,13 @@ private:
   template< typename T, typename RawT = std::decay_t<T> >
   poly construct_poly(T&& t)
   {
-      if constexpr( is_a_poly<RawT>{} ) {
-        return poly{std::forward<T>(t).vtable_, std::forward<T>(t).storage_, 0};
-      }
-      else if constexpr( dyno::models<ActualConcept, RawT> ) {
-          return poly{std::forward<T>(t), dyno::concept_map<ActualConcept, RawT>};
-      }
+    using TagT = int;
+    if constexpr( is_a_poly<RawT>{} ) {
+      return poly{std::forward<T>(t).vtable_, std::forward<T>(t).storage_, TagT{}};
+    }
+    else if constexpr( dyno::models<ActualConcept, RawT> ) {
+      return poly{std::forward<T>(t), dyno::concept_map<ActualConcept, RawT>};
+    }
 
   }
 
