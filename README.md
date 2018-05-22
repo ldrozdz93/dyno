@@ -1,6 +1,3 @@
-# Dyno: Runtime polymorphism done right
-<a target="_blank" href="https://travis-ci.org/ldionne/dyno">![Travis status][badge.Travis]</a>
-
 ## ldrozdz93 DISCLAIMER
 I forked this library in order to enchance the original macro-based interface
 creation mechanism, provided by ldionne in his great library.
