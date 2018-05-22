@@ -340,6 +340,16 @@ void sbo_storage_convertion_tests()
     sb1_heap = sr1;
   }));
 
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    sb1_stack = std::move(sb1_heap);
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    sb1_heap = std::move(sb1_stack);
+  }));
+
   // TODO: find way to test this...
   // sb1_heap = std::move(sr1); // moving shared_remote_storage -> sbo_storage should't compile!
 }

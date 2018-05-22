@@ -135,7 +135,8 @@ public:
 
     if constexpr( detail::can_move_ptr_from_other_storage::compile_time_check<OtherStorage>() )
     {
-      if(not fits_in_local_storage)
+      if(not fits_in_local_storage &&
+         detail::can_move_ptr_from_other_storage::runtime_check(other_storage))
       {
         uses_heap_ = true;
         ptr_ = detail::movePtrFrom(other_storage);
