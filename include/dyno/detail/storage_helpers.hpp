@@ -87,10 +87,12 @@ constexpr bool compile_time_check()
          (is_a_sbo_storage<RawOtherStorage> || is_a_remote_storage<RawOtherStorage>);
 }
 
-// below should be preceeded with a compile-time check
+// below
 template <typename OtherStorage, typename RawOtherStorage = std::decay_t<OtherStorage>>
 bool runtime_check(const OtherStorage& other_storage)
 {
+  static_assert(compile_time_check<OtherStorage>(),
+                "Thin func should be preceeded with a compile-time check!");
   if constexpr( is_a_sbo_storage<RawOtherStorage> )
   {
     return other_storage.uses_heap();
