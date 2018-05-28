@@ -2994,6 +2994,8 @@ include/dyno/detail/erase_signature.hpp
 include/dyno/detail/eraser_traits.hpp
 include/dyno/detail/has_duplicates.hpp
 include/dyno/detail/is_placeholder.hpp
+include/dyno/detail/macro_details.hpp
+include/dyno/detail/macro.hpp.erb
 include/dyno/detail/preprocessor.hpp
 include/dyno/detail/transform_signature.hpp
 include/dyno/detail/storage_helpers.hpp

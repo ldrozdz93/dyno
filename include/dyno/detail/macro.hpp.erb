@@ -34,6 +34,7 @@
 #include <dyno/detail/dsl.hpp>
 #include <dyno/detail/preprocessor.hpp>
 #include <dyno/poly.hpp>
+#include <dyno/detail/macro_details.hpp>
 
 #include <boost/callable_traits/function_type.hpp>
 #include <boost/callable_traits/is_const_member.hpp>
@@ -41,28 +42,6 @@
 
 #include <type_traits>
 #include <utility>
-
-namespace dyno{ namespace detail{
-class Properties
-{
-  using Bitfield = uint32_t;
-  Bitfield prop;
-
-public:
-  enum Property
-  {
-    defaults = 0,
-    non_copy_constructible = 1
-  };
-
-  constexpr Properties(const Bitfield p_prop) :
-    prop(p_prop)
-  {}
-
-  constexpr bool is_copy_construcible() const { return not( non_copy_constructible & prop ); }
-};
-
-}} // namespace dyno namespace detail
 
 // TODOS
 // - Allow specifying custom base concepts and base interfaces. By default, a
