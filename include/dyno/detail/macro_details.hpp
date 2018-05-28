@@ -5,7 +5,18 @@
 #ifndef DYNO_DETAIL_MACRO_DETAILS_HPP
 #define DYNO_DETAIL_MACRO_DETAILS_HPP
 
-namespace dyno::detail
+#include <type_traits>
+
+namespace dyno
+{
+
+template< typename T >
+struct make
+{
+  using type = std::decay_t<T>;
+};
+
+namespace detail
 {
 class Properties
 {
@@ -26,6 +37,6 @@ public:
   constexpr bool is_copy_construcible() const { return not( non_copy_constructible & prop ); }
 };
 
-} // namespace dyno namespace detail
+}} // namespace dyno namespace detail
 
 #endif //DYNO_DETAIL_MACRO_DETAILS_HPP
