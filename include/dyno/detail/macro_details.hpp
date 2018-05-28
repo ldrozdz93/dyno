@@ -5,7 +5,8 @@
 #ifndef DYNO_DETAIL_MACRO_DETAILS_HPP
 #define DYNO_DETAIL_MACRO_DETAILS_HPP
 
-namespace dyno{ namespace detail{
+namespace dyno::detail
+{
 class Properties
 {
   using Bitfield = uint32_t;
@@ -25,6 +26,6 @@ public:
   constexpr bool is_copy_construcible() const { return not( non_copy_constructible & prop ); }
 };
 
-}} // namespace dyno namespace detail
+} // namespace dyno namespace detail
 
 #endif //DYNO_DETAIL_MACRO_DETAILS_HPP
