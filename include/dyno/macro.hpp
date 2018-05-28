@@ -93,13 +93,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -175,13 +169,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -293,13 +281,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -447,13 +429,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -637,13 +613,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -863,13 +833,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -1125,13 +1089,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -1423,13 +1381,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -1757,13 +1709,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -2127,13 +2073,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -2533,13 +2473,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -2975,13 +2909,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -3453,13 +3381,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -3967,13 +3889,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -4517,13 +4433,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -5103,13 +5013,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -5725,13 +5629,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -6383,13 +6281,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -7077,13 +6969,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -7807,13 +7693,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
@@ -8573,13 +8453,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         if constexpr( is_a_##name<RawT>{} )                                   \
         {                                                                     \
-          if constexpr( std::is_same_v<this_t, RawT> )                        \
-            { return poly_t{std::forward<T>(x).poly_}; }                      \
-          else                                                                \
-          {                                                                   \
-            /*assert(!"Not implemented yet!");  */                            \
-            return poly_t{std::forward<T>(x).poly_};                          \
-          }                                                                   \
+          return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
