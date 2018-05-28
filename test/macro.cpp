@@ -422,5 +422,5 @@ struct Noncopyable
 
 void noncopyable_interface_tests()
 {
-    SimpleConcept<dyno::remote_storage, CopyConstructible::no> c {Noncopyable{}};
+    SimpleConcept<dyno::remote_storage > c {Noncopyable{}};
 }
