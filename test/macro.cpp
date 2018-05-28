@@ -9,6 +9,7 @@
 #include <string>
 #include <tuple>
 #include <utility>
+#include <boost/noncopyable.hpp>
 
 
 DYNO_INTERFACE(Concept,
@@ -87,6 +88,7 @@ void shared_remote_storage_convertion_tests();
 void local_storage_convertion_tests();
 void sbo_storage_convertion_tests();
 void non_owning_storage_convertion_tests();
+void noncopyable_interface_tests();
 
 int main() {
   Model1 m1{};
@@ -111,6 +113,7 @@ int main() {
   local_storage_convertion_tests();
   sbo_storage_convertion_tests();
   non_owning_storage_convertion_tests();
+  noncopyable_interface_tests();
 }
 
 void remote_storage_simple_construction_tests()
@@ -406,4 +409,18 @@ void non_owning_storage_convertion_tests()
     n1 = sb1;
     n1 = r1;
   }));
+}
+
+DYNO_INTERFACE(SimpleConcept,
+  (doNothing, void())
+);
+
+struct Noncopyable
+{
+    void doNothing(){}
+};
+
+void noncopyable_interface_tests()
+{
+    SimpleConcept<dyno::remote_storage, CopyConstructible::no> c {Noncopyable{}};
 }

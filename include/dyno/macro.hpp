@@ -39,6 +39,10 @@
 #include <type_traits>
 #include <utility>
 
+enum class CopyConstructible
+{
+  yes, no
+};
 
 // TODOS
 // - Allow specifying custom base concepts and base interfaces. By default, a
@@ -53,21 +57,32 @@
 
 
 #define DYNO_PP_INTERFACE_IMPL_0(name)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -112,24 +127,38 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_1(name, arg1)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -204,27 +233,44 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_2(name, arg1, arg2)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -329,30 +375,50 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_3(name, arg1, arg2, arg3)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -487,33 +553,56 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_4(name, arg1, arg2, arg3, arg4)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -678,36 +767,62 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_5(name, arg1, arg2, arg3, arg4, arg5)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -902,39 +1017,68 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_6(name, arg1, arg2, arg3, arg4, arg5, arg6)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -1159,42 +1303,74 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_7(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -1449,45 +1625,80 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_8(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -1772,48 +1983,86 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_9(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -2128,51 +2377,92 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_10(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -2517,54 +2807,98 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_11(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -2939,57 +3273,104 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_12(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -3394,60 +3775,110 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_13(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -3882,63 +4313,116 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_14(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -4403,66 +4887,122 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_15(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -4957,69 +5497,128 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_16(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -5544,72 +6143,134 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_17(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -6164,75 +6825,140 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_18(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg18>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg18>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg18>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -6817,78 +7543,146 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_19(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg18>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg19>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg18>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg19>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg18>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg19>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
@@ -7503,81 +8297,152 @@ template< typename StorageType = dyno::remote_storage>                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_20(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20)\
+  template< CopyConstructible isCopyConstructible >                           \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      return ::dyno::requires(                                                \
-                                        \
-                                                           \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg18>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg19>\
-                                        \
-          ,                                                 \
-          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg20)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg20>\
-        ,                                                            \
-        dyno::CopyConstructible{}                                             \
-      );                                                                      \
+      if constexpr( isCopyConstructible == CopyConstructible::yes )           \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg18>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg19>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg20)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg20>\
+          ,                                                            \
+          dyno::CopyConstructible{},                                            \
+          dyno::DefaultConstructible{}                                             \
+        );                                                                      \
+      } else                                                                    \
+      {                                                                         \
+        return ::dyno::requires(                                                \
+                                          \
+                                                             \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg1>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg2>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg3>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg4>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg5>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg6>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg7>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg8>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg9>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg10>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg11>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg12>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg13>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg14>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg15>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg16>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg17>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg18>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg19>\
+                                          \
+            ,                                                 \
+            DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg20)) = ::dyno::method<DYNO_PP_VARIADIC_TAIL arg20>\
+                                                                      \
+        );                                                                      \
+      }                                                                       \
     }                                                                         \
   };                                                                          \
-template< typename StorageType = dyno::remote_storage>                        \
-  class name {      	                                                      \
+template< typename StorageType = dyno::remote_storage,                        \
+          CopyConstructible isCopyConstructible = CopyConstructible::yes >    \
+  class name {      	                                                        \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)::make_type());         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<isCopyConstructible>::make_type());         \
     using this_t = name<StorageType>;                                         \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename >                                                      \
+    template< typename, CopyConstructible >                                                      \
     friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
