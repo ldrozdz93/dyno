@@ -118,8 +118,9 @@ template< typename T > struct is_a_make_t< make_t<T> > : std::true_type {};
 
 template< typename T > inline constexpr auto is_a_make = detail::is_a_make_t<std::decay_t<T>>{};
 
-template< typename T >
-constexpr auto make = detail::make_t<T>{};
+template< typename T > inline constexpr auto make = detail::make_t<T>{};
+
+
 
 
 } // namespace dyno
