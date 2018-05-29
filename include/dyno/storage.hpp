@@ -434,7 +434,7 @@ public:
   explicit remote_storage(T&& t)
     : ptr_{[&]{
         if constexpr(is_a_make<T>)
-          return std::malloc(sizeof(typename T::type));
+          return std::malloc(sizeof(typename RawT::type));
         else
           return std::malloc(sizeof(RawT));
       }()}
