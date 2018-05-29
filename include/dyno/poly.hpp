@@ -87,6 +87,9 @@ private:
     else if constexpr( dyno::models<ActualConcept, RawT> ) {
       return poly{std::forward<T>(t), dyno::concept_map<ActualConcept, RawT>};
     }
+    else if constexpr( is_a_make<RawT> ) {
+      return poly{std::forward<T>(t), dyno::concept_map<ActualConcept, typename T::type>};
+    }
 
   }
 
@@ -99,14 +102,20 @@ private:
 public:
   template <typename T, typename RawT = std::decay_t<T>, typename ConceptMap>
   poly(T&& t, ConceptMap map)
-    : vtable_{dyno::complete_concept_map<ActualConcept, RawT>(map)}
+    : vtable_{[&]{
+        if constexpr( is_a_make<RawT> )
+          return dyno::complete_concept_map<ActualConcept, typename RawT::type>(map);
+        else
+          return dyno::complete_concept_map<ActualConcept, RawT>(map);
+      }()}
     , storage_{std::forward<T>(t)}
   { }
 
   template <typename T, typename RawT = std::decay_t<T>,
     typename = std::enable_if_t<!std::is_same<RawT, poly>::value>,
     typename = std::enable_if_t< dyno::models<ActualConcept, RawT> ||
-                                 is_a_poly<RawT>{}>>
+                                 is_a_poly<RawT>{} ||
+                                 is_a_make<RawT> > >
   poly(T&& t)
     : poly{construct_poly(std::forward<T>(t))}
   { }

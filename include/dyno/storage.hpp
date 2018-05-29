@@ -432,12 +432,20 @@ public:
 
   template <typename T, typename RawT = std::decay_t<T>>
   explicit remote_storage(T&& t)
-    : ptr_{std::malloc(sizeof(RawT))}
+    : ptr_{[&]{
+        if constexpr(is_a_make<T>)
+          return std::malloc(sizeof(typename T::type));
+        else
+          return std::malloc(sizeof(RawT));
+      }()}
   {
     // TODO: That's not a really nice way to handle this
     assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
 
-    new (ptr_) RawT(std::forward<T>(t));
+    if constexpr(is_a_make<T>)
+      new (ptr_) typename RawT::type();
+    else
+      new (ptr_) RawT(std::forward<T>(t));
   }
 
   template <typename VTable>

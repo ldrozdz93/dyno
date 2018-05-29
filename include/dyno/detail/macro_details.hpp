@@ -10,12 +10,6 @@
 namespace dyno
 {
 
-template< typename T >
-struct make
-{
-  using type = std::decay_t<T>;
-};
-
 namespace detail
 {
 class Properties

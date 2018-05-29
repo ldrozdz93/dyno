@@ -106,6 +106,20 @@ bool runtime_check(const OtherStorage& other_storage)
 
 } // namespace detail
 
+// below struct is used as a tag to construct a type in-place with placement new without move construction
+template< typename T >
+struct make
+{
+  using type = std::decay_t<T>;
+};
+
+template< typename > struct is_a_make_t : std::false_type {};
+template< typename T > struct is_a_make_t< make<T> > : std::true_type {};
+
+template< typename T > inline constexpr auto is_a_make = is_a_make_t<std::decay_t<T>>{};
+
+
+
 } // namespace dyno
 
 #endif

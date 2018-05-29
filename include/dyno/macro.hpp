@@ -91,7 +91,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -167,7 +167,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -279,7 +279,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -427,7 +427,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -611,7 +611,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -831,7 +831,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -1087,7 +1087,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -1379,7 +1379,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -1707,7 +1707,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -2071,7 +2071,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -2471,7 +2471,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -2907,7 +2907,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -3379,7 +3379,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -3887,7 +3887,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -4431,7 +4431,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -5011,7 +5011,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -5627,7 +5627,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -6279,7 +6279,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -6967,7 +6967,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -7691,7 +7691,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -8451,7 +8451,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             )};                                                               \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( is_a_##name<RawT>{} || dyno::is_a_make<RawT> )          \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
