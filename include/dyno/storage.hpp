@@ -430,19 +430,16 @@ public:
     detail::construct_with_vtable(ptr_, std::forward<OtherStorage>(other_storage), vtable);
   }
 
-  template <typename T, typename RawT = std::decay_t<T>>
+  template <typename T,
+            typename RawT = std::decay_t<T>,
+            typename TtoBeConstructed = detail::get_nested_make_type_or_given_type<T>>
   explicit remote_storage(T&& t)
-    : ptr_{[&]{
-        if constexpr(is_a_make<T>)
-          return std::malloc(sizeof(typename RawT::type));
-        else
-          return std::malloc(sizeof(RawT));
-      }()}
+    : ptr_{std::malloc(sizeof(TtoBeConstructed))}
   {
     // TODO: That's not a really nice way to handle this
     assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
 
-    if constexpr(is_a_make<T>)
+    if constexpr(detail::is_a_make<T>)
       new (ptr_) typename RawT::type();
     else
       new (ptr_) RawT(std::forward<T>(t));

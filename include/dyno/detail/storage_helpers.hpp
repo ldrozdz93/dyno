@@ -113,14 +113,38 @@ struct make_t
 
 template< typename > struct is_a_make_t : std::false_type {};
 template< typename T > struct is_a_make_t< make_t<T> > : std::true_type {};
+template< typename T > constexpr auto is_a_make = detail::is_a_make_t<std::decay_t<T>>{};
+
+
+
+namespace get_nested_make_type_or_given_type_helper
+{
+  template< typename T >
+  struct Type { using type = T; };
+
+  template< typename T, typename RawT = std::decay_t<T> >
+  static decltype(auto) check(T)
+  {
+    if constexpr( is_a_make<RawT> )
+      return Type<typename RawT::type>{};
+    else
+      return Type<RawT>{};
+  }
+
+  template< typename T >
+  using type = typename decltype(check(std::declval<T>()))::type;
+}
+
+struct Foo{ };
+
+template< typename T > using get_nested_make_type_or_given_type = get_nested_make_type_or_given_type_helper::type<std::decay_t<T>>;
+
+static_assert(std::is_same_v<Foo, get_nested_make_type_or_given_type<make_t<Foo>>>);
+static_assert(std::is_same_v<get_nested_make_type_or_given_type<Foo>, get_nested_make_type_or_given_type<make_t<Foo>>>);
 
 } // namespace detail
 
-template< typename T > inline constexpr auto is_a_make = detail::is_a_make_t<std::decay_t<T>>{};
-
 template< typename T > inline constexpr auto make = detail::make_t<T>{};
-
-
 
 
 } // namespace dyno
