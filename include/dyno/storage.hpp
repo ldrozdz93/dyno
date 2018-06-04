@@ -439,10 +439,10 @@ public:
     // TODO: That's not a really nice way to handle this
     assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
 
-    if constexpr(detail::is_a_make<T>)
-      new (ptr_) typename RawT::type();
+    if constexpr(detail::is_a_make<RawT>)
+      new (ptr_) TtoBeConstructed();
     else
-      new (ptr_) RawT(std::forward<T>(t));
+      new (ptr_) TtoBeConstructed(std::forward<T>(t));
   }
 
   template <typename VTable>
