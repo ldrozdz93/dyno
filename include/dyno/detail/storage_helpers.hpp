@@ -87,7 +87,6 @@ constexpr bool compile_time_check()
          (is_a_sbo_storage<RawOtherStorage> || is_a_remote_storage<RawOtherStorage>);
 }
 
-// below
 template <typename OtherStorage, typename RawOtherStorage = std::decay_t<OtherStorage>>
 bool runtime_check(const OtherStorage& other_storage)
 {

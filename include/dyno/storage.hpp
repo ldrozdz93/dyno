@@ -431,18 +431,25 @@ public:
   }
 
   template <typename T,
-            typename RawT = std::decay_t<T>,
-            typename TtoBeConstructed = detail::get_nested_make_type_or_given_type<T>>
+            typename RawT = std::decay_t<T> >
   explicit remote_storage(T&& t)
+    : ptr_{std::malloc(sizeof(RawT))}
+  {
+    // TODO: That's not a really nice way to handle this
+    assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
+
+    new (ptr_) RawT(std::forward<T>(t));
+  }
+
+  template <typename T,
+            typename TtoBeConstructed = detail::get_nested_make_type_or_given_type<T>>
+  explicit remote_storage(detail::make_t<T>)
     : ptr_{std::malloc(sizeof(TtoBeConstructed))}
   {
     // TODO: That's not a really nice way to handle this
     assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
 
-    if constexpr(detail::is_a_make<RawT>)
-      new (ptr_) TtoBeConstructed();
-    else
-      new (ptr_) TtoBeConstructed(std::forward<T>(t));
+    new (ptr_) TtoBeConstructed();
   }
 
   template <typename VTable>

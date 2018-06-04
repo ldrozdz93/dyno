@@ -88,7 +88,7 @@ private:
       return poly{std::forward<T>(t), dyno::concept_map<ActualConcept, RawT>};
     }
     else if constexpr( detail::is_a_make<RawT> ) {
-      return poly{std::forward<T>(t), dyno::concept_map<ActualConcept, typename T::type>};
+      return poly{std::forward<T>(t), dyno::concept_map<ActualConcept, typename RawT::type>};
     }
 
   }
