@@ -113,6 +113,7 @@ struct make_t
 template< typename > struct is_a_make_t : std::false_type {};
 template< typename T > struct is_a_make_t< make_t<T> > : std::true_type {};
 template< typename T > constexpr auto is_a_make = detail::is_a_make_t<std::decay_t<T>>::value;
+template< typename T > inline constexpr auto make = detail::make_t<T>{};
 
 
 
@@ -143,7 +144,7 @@ static_assert(std::is_same_v<get_nested_make_type_or_given_type<Foo>, get_nested
 
 } // namespace detail
 
-template< typename T > inline constexpr auto make = detail::make_t<T>{};
+template< typename T > inline constexpr auto make = detail::make<T>;
 
 
 } // namespace dyno

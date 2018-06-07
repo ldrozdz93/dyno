@@ -119,12 +119,12 @@ public:
     : poly{construct_poly(std::forward<T>(t))}
   { }
 
-  template <typename T, typename RawT = std::decay_t<T>,
+  template <typename T,
             typename ConceptMap,
             typename... Args >
-  poly(detail::make_t<T> make, ConceptMap&& map, Args&&... args)
+  poly(detail::make_t<T>, ConceptMap&& map, Args&&... args)
     : vtable_{dyno::complete_concept_map<ActualConcept, typename detail::make_t<T>::type>(map)}
-    , storage_{make, std::forward<Args>(args)...}
+    , storage_{detail::make<T>, std::forward<Args>(args)...}
   { }
 
   poly(poly const& other)
