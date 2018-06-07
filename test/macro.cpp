@@ -425,16 +425,17 @@ struct Noncopyable
 void noncopyable_interface_tests()
 {
   SimpleConcept<dyno::remote_storage > c {Noncopyable{}};
+  Concept<dyno::remote_storage> r1 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
   {
-      Concept<dyno::remote_storage> r1{ dyno::make<Model3> };
+      r1 = { dyno::make<Model3> };
       DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
   }));
 
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
   {
-      Concept<dyno::remote_storage> r1{ dyno::make<Model3>, int{}, int{} };
+      r1 = { dyno::make<Model3>, int{}, int{} };
       DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
   }));
 
