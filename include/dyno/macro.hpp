@@ -81,25 +81,44 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -150,13 +169,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -165,17 +189,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -255,13 +293,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -277,17 +320,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -396,13 +453,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -425,17 +487,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -573,13 +649,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -609,17 +690,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -786,13 +881,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -829,17 +929,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -1035,13 +1149,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -1085,17 +1204,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -1320,13 +1453,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -1377,17 +1515,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -1641,13 +1793,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -1705,17 +1862,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -1998,13 +2169,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -2069,17 +2245,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -2391,13 +2581,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -2469,17 +2664,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -2820,13 +3029,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -2905,17 +3119,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -3285,13 +3513,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -3377,17 +3610,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -3786,13 +4033,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -3885,17 +4137,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -4323,13 +4589,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -4429,17 +4700,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -4896,13 +5181,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -5009,17 +5299,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -5505,13 +5809,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -5625,17 +5934,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -6150,13 +6473,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -6277,17 +6605,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -6831,13 +7173,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -6965,17 +7312,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -7548,13 +7909,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -7689,17 +8055,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \
@@ -8301,13 +8681,18 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                                                        \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
-    template< typename T >                                                    \
-    auto construct_poly(T&& x)                                                \
+    template <typename T, typename... Args >                                  \
+    auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
-        if constexpr(not is_a_##name<RawT>{} || dyno::detail::is_a_make<RawT>)                                 \
+        constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
+        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
+                                                                              \
+        if constexpr(not x_is_a_##name || x_is_a_make)                        \
         {                                                                     \
-            return poly_t{::std::forward<T>(x), ::dyno::make_concept_map(     \
+          auto make_concept_map = [&]                                         \
+          {                                                                   \
+            return ::dyno::make_concept_map(                                  \
                                         \
                                                            \
                 DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
@@ -8449,17 +8834,31 @@ template< typename StorageType = dyno::remote_storage,                        \
                         (static_cast<decltype(args)&&>(args)...);             \
                   }                                                           \
                                                                      \
-            )};                                                               \
+            ) ;                                                               \
+          };                                                                  \
+          if constexpr( x_is_a_make )                                         \
+          {                                                                   \
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map(),                                 \
+                         ::std::forward<Args>(argsForMake)...};               \
+          }                                                                   \
+          else                                                                \
+          {                                                                   \
+            static_assert(sizeof...(argsForMake) == 0,                        \
+                         "Variable argument pack is only for make<T> idiom!");\
+            return poly_t{::std::forward<T>(x),                               \
+                          make_concept_map()};                                \
+          }                                                                   \
         }                                                                     \
-        if constexpr( is_a_##name<RawT>{} )                                   \
+        if constexpr( x_is_a_##name )                                         \
         {                                                                     \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
   public:                                                                     \
-    template <typename T >                                                    \
-    name(T&& x)                                                               \
-      : poly_{construct_poly(std::forward<T>(x))}                             \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
     {}                                                                        \
     template <typename T >                                                    \
     name& operator=(T&& x)                                                    \

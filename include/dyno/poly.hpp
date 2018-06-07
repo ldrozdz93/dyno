@@ -114,10 +114,17 @@ public:
   template <typename T, typename RawT = std::decay_t<T>,
     typename = std::enable_if_t<!std::is_same<RawT, poly>::value>,
     typename = std::enable_if_t< dyno::models<ActualConcept, RawT> ||
-                                 is_a_poly<RawT>{} ||
-                                 detail::is_a_make<RawT> > >
+                                 is_a_poly<RawT>::value  > >
   poly(T&& t)
     : poly{construct_poly(std::forward<T>(t))}
+  { }
+
+  template <typename T, typename RawT = std::decay_t<T>,
+            typename ConceptMap,
+            typename... Args >
+  poly(detail::make_t<T> make, ConceptMap&& map, Args&&... args)
+    : vtable_{dyno::complete_concept_map<ActualConcept, typename detail::make_t<T>::type>(map)}
+    , storage_{make, std::forward<Args>(args)...}
   { }
 
   poly(poly const& other)
