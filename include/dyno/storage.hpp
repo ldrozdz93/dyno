@@ -442,7 +442,7 @@ public:
   }
 
   template <typename T,
-            typename TtoBeConstructed = detail::get_nested_make_type_or_given_type<T>,
+            typename TtoBeConstructed = typename detail::make_t<T>::type,
             typename... Args>
   explicit remote_storage(detail::make_t<T>, Args&&... args)
     : ptr_{std::malloc(sizeof(TtoBeConstructed))}
