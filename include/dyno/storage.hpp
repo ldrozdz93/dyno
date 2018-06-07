@@ -442,14 +442,15 @@ public:
   }
 
   template <typename T,
-            typename TtoBeConstructed = detail::get_nested_make_type_or_given_type<T>>
-  explicit remote_storage(detail::make_t<T>)
+            typename TtoBeConstructed = detail::get_nested_make_type_or_given_type<T>,
+            typename... Args>
+  explicit remote_storage(detail::make_t<T>, Args&&... args)
     : ptr_{std::malloc(sizeof(TtoBeConstructed))}
   {
     // TODO: That's not a really nice way to handle this
     assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
 
-    new (ptr_) TtoBeConstructed();
+    new (ptr_) TtoBeConstructed(std::forward<Args>(args)...);
   }
 
   template <typename VTable>

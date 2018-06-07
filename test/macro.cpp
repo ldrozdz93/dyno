@@ -63,6 +63,9 @@ struct CountedConstruction
 
 struct Model3 : CountedConstruction
 {
+  Model3() = default;
+  Model3(int, int){}
+
   char additionalSize[40]; // useful for local_storage tests
 
   int f1(int) const  { return 91; }
@@ -421,13 +424,19 @@ struct Noncopyable
 
 void noncopyable_interface_tests()
 {
-    SimpleConcept<dyno::remote_storage > c {Noncopyable{}};
+  SimpleConcept<dyno::remote_storage > c {Noncopyable{}};
 
-    DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
-    {
-        Concept<dyno::remote_storage> r1{ dyno::make<Model3> };
-        DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
-    }));
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
+  {
+      Concept<dyno::remote_storage> r1{ dyno::make<Model3> };
+      DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
+  {
+      Concept<dyno::remote_storage> r1{ dyno::make<Model3>, int{}, int{} };
+      DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
+  }));
 
 //    DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
 //    {
