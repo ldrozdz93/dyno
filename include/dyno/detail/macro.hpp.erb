@@ -62,38 +62,38 @@ end
 %>
 
 #define DYNO_PP_INTERFACE_IMPL_<%= n %>(name<%= args.map { |arg| ", #{arg}" }.join %>)\
-  template< bool isCopyConstructible >                           \
+  template< bool isCopyConstructible >                                        \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      if constexpr( isCopyConstructible == true )           \
+      if constexpr( isCopyConstructible == true )                             \
       {                                                                       \
         return ::dyno::requires(                                              \
-          <% args.each_with_index do |arg, i| %>                                \
-            <%= ',' if i > 0 %>                                                 \
+          <% args.each_with_index do |arg, i| %>                              \
+            <%= ',' if i > 0 %>                                               \
             <%= dyno_string(arg) %> = ::dyno::method<DYNO_PP_VARIADIC_TAIL <%= arg %>>\
-          <% end %>,                                                            \
-          dyno::CopyConstructible{}                                             \
-        );                                                                      \
-      } else                                                                    \
-      {                                                                         \
-        return ::dyno::requires(                                                \
-          <% args.each_with_index do |arg, i| %>                                \
-            <%= ',' if i > 0 %>                                                 \
+          <% end %>,                                                          \
+          dyno::CopyConstructible{}                                           \
+        );                                                                    \
+      } else                                                                  \
+      {                                                                       \
+        return ::dyno::requires(                                              \
+          <% args.each_with_index do |arg, i| %>                              \
+            <%= ',' if i > 0 %>                                               \
             <%= dyno_string(arg) %> = ::dyno::method<DYNO_PP_VARIADIC_TAIL <%= arg %>>\
-          <% end %>                                                            \
-        );                                                                      \
+          <% end %>                                                           \
+        );                                                                    \
       }                                                                       \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults >    \
-  class name {      	                                                        \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };                         \
+          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+  class name {      	                                                      \
+    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());         \
-    using this_t = name<StorageType, properties_bitfield>;                                         \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+    using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
-    template< typename, uint32_t > friend class name;                                                        \
+    template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
