@@ -10,6 +10,17 @@
 namespace dyno
 {
 
+inline namespace properties
+{
+
+enum
+{
+  defaults = 0,
+  non_copy_constructible = 1
+};
+
+} // namespace properties
+
 namespace detail
 {
 class Properties
@@ -18,11 +29,7 @@ class Properties
   Bitfield prop;
 
 public:
-  enum Property
-  {
-    defaults = 0,
-    non_copy_constructible = 1
-  };
+
 
   constexpr Properties(const Bitfield p_prop) :
     prop(p_prop)

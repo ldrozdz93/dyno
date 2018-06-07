@@ -91,6 +91,7 @@ void local_storage_convertion_tests();
 void sbo_storage_convertion_tests();
 void non_owning_storage_convertion_tests();
 void placement_new_with_make_tests();
+void constructing_noncopyable_tests();
 
 int main() {
   Model1 m1{};
@@ -116,6 +117,7 @@ int main() {
   sbo_storage_convertion_tests();
   non_owning_storage_convertion_tests();
   placement_new_with_make_tests();
+  constructing_noncopyable_tests();
 }
 
 void remote_storage_simple_construction_tests()
@@ -436,11 +438,20 @@ void placement_new_with_make_tests()
 //    }));
 }
 
+
 DYNO_INTERFACE(SimpleConcept,
   (doNothing, void())
 );
 
-struct Noncopyable
+struct Noncopyable : public boost::noncopyable
 {
-    void doNothing(){}
+  void doNothing(){}
 };
+
+void constructing_noncopyable_tests()
+{
+  using namespace dyno;
+  SimpleConcept<remote_storage, non_copy_constructible> s1{ make<Noncopyable> };
+// TODO: Test below static_assert
+//  SimpleConcept<remote_storage, non_copy_constructible> s2{ s1 }; // should fail to compile
+}

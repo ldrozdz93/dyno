@@ -71,7 +71,7 @@
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -80,7 +80,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -110,6 +110,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -157,7 +159,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -166,7 +168,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -203,6 +205,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -279,7 +283,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -288,7 +292,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -332,6 +336,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -437,7 +443,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -446,7 +452,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -497,6 +503,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -631,7 +639,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -640,7 +648,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -698,6 +706,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -861,7 +871,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -870,7 +880,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -935,6 +945,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -1127,7 +1139,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -1136,7 +1148,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -1208,6 +1220,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -1429,7 +1443,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -1438,7 +1452,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -1517,6 +1531,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -1767,7 +1783,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -1776,7 +1792,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -1862,6 +1878,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -2141,7 +2159,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -2150,7 +2168,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -2243,6 +2261,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -2551,7 +2571,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -2560,7 +2580,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -2660,6 +2680,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -2997,7 +3019,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -3006,7 +3028,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -3113,6 +3135,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -3479,7 +3503,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -3488,7 +3512,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -3602,6 +3626,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -3997,7 +4023,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -4006,7 +4032,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -4127,6 +4153,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -4551,7 +4579,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -4560,7 +4588,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -4688,6 +4716,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -5141,7 +5171,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -5150,7 +5180,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -5285,6 +5315,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -5767,7 +5799,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -5776,7 +5808,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -5918,6 +5950,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -6429,7 +6463,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -6438,7 +6472,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -6587,6 +6621,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -7127,7 +7163,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -7136,7 +7172,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -7292,6 +7328,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -7861,7 +7899,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -7870,7 +7908,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -8033,6 +8071,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
@@ -8631,7 +8671,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::detail::Properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::defaults > \
   class name {      	                                                      \
     static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
     using concept_t =                                                         \
@@ -8640,7 +8680,7 @@ template< typename StorageType = dyno::remote_storage,                        \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
-    template< typename T > struct is_a_##name<name<T> > : std::true_type {};  \
+    template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -8810,6 +8850,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
+          static_assert(prop.is_copy_construcible(),                          \
+                        "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
