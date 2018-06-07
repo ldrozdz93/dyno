@@ -86,9 +86,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -96,7 +95,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -174,9 +173,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -191,7 +189,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -298,9 +296,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -322,7 +319,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -458,9 +455,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -489,7 +485,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -654,9 +650,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -692,7 +687,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -886,9 +881,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -931,7 +925,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -1154,9 +1148,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -1206,7 +1199,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -1458,9 +1451,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -1517,7 +1509,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -1798,9 +1790,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -1864,7 +1855,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -2174,9 +2165,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -2247,7 +2237,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -2586,9 +2576,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -2666,7 +2655,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -3034,9 +3023,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -3121,7 +3109,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -3518,9 +3506,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -3612,7 +3599,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -4038,9 +4025,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -4139,7 +4125,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -4594,9 +4580,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -4702,7 +4687,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -5186,9 +5171,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -5301,7 +5285,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -5814,9 +5798,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -5936,7 +5919,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -6478,9 +6461,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -6607,7 +6589,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -7178,9 +7160,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -7314,7 +7295,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -7914,9 +7895,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -8057,7 +8037,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
@@ -8686,9 +8666,8 @@ template< typename StorageType = dyno::remote_storage,                        \
     {                                                                         \
         using RawT = std::decay_t<T>;                                         \
         constexpr bool x_is_a_##name = is_a_##name<RawT>::value;              \
-        constexpr bool x_is_a_make = dyno::detail::is_a_make<RawT>;           \
                                                                               \
-        if constexpr(not x_is_a_##name || x_is_a_make)                        \
+        if constexpr(not x_is_a_##name)                                       \
         {                                                                     \
           auto make_concept_map = [&]                                         \
           {                                                                   \
@@ -8836,7 +8815,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                      \
             ) ;                                                               \
           };                                                                  \
-          if constexpr( x_is_a_make )                                         \
+          if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map(),                                 \
