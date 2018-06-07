@@ -90,7 +90,7 @@ void shared_remote_storage_convertion_tests();
 void local_storage_convertion_tests();
 void sbo_storage_convertion_tests();
 void non_owning_storage_convertion_tests();
-void noncopyable_interface_tests();
+void placement_new_with_make_tests();
 
 int main() {
   Model1 m1{};
@@ -115,7 +115,7 @@ int main() {
   local_storage_convertion_tests();
   sbo_storage_convertion_tests();
   non_owning_storage_convertion_tests();
-  noncopyable_interface_tests();
+  placement_new_with_make_tests();
 }
 
 void remote_storage_simple_construction_tests()
@@ -413,18 +413,8 @@ void non_owning_storage_convertion_tests()
   }));
 }
 
-DYNO_INTERFACE(SimpleConcept,
-  (doNothing, void())
-);
-
-struct Noncopyable
+void placement_new_with_make_tests()
 {
-    void doNothing(){}
-};
-
-void noncopyable_interface_tests()
-{
-  SimpleConcept<dyno::remote_storage > c {Noncopyable{}};
   Concept<dyno::remote_storage> r1 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
@@ -445,3 +435,12 @@ void noncopyable_interface_tests()
 //        DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
 //    }));
 }
+
+DYNO_INTERFACE(SimpleConcept,
+  (doNothing, void())
+);
+
+struct Noncopyable
+{
+    void doNothing(){}
+};
