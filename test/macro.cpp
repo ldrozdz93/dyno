@@ -440,7 +440,7 @@ void placement_new_with_make_tests()
 //    }));
 }
 
-struct Model4 : public Model3, public boost::noncopyable
+struct Model3Noncopyable : public Model3, public boost::noncopyable
 {
   void doNothing(){}
 };
@@ -448,7 +448,7 @@ struct Model4 : public Model3, public boost::noncopyable
 void constructing_noncopyable_tests()
 {
   using namespace dyno;
-  Concept<remote_storage, non_copy_constructible> s1{ make<Model4> };
+  Concept<remote_storage, non_copy_constructible> s1{ make<Model3Noncopyable> };
 // TODO: Test below static_assert
 //  Concept<remote_storage, non_copy_constructible> s2{ s1 }; // should fail to compile
 }
