@@ -71,11 +71,11 @@
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -110,7 +110,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -159,11 +159,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -205,7 +205,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -283,11 +283,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -336,7 +336,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -443,11 +443,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -503,7 +503,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -639,11 +639,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -706,7 +706,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -871,11 +871,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -945,7 +945,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -1139,11 +1139,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -1220,7 +1220,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -1443,11 +1443,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -1531,7 +1531,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -1783,11 +1783,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -1878,7 +1878,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -2159,11 +2159,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -2261,7 +2261,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -2571,11 +2571,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -2680,7 +2680,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -3019,11 +3019,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -3135,7 +3135,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -3503,11 +3503,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -3626,7 +3626,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -4023,11 +4023,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -4153,7 +4153,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -4579,11 +4579,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -4716,7 +4716,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -5171,11 +5171,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -5315,7 +5315,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -5799,11 +5799,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -5950,7 +5950,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -6463,11 +6463,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -6621,7 +6621,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -7163,11 +7163,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -7328,7 +7328,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -7899,11 +7899,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -8071,7 +8071,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
@@ -8671,11 +8671,11 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::defaults > \
+          uint32_t properties_bitfield = dyno::properties::all_default > \
   class name {      	                                                      \
-    static constexpr dyno::detail::Properties prop{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<prop.is_copy_construcible()>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
     using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
     template< typename, uint32_t > friend class name;                         \
@@ -8850,7 +8850,7 @@ template< typename StorageType = dyno::remote_storage,                        \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(prop.is_copy_construcible(),                          \
+          static_assert(config.is_copy_constructible,                          \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \

@@ -12,30 +12,39 @@ namespace dyno
 
 inline namespace properties
 {
+using PropertiesBitfield = uint32_t;
 
 enum
 {
-  defaults = 0,
-  non_copy_constructible = 1
+  all_default = 0,
+  copy_constructible = 1,
+  non_copy_constructible = 1 << 1
 };
 
 } // namespace properties
 
 namespace detail
 {
-class Properties
+
+struct macro_config_raw
 {
-  using Bitfield = uint32_t;
-  Bitfield prop;
+  bool is_copy_constructible;
+};
 
-public:
+constexpr macro_config_raw default_config{
+    /*.is_copy_constructible =*/ true
+};
 
+struct macro_config : macro_config_raw
+{
+  using PropertiesBitfield = properties::PropertiesBitfield;
 
-  constexpr Properties(const Bitfield p_prop) :
-    prop(p_prop)
-  {}
-
-  constexpr bool is_copy_construcible() const { return not( non_copy_constructible & prop ); }
+  constexpr macro_config(const PropertiesBitfield prop)
+  {
+      is_copy_constructible = copy_constructible & prop ? true :
+                              non_copy_constructible & prop ? false :
+                              default_config.is_copy_constructible;
+  }
 };
 
 }} // namespace dyno namespace detail
