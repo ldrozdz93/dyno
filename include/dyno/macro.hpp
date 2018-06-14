@@ -71,9 +71,9 @@
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -104,6 +104,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -159,9 +167,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -199,6 +207,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -283,9 +299,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -330,6 +346,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -443,9 +467,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -497,6 +521,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -639,9 +671,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -700,6 +732,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -871,9 +911,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -939,6 +979,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -1139,9 +1187,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -1214,6 +1262,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -1443,9 +1499,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -1525,6 +1581,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -1783,9 +1847,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -1872,6 +1936,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -2159,9 +2231,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -2255,6 +2327,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -2571,9 +2651,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -2674,6 +2754,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -3019,9 +3107,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -3129,6 +3217,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -3503,9 +3599,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -3620,6 +3716,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -4023,9 +4127,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -4147,6 +4251,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -4579,9 +4691,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -4710,6 +4822,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -5171,9 +5291,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -5309,6 +5429,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -5799,9 +5927,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -5944,6 +6072,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -6463,9 +6599,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -6615,6 +6751,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -7163,9 +7307,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -7322,6 +7466,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -7899,9 +8051,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -8065,6 +8217,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
@@ -8671,9 +8831,9 @@ template< typename StorageType = dyno::remote_storage,                        \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
-          uint32_t properties_bitfield = dyno::properties::all_default > \
+          uint32_t properties_bitfield = dyno::properties::all_default >      \
   class name {      	                                                      \
-    static constexpr dyno::detail::macro_config config{ properties_bitfield };    \
+    static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
@@ -8844,6 +9004,14 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
+            static_assert(noexcept(x.~RawT()),                                \
+                          "Destructor must be noexcept to ensure "            \
+                          "exception safety of assignment.");                 \
+            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
+                          "Constructor must be noexcept to ensure "           \
+                          "exception safety of a possible assignment. "       \
+                          "Please consider using exception_unsafe "           \
+                          "macro property on interface creation");            \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \

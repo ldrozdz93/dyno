@@ -55,16 +55,16 @@ struct ConstructionCounter
 struct CountedConstruction
 {
   static inline ConstructionCounter counter{};
-  CountedConstruction(){ counter.def++; }
-  CountedConstruction(const CountedConstruction&){ counter.copy++; }
-  CountedConstruction(CountedConstruction&&){ counter.move++; }
+  CountedConstruction() noexcept { counter.def++; }
+  CountedConstruction(const CountedConstruction&) noexcept { counter.copy++; }
+  CountedConstruction(CountedConstruction&&) noexcept { counter.move++; }
   ~CountedConstruction() = default;
 };
 
 struct Model3 : CountedConstruction
 {
   Model3() = default;
-  Model3(int, int){}
+  Model3(int, int) noexcept {}
 
   char additionalSize[40]; // useful for local_storage tests
 
@@ -450,11 +450,12 @@ void constructing_noncopyable_tests()
   using namespace dyno;
   Concept<remote_storage, non_copy_constructible> s1{ make<Model4> };
 // TODO: Test below static_assert
-//  SimpleConcept<remote_storage, non_copy_constructible> s2{ s1 }; // should fail to compile
+//  Concept<remote_storage, non_copy_constructible> s2{ s1 }; // should fail to compile
 }
 
 
 void constructing_exception_safe_object_tests()
 {
   using namespace dyno;
+//  Concept<remote_storage,
 }
