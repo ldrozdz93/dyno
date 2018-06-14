@@ -92,6 +92,7 @@ void sbo_storage_convertion_tests();
 void non_owning_storage_convertion_tests();
 void placement_new_with_make_tests();
 void constructing_noncopyable_tests();
+void constructing_exception_safe_object_tests();
 
 int main() {
   Model1 m1{};
@@ -118,6 +119,7 @@ int main() {
   non_owning_storage_convertion_tests();
   placement_new_with_make_tests();
   constructing_noncopyable_tests();
+  constructing_exception_safe_object_tests();
 }
 
 void remote_storage_simple_construction_tests()
@@ -357,7 +359,7 @@ void sbo_storage_convertion_tests()
     sb1_heap = std::move(sb1_stack);
   }));
 
-  // TODO: find way to test this...
+  // TODO: find a way to test this...
   // sb1_heap = std::move(sr1); // moving shared_remote_storage -> sbo_storage should't compile!
 }
 
@@ -438,12 +440,7 @@ void placement_new_with_make_tests()
 //    }));
 }
 
-
-DYNO_INTERFACE(SimpleConcept,
-  (doNothing, void())
-);
-
-struct Noncopyable : public boost::noncopyable
+struct Model4 : public Model3, public boost::noncopyable
 {
   void doNothing(){}
 };
@@ -451,7 +448,13 @@ struct Noncopyable : public boost::noncopyable
 void constructing_noncopyable_tests()
 {
   using namespace dyno;
-  SimpleConcept<remote_storage, non_copy_constructible> s1{ make<Noncopyable> };
+  Concept<remote_storage, non_copy_constructible> s1{ make<Model4> };
 // TODO: Test below static_assert
 //  SimpleConcept<remote_storage, non_copy_constructible> s2{ s1 }; // should fail to compile
+}
+
+
+void constructing_exception_safe_object_tests()
+{
+  using namespace dyno;
 }
