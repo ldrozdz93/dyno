@@ -91,7 +91,7 @@ template <typename OtherStorage, typename RawOtherStorage = std::decay_t<OtherSt
 bool runtime_check(const OtherStorage& other_storage)
 {
   static_assert(compile_time_check<OtherStorage>(),
-                "Thin func should be preceeded with a compile-time check!");
+                "This func should be preceeded with a compile-time check!");
   if constexpr( is_a_sbo_storage<RawOtherStorage> )
   {
     return other_storage.uses_heap();

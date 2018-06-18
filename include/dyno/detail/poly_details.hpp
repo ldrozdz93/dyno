@@ -4,8 +4,9 @@
 namespace dyno::detail
 {
 
-struct PolyDefaultDestructionPolicy
+class PolyDefaultDestructionPolicy
 {
+protected:
   template< typename Storage, typename VTable >
   static void destruct(Storage& storage, VTable& vtable)
   {

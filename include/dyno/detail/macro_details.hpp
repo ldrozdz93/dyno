@@ -55,6 +55,44 @@ struct macro_config : macro_config_raw
   }
 };
 
+/* The purpuse of below poly destruction policy is
+ * to guard the storage from being destructed twice.
+ * It's essential for macro exception safety of
+ * assignemnt operator, which is using the
+ * assign-with-placement-construction idiom, i.e:
+ * T& operator=(T&& other)
+ * {
+ *   (&poly_)->~poly_t();
+ *   new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(other)));
+ *   return *this;
+ * }
+ *
+ * If the copy/move constructor threw an exception,
+ * the poly destructor could be invoked twice:
+ *   1) explicitly with (&poly_)->~poly_t();
+ *   2) implicitly while unwinding stack of poly,
+ *      if the exception was propagated outside the
+ *      poly scope
+ * Double destruction of the underlying storage is
+ * undefined behavior. This policy ensures with a bool
+ * flag, that the storage is destructed only once.
+*/
+class PolyGuardMultipleDestructionPolicy
+{
+  bool was_destructed = false;
+
+protected:
+  template< typename Storage, typename VTable >
+  void destruct(Storage& storage, VTable& vtable)
+  {
+    if( not was_destructed )
+    {
+      storage.destruct(vtable);
+      was_destructed = true;
+    }
+  }
+};
+
 }} // namespace dyno namespace detail
 
 #endif //DYNO_DETAIL_MACRO_DETAILS_HPP

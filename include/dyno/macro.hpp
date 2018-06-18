@@ -77,7 +77,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -130,14 +133,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -149,7 +155,7 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -185,7 +191,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -245,14 +254,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -287,7 +299,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -329,7 +341,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -396,14 +411,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -461,7 +479,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -509,7 +527,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -583,14 +604,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -671,7 +695,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -725,7 +749,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -806,14 +833,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -917,7 +947,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -977,7 +1007,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -1065,14 +1098,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -1199,7 +1235,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -1265,7 +1301,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -1360,14 +1399,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -1517,7 +1559,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -1589,7 +1631,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -1691,14 +1736,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -1871,7 +1919,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -1949,7 +1997,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -2058,14 +2109,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -2261,7 +2315,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -2345,7 +2399,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -2461,14 +2518,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -2687,7 +2747,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -2777,7 +2837,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -2900,14 +2963,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -3149,7 +3215,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -3245,7 +3311,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -3375,14 +3444,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -3647,7 +3719,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -3749,7 +3821,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -3886,14 +3961,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -4181,7 +4259,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -4289,7 +4367,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -4433,14 +4514,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -4751,7 +4835,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -4865,7 +4949,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -5016,14 +5103,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -5357,7 +5447,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -5477,7 +5567,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -5635,14 +5728,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -5999,7 +6095,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -6125,7 +6221,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -6290,14 +6389,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -6677,7 +6779,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -6809,7 +6911,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -6981,14 +7086,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -7391,7 +7499,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -7529,7 +7637,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -7708,14 +7819,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -8141,7 +8255,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -8285,7 +8399,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -8471,14 +8588,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -8927,7 +9047,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
@@ -9077,7 +9197,10 @@ template< typename StorageType = dyno::remote_storage,                        \
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using this_t = name<StorageType, properties_bitfield>;                    \
-    using poly_t = ::dyno::poly<concept_t, StorageType>;                      \
+    using poly_t = ::dyno::poly<concept_t,                                    \
+                                StorageType,                                  \
+                                dyno::vtable<dyno::remote<dyno::everything>>, \
+                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -9270,14 +9393,17 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
+      (&poly_)->~poly_t();                                                    \
+      new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
+      return *this;                                                           \
     }                                                                         \
                                                                               \
   public:                                                                     \
     name(const name&) = default;                                              \
     name(name&&) = default;                                                   \
-    template <typename T, typename... Args >                                  \
+    template <typename T,                                                     \
+              typename = std::enable_if_t<!std::is_same_v< name, std::decay_t<T> >>,  \
+              typename... Args>                                               \
     name(T&& x, Args&&... args)                                               \
       : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
     {}                                                                        \
@@ -9749,7 +9875,7 @@ template< typename StorageType = dyno::remote_storage,                        \
       }                                                                       \
                                                                      \
   private:                                                                    \
-    ::dyno::poly<concept_t, StorageType> poly_;                               \
+    poly_t poly_;    \
   }
 
 
