@@ -584,6 +584,18 @@ struct shared_remote_storage {
     :  ptr_{get_storage(std::forward<OtherStorage>(other_storage), vtable), deleter_for_vtable(vtable)}
   { }
 
+  template <typename T,
+            typename TtoBeConstructed = typename detail::make_inplace_t<T>::type,
+            typename... Args>
+  explicit shared_remote_storage(detail::make_inplace_t<T>, Args&&... args)
+    : ptr_{std::make_shared<TtoBeConstructed>(std::forward<Args>(args)...)}
+  {
+    // TODO: That's not a really nice way to handle this
+    assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
+
+    new (ptr_) TtoBeConstructed(std::forward<Args>(args)...);
+  }
+
   template <typename T, typename RawT = std::decay_t<T>>
   explicit shared_remote_storage(T&& t)
     : ptr_{std::make_shared<RawT>(std::forward<T>(t))}
