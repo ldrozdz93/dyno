@@ -11,6 +11,7 @@
 #include <dyno/detail/is_placeholder.hpp>
 #include <dyno/storage.hpp>
 #include <dyno/vtable.hpp>
+#include <dyno/detail/poly_details.hpp>
 
 #include <boost/hana/contains.hpp>
 #include <boost/hana/core/to.hpp>
@@ -62,11 +63,12 @@ namespace dyno {
 template <
   typename Concept,
   typename Storage = dyno::remote_storage,
-  typename VTablePolicy = dyno::vtable<dyno::remote<dyno::everything>>
+  typename VTablePolicy = dyno::vtable<dyno::remote<dyno::everything>>,
+  typename DestructionPolicy = dyno::detail::PolyDefaultDestructionPolicy
 >
-struct poly {
+struct poly : DestructionPolicy {
 private:
-  template< typename, typename, typename > friend struct poly;
+  template< typename, typename, typename, typename > friend struct poly;
   using ActualConcept = decltype(dyno::requires(
     Concept{},
     dyno::Destructible{},
@@ -75,7 +77,8 @@ private:
   using VTable = typename VTablePolicy::template apply<ActualConcept>;
 
   template<typename> struct is_a_poly : std::false_type {};
-  template< typename T1, typename T2, typename T3 > struct is_a_poly<poly<T1, T2, T3> > : std::true_type {};
+  template< typename T1, typename T2, typename T3, typename T4 >
+    struct is_a_poly<poly<T1, T2, T3, T4> > : std::true_type {};
 
   template< typename T, typename RawT = std::decay_t<T> >
   poly construct_poly(T&& t)
@@ -155,7 +158,7 @@ public:
 
   friend void swap(poly& a, poly& b) { a.swap(b); }
 
-  ~poly() { storage_.destruct(vtable_); }
+  ~poly() { DestructionPolicy::destruct(storage_, vtable_); }
 
   template <typename ...T, typename Name, typename ...Args>
   decltype(auto) operator->*(dyno::detail::delayed_call<Name, Args...>&& delayed) {
