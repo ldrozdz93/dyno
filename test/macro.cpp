@@ -92,7 +92,6 @@ void sbo_storage_convertion_tests();
 void non_owning_storage_convertion_tests();
 void placement_new_with_make_tests();
 void constructing_noncopyable_tests();
-void constructing_exception_safe_object_tests();
 
 int main() {
   Model1 m1{};
@@ -119,7 +118,6 @@ int main() {
   non_owning_storage_convertion_tests();
   placement_new_with_make_tests();
   constructing_noncopyable_tests();
-  constructing_exception_safe_object_tests();
 }
 
 void remote_storage_simple_construction_tests()
@@ -435,19 +433,19 @@ void placement_new_with_make_tests()
 
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
   {
-      r1 = { dyno::make<Model3> };
+      r1 = { dyno::make_inplace<Model3> };
       DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
   }));
 
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
   {
-      r1 = { dyno::make<Model3>, int{}, int{} };
+      r1 = { dyno::make_inplace<Model3>, int{}, int{} };
       DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
   }));
 
 //    DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
 //    {
-//        Concept<dyno::local_storage<sizeof(Model3)>> r1{ dyno::make<Model3>{} };
+//        Concept<dyno::local_storage<sizeof(Model3)>> r1{ dyno::make_inplace<Model3>{} };
 //        DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
 //    }));
 }
@@ -460,7 +458,7 @@ struct Model3Noncopyable : public Model3, public boost::noncopyable
 void constructing_noncopyable_tests()
 {
   using namespace dyno;
-  Concept<remote_storage, non_copy_constructible> c1{ make<Model3Noncopyable> };
+  Concept<remote_storage, non_copy_constructible> c1{ make_inplace<Model3Noncopyable> };
 
 // TODO: Test below static_assert
 //  Concept<remote_storage, non_copy_constructible> c2{ c1 }; // should fail to compile

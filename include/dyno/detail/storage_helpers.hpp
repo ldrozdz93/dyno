@@ -117,7 +117,7 @@ template< typename T > inline constexpr auto make_inplace = detail::make_inplace
 
 } // namespace detail
 
-template< typename T > inline constexpr auto make = detail::make_inplace<T>;
+template< typename T > inline constexpr auto make_inplace = detail::make_inplace<T>;
 
 
 } // namespace dyno
