@@ -78,9 +78,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -91,15 +91,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -158,9 +158,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -178,15 +178,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -274,9 +274,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -301,15 +301,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -426,9 +426,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -460,15 +460,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -614,9 +614,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -655,15 +655,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -838,9 +838,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -886,15 +886,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -1098,9 +1098,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -1153,15 +1153,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -1394,9 +1394,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -1456,15 +1456,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -1726,9 +1726,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -1795,15 +1795,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -2094,9 +2094,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -2170,15 +2170,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -2498,9 +2498,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -2581,15 +2581,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -2938,9 +2938,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -3028,15 +3028,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -3414,9 +3414,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -3511,15 +3511,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -3926,9 +3926,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -4030,15 +4030,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -4474,9 +4474,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -4585,15 +4585,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -5058,9 +5058,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -5176,15 +5176,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -5678,9 +5678,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -5803,15 +5803,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -6334,9 +6334,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -6466,15 +6466,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -7026,9 +7026,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -7165,15 +7165,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -7754,9 +7754,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -7900,15 +7900,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
@@ -8518,9 +8518,9 @@ template< typename StorageType = dyno::remote_storage,                        \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
-    template< typename, typename > friend class dyno::detail::macro_traits;              \
+    template< typename, typename > friend class dyno::detail::macro_traits;   \
     template< typename, uint32_t > friend class name;                         \
-    template< typename> struct is_a_type_of_this_template : std::false_type {};              \
+    template< typename> struct is_a_type_of_this_template : std::false_type {};\
     template< typename T, uint32_t prop > struct is_a_type_of_this_template<name<T, prop> > : std::true_type {};  \
     static auto make_concept_map()                                            \
     {                                                                         \
@@ -8671,15 +8671,15 @@ template< typename StorageType = dyno::remote_storage,                        \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
-        return traits::template construct_poly<name>(                       \
+        return traits::template construct_poly<name>(                         \
           std::forward<T>(x),                                                 \
-          std::forward<Args>(argsForMake)...);                                       \
+          std::forward<Args>(argsForMake)...);                                \
     }                                                                         \
                                                                               \
     template <typename T >                                                    \
     name& operatorEquals(T&& t)                                               \
     {                                                                         \
-      (&poly_)->~poly_t();                                                    \
+      poly_.~poly_t();                                                    \
       new (static_cast<void*>(&poly_)) poly_t(construct_poly(std::forward<T>(t)));            \
       return *this;                                                           \
     }                                                                         \
