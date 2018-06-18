@@ -55,6 +55,12 @@ struct macro_config : macro_config_raw
   }
 };
 
+template< typename Interface >
+struct macro_traits
+{
+
+};
+
 /* The purpuse of below poly destruction policy is
  * to guard the storage from being destructed twice.
  * It's essential for macro exception safety of
@@ -79,7 +85,7 @@ struct macro_config : macro_config_raw
 */
 class PolyGuardMultipleDestructionPolicy
 {
-  bool was_destructed = false;
+  char was_destructed = 0;
 
 protected:
   template< typename Storage, typename VTable >
@@ -88,7 +94,7 @@ protected:
     if( not was_destructed )
     {
       storage.destruct(vtable);
-      was_destructed = true;
+      was_destructed = 1;
     }
   }
 };
