@@ -55,12 +55,6 @@ struct macro_config : macro_config_raw
   }
 };
 
-template< typename Interface >
-struct macro_traits
-{
-
-};
-
 /* The purpuse of below poly destruction policy is
  * to guard the storage from being destructed twice.
  * It's essential for macro exception safety of
@@ -97,6 +91,20 @@ protected:
       was_destructed = 1;
     }
   }
+};
+
+
+template< typename Concept, typename StorageType >
+struct macro_traits
+{
+    using T1 = Concept;
+    using T2 = StorageType;
+    using T3 = dyno::vtable<dyno::remote<dyno::everything>>;
+    using T4 = dyno::detail::PolyGuardMultipleDestructionPolicy;
+    using poly_t = ::dyno::poly<T1,
+                                T2,
+                                T3,
+                                T4 >;
 };
 
 }} // namespace dyno namespace detail

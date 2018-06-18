@@ -72,14 +72,13 @@
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -185,14 +184,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -334,14 +332,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -519,14 +516,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -740,14 +736,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -997,14 +992,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -1290,14 +1284,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -1619,14 +1612,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -1984,14 +1976,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -2385,14 +2376,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -2822,14 +2812,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -3295,14 +3284,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -3804,14 +3792,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -4349,14 +4336,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -4930,14 +4916,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -5547,14 +5532,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -6200,14 +6184,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -6889,14 +6872,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -7614,14 +7596,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -8375,14 +8356,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
@@ -9172,14 +9152,13 @@ template< typename StorageType = dyno::remote_storage,                        \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name : public dyno::detail::macro_traits< name<StorageType, properties_bitfield> > {  \
+  class name {                                                                \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
       decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
-    using poly_t = ::dyno::poly<concept_t,                                    \
-                                StorageType,                                  \
-                                dyno::vtable<dyno::remote<dyno::everything>>, \
-                                dyno::detail::PolyGuardMultipleDestructionPolicy>;  \
+    using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
+    friend dyno::detail::macro_traits< concept_t, StorageType >;              \
+    using poly_t = typename traits::poly_t;                                   \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
