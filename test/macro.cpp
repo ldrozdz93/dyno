@@ -167,15 +167,27 @@ void shared_remote_storage_simple_construction_tests()
 void local_storage_simple_construction_tests()
 {
   Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::local_storage<sizeof(Model3)>> l3 = Model3{};
+  const Concept<dyno::local_storage<sizeof(Model3)>> l4 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
   {
-    Concept<dyno::local_storage<sizeof(Model3)>> l2 = l1;
+    Concept<dyno::local_storage<sizeof(Model3)>> l2 { l4 };
   }));
 
   DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
   {
     Concept<dyno::local_storage<sizeof(Model3)>> l2 = std::move(l1);
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
+  {
+    l3 = l1;
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+  {
+    l3 = std::move(l1);
   }));
 }
 
@@ -204,10 +216,10 @@ void sbo_storage_simple_construction_tests()
     sb = sb_stack;
   }));
 
-  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
-  {
-    sb = std::move(sb_stack);
-  }));
+//  DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
+//  {
+//    sb = std::move(sb_stack);
+//  }));
 }
 
 void non_owning_storage_simple_construction_tests()
@@ -448,14 +460,25 @@ struct Model3Noncopyable : public Model3, public boost::noncopyable
 void constructing_noncopyable_tests()
 {
   using namespace dyno;
-  Concept<remote_storage, non_copy_constructible> s1{ make<Model3Noncopyable> };
+  Concept<remote_storage, non_copy_constructible> c1{ make<Model3Noncopyable> };
 // TODO: Test below static_assert
 //  Concept<remote_storage, non_copy_constructible> s2{ s1 }; // should fail to compile
 }
 
+struct Model3ExceptionUnsafe : public Model3
+{
+  Model3ExceptionUnsafe() noexcept(false) {}
+  ~Model3ExceptionUnsafe() noexcept(false) {}
+};
 
 void constructing_exception_safe_object_tests()
 {
   using namespace dyno;
-//  Concept<remote_storage,
+  Concept<remote_storage, exception_unsafe_constructible> c1 = Model3ExceptionUnsafe{};
+
+//  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EMovedWithVTable , [&]
+//  {
+//      c1 = Model3ExceptionUnsafe{};
+//  }));
+
 }

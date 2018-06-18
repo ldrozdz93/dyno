@@ -138,14 +138,12 @@ public:
   { }
 
   poly& operator=(poly const& other) {
-    this->~poly();
-    new (static_cast<void*>(this)) poly(other);
+    poly(other).swap(*this);
     return *this;
   }
 
   poly& operator=(poly&& other) {
-    this->~poly();
-    new (static_cast<void*>(this)) poly(std::move(other));
+    poly(std::move(other)).swap(*this);
     return *this;
   }
 

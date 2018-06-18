@@ -18,7 +18,9 @@ enum
 {
   all_default = 0,
   copy_constructible = 1,
-  non_copy_constructible = 1 << 1
+  non_copy_constructible = 1 << 1,
+  exception_safe_constructible = 1 << 2,
+  exception_unsafe_constructible = 1 << 3,
 };
 
 } // namespace properties
@@ -29,10 +31,12 @@ namespace detail
 struct macro_config_raw
 {
   bool is_copy_constructible;
+  bool is_exception_safe_constructible;
 };
 
 constexpr macro_config_raw default_config{
     /*.is_copy_constructible =*/ true
+   ,/*.is_exception_safe_constructible =*/ true
 };
 
 struct macro_config : macro_config_raw
@@ -44,6 +48,10 @@ struct macro_config : macro_config_raw
       is_copy_constructible = copy_constructible & prop ? true :
                               non_copy_constructible & prop ? false :
                               default_config.is_copy_constructible;
+
+      is_exception_safe_constructible = exception_safe_constructible & prop ? true :
+                                        exception_unsafe_constructible & prop ? false :
+                                        default_config.is_exception_safe_constructible;
   }
 };
 

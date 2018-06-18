@@ -104,36 +104,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                                                      \
   private:                                                                    \
@@ -207,36 +219,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -346,36 +370,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -521,36 +557,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -732,36 +780,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -979,36 +1039,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -1262,36 +1334,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -1581,36 +1665,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -1936,36 +2032,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -2327,36 +2435,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -2754,36 +2874,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -3217,36 +3349,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -3716,36 +3860,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -4251,36 +4407,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -4822,36 +4990,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -5429,36 +5609,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -6072,36 +6264,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -6751,36 +6955,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -7466,36 +7682,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -8217,36 +8445,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
@@ -9004,36 +9244,48 @@ template< typename StorageType = dyno::remote_storage,                        \
           {                                                                   \
             static_assert(sizeof...(argsForMake) == 0,                        \
                          "Variable argument pack is only for make<T> idiom!");\
-            static_assert(noexcept(x.~RawT()),                                \
-                          "Destructor must be noexcept to ensure "            \
-                          "exception safety of assignment.");                 \
-            static_assert(noexcept(RawT(std::forward<T>(x))),                 \
-                          "Constructor must be noexcept to ensure "           \
-                          "exception safety of a possible assignment. "       \
-                          "Please consider using exception_unsafe "           \
-                          "macro property on interface creation");            \
+            if constexpr( config.is_exception_safe_constructible )            \
+            {                                                                 \
+              static_assert(noexcept(x.~RawT()),                              \
+                            "Destructor must be noexcept to ensure "          \
+                            "exception safety of assignment.");               \
+              static_assert(noexcept(RawT(std::forward<T>(x))),               \
+                            "Constructor must be noexcept to ensure "         \
+                            "exception safety of a possible assignment. "     \
+                            "Please consider using exception_unsafe "         \
+                            "macro property on interface creation.");         \
+            }                                                                 \
             return poly_t{::std::forward<T>(x),                               \
                           make_concept_map()};                                \
           }                                                                   \
         }                                                                     \
         else /* is_a_##name<RawT>::value */                                   \
         {                                                                     \
-          static_assert(config.is_copy_constructible,                          \
+          static_assert(config.is_copy_constructible,                         \
                         "Trying to copy or move a noncopyable object!");      \
           return poly_t{std::forward<T>(x).poly_};                            \
         }                                                                     \
     }                                                                         \
-  public:                                                                     \
-    template <typename T, typename... Args >                                  \
-    name(T&& x, Args&&... args)                                               \
-      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}  \
-    {}                                                                        \
+                                                                              \
     template <typename T >                                                    \
-    name& operator=(T&& x)                                                    \
+    name& operatorEquals(T&& t)                                               \
     {                                                                         \
       this->~name();                                                          \
-      return *(new (static_cast<void*>(this)) name(std::forward<T>(x)));      \
+      return *(new (static_cast<void*>(this)) name(std::forward<T>(t)));      \
     }                                                                         \
+                                                                              \
+  public:                                                                     \
+    name(const name&) = default;                                              \
+    name(name&&) = default;                                                   \
+    template <typename T, typename... Args >                                  \
+    name(T&& x, Args&&... args)                                               \
+      : poly_{construct_poly(std::forward<T>(x), std::forward<Args>(args)...)}\
+    {}                                                                        \
+                                                                              \
+    name& operator=(const name& other) { return operatorEquals(other); }      \
+    name& operator=(name&& other) { return operatorEquals(std::move(other)); }\
+    template <typename T >                                                    \
+    name& operator=(T&& t){ return operatorEquals(std::forward<T>(t)); }      \
                                                                               \
                                         \
       template <typename ...Args, typename = decltype(                        \
