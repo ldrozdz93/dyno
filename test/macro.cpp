@@ -464,6 +464,11 @@ void constructing_noncopyable_tests()
       Concept<remote_storage, non_copy_constructible> c1{ make_inplace<Model3Noncopyable> };
   }));
 
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
+  {
+      Concept<local_storage<sizeof(Model3Noncopyable)>, non_copy_constructible>
+        c1{ make_inplace<Model3Noncopyable> };
+  }));
 
 // TODO: Test below static_assert
 //  Concept<remote_storage, non_copy_constructible> c2{ c1 }; // should fail to compile

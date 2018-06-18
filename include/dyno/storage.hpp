@@ -343,6 +343,14 @@ public:
     detail::construct_with_vtable(this->get(), std::forward<OtherStorage>(other_storage), vtable);
   }
 
+  template <typename T,
+            typename TtoBeConstructed = typename detail::make_inplace_t<T>::type,
+            typename... Args>
+  explicit local_storage(detail::make_inplace_t<T>, Args&&... args)
+  {
+    new (&buffer_) TtoBeConstructed(std::forward<Args>(args)...);
+  }
+
   template <typename VTable>
   local_storage(local_storage const& other, VTable const& vtable) {
     assert(can_store(vtable["storage_info"_s]()) &&
