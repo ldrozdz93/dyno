@@ -105,6 +105,48 @@ struct macro_traits
                                 T2,
                                 T3,
                                 T4 >;
+
+    template <typename Macro, typename T, typename... Args >
+    static auto construct_poly(T&& x, Args&&... argsForMake)
+    {
+        using RawT = std::decay_t<T>;
+        constexpr bool is_RawT_a_type_of_that_macro_template =
+                typename Macro:: template is_a_type_of_this_template<RawT>{};
+
+        if constexpr(not is_RawT_a_type_of_that_macro_template)
+        {
+          if constexpr( dyno::detail::is_a_make<RawT> )
+          {
+            return poly_t{::std::forward<T>(x),
+                          Macro::make_concept_map(),
+                         ::std::forward<Args>(argsForMake)...};
+          }
+          else
+          {
+            static_assert(sizeof...(argsForMake) == 0,
+                         "Variable argument pack is only for make<T> idiom!");
+            if constexpr( Macro::config.is_exception_safe_constructible )
+            {
+              static_assert(noexcept(x.~RawT()),
+                            "Destructor must be noexcept to ensure "
+                            "exception safety of assignment.");
+              static_assert(noexcept(RawT(std::forward<T>(x))),
+                            "Constructor must be noexcept to ensure "
+                            "exception safety of a possible assignment. "
+                            "Please consider using exception_unsafe "
+                            "macro property on interface creation.");
+            }
+            return poly_t{::std::forward<T>(x),
+                          make_concept_map()};
+          }
+        }
+        else /* is_RawT_a_type_of_that_macro_template */
+        {
+          static_assert(Macro::config.is_copy_constructible,
+                        "Trying to copy or move a noncopyable object!");
+          return poly_t{std::forward<T>(x).poly_};
+        }
+    }
 };
 
 }} // namespace dyno namespace detail
