@@ -179,6 +179,27 @@ public:
     }
   }
 
+  template <typename T,
+            typename TtoBeConstructed = typename detail::make_inplace_t<T>::type,
+            typename... Args>
+  explicit sbo_storage(detail::make_inplace_t<T>, Args&&... args)
+  {
+    if constexpr (can_store(dyno::storage_info_for<TtoBeConstructed>))
+    {
+      uses_heap_ = false;
+      new (&sb_) TtoBeConstructed(std::forward<Args>(args)...);
+    } else
+    {
+      uses_heap_ = true;
+      ptr_ = std::malloc(sizeof(TtoBeConstructed));
+      // TODO: Allocating and then calling the constructor is not
+      //       exception-safe if the constructor throws.
+      // TODO: That's not a really nice way to handle this
+      assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
+      new (ptr_) TtoBeConstructed(std::forward<Args>(args)...);
+    }
+  }
+
   template <typename VTable>
   sbo_storage(sbo_storage const& other, VTable const& vtable) {
     if (other.uses_heap()) {
