@@ -463,23 +463,7 @@ void constructing_noncopyable_tests()
   Concept<remote_storage, non_copy_constructible> c1{ make<Model3Noncopyable> };
 
 // TODO: Test below static_assert
-//  Concept<remote_storage, non_copy_constructible> s2{ s1 }; // should fail to compile
+//  Concept<remote_storage, non_copy_constructible> c2{ c1 }; // should fail to compile
 }
 
-struct Model3ExceptionUnsafe : public Model3
-{
-  Model3ExceptionUnsafe() noexcept(false) {}
-  ~Model3ExceptionUnsafe() noexcept(false) {}
-};
 
-void constructing_exception_safe_object_tests()
-{
-  using namespace dyno;
-  Concept<remote_storage, exception_unsafe_constructible> c1 = Model3ExceptionUnsafe{};
-
-//  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EMovedWithVTable , [&]
-//  {
-//      c1 = Model3ExceptionUnsafe{};
-//  }));
-
-}
