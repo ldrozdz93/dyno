@@ -442,9 +442,9 @@ public:
   }
 
   template <typename T,
-            typename TtoBeConstructed = typename detail::make_t<T>::type,
+            typename TtoBeConstructed = typename detail::make_inplace_t<T>::type,
             typename... Args>
-  explicit remote_storage(detail::make_t<T>, Args&&... args)
+  explicit remote_storage(detail::make_inplace_t<T>, Args&&... args)
     : ptr_{std::malloc(sizeof(TtoBeConstructed))}
   {
     // TODO: That's not a really nice way to handle this

@@ -115,7 +115,7 @@ struct macro_traits
 
         if constexpr(not is_RawT_a_type_of_that_macro_template)
         {
-          if constexpr( dyno::detail::is_a_make<RawT> )
+          if constexpr( dyno::detail::is_a_make_inplace<RawT> )
           {
             return poly_t{::std::forward<T>(x),
                           Macro::make_concept_map(),
