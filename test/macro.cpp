@@ -458,7 +458,12 @@ struct Model3Noncopyable : public Model3, public boost::noncopyable
 void constructing_noncopyable_tests()
 {
   using namespace dyno;
-  Concept<remote_storage, non_copy_constructible> c1{ make_inplace<Model3Noncopyable> };
+
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
+  {
+      Concept<remote_storage, non_copy_constructible> c1{ make_inplace<Model3Noncopyable> };
+  }));
+
 
 // TODO: Test below static_assert
 //  Concept<remote_storage, non_copy_constructible> c2{ c1 }; // should fail to compile
