@@ -65,24 +65,16 @@ end
   template< bool isCopyConstructible >                                        \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
-      if constexpr( isCopyConstructible == true )                             \
-      {                                                                       \
-        return ::dyno::requires(                                              \
-          <% args.each_with_index do |arg, i| %>                              \
-            <%= ',' if i > 0 %>                                               \
-            <%= dyno_string(arg) %> = ::dyno::method<DYNO_PP_VARIADIC_TAIL <%= arg %>>\
-          <% end %>,                                                          \
-          dyno::CopyConstructible{}                                           \
-        );                                                                    \
-      } else                                                                  \
-      {                                                                       \
-        return ::dyno::requires(                                              \
-          <% args.each_with_index do |arg, i| %>                              \
-            <%= ',' if i > 0 %>                                               \
-            <%= dyno_string(arg) %> = ::dyno::method<DYNO_PP_VARIADIC_TAIL <%= arg %>>\
-          <% end %>                                                           \
-        );                                                                    \
-      }                                                                       \
+      using some_neutral_concept = dyno::MoveAssignable;                      \
+      return ::dyno::requires(                                                \
+        <% args.each_with_index do |arg, i| %>                                \
+          <%= ',' if i > 0 %>                                                 \
+          <%= dyno_string(arg) %> = ::dyno::method<DYNO_PP_VARIADIC_TAIL <%= arg %>>\
+        <% end %>,                                                            \
+        std::conditional_t< isCopyConstructible,                              \
+                              dyno::CopyConstructible,                        \
+                              some_neutral_concept>{}                         \
+      );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
