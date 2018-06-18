@@ -82,6 +82,12 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -89,12 +95,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -194,6 +194,19 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -201,19 +214,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -342,6 +342,26 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -349,26 +369,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -526,6 +526,33 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -533,33 +560,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -746,6 +746,40 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -753,40 +787,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -1002,6 +1002,47 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -1009,47 +1050,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -1294,6 +1294,54 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -1301,54 +1349,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -1622,6 +1622,61 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -1629,61 +1684,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -1986,6 +1986,68 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -1993,68 +2055,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -2386,6 +2386,75 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -2393,75 +2462,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -2822,6 +2822,82 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -2829,82 +2905,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -3294,6 +3294,89 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -3301,89 +3384,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -3802,6 +3802,96 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg12                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -3809,96 +3899,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg12                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -4346,6 +4346,103 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg12                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg13                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -4353,103 +4450,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg12                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg13                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -4926,6 +4926,110 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg12                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg13                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg14                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -4933,110 +5037,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg12                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg13                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg14                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -5542,6 +5542,117 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg12                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg13                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg14                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg15                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -5549,117 +5660,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg12                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg13                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg14                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg15                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -6194,6 +6194,124 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg12                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg13                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg14                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg15                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg16                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -6201,124 +6319,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg12                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg13                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg14                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg15                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg16                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -6882,6 +6882,131 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg12                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg13                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg14                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg15                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg16                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg17                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -6889,131 +7014,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg12                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg13                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg14                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg15                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg16                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg17                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -7606,6 +7606,138 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg12                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg13                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg14                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg15                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg16                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg17                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg18                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -7613,138 +7745,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg12                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg13                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg14                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg15                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg16                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg17                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg18                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -8366,6 +8366,145 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg12                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg13                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg14                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg15                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg16                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg17                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg18                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg19                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -8373,145 +8512,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg12                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg13                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg14                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg15                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg16                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg17                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg18                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg19                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
@@ -9162,6 +9162,152 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+                                        \
+                                                           \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg1                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg2                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg3                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg4                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg5                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg6                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg7                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg8                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg9                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg10                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg11                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg12                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg13                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg14                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg15                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg16                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg17                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg18                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg19                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                        \
+          ,                                                 \
+          DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg20)) = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD arg20                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+                                                                     \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -9169,152 +9315,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-                                        \
-                                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg1)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg1                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg2)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg2                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg3)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg3                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg4)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg4                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg5)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg5                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg6)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg6                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg7)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg7                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg8)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg8                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg9)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg9                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg10)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg10                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg11)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg11                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg12)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg12                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg13)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg13                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg14)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg14                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg15)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg15                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg16)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg16                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg17)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg17                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg18)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg18                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg19)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg19                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                        \
-                ,                                           \
-                DYNO_STRING(DYNO_PP_STRINGIZE(DYNO_PP_VARIADIC_HEAD arg20)) = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD arg20                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-                                                                     \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \

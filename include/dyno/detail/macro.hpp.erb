@@ -97,6 +97,19 @@ template< typename StorageType = dyno::remote_storage,                        \
     template< typename, uint32_t > friend class name;                         \
     template< typename> struct is_a_##name : std::false_type {};              \
     template< typename T, uint32_t prop > struct is_a_##name<name<T, prop> > : std::true_type {};  \
+    static auto make_concept_map()                                            \
+    {                                                                         \
+      return ::dyno::make_concept_map(                                        \
+        <% args.each_with_index do |arg, i| %>                                \
+          <%= ',' if i > 0 %>                                                 \
+          <%= dyno_string(arg) %> = [](auto&& self, auto&& ...args) -> decltype(auto) { \
+              return static_cast<decltype(self)&&>(self)                      \
+                .DYNO_PP_VARIADIC_HEAD <%= arg %>                             \
+                  (static_cast<decltype(args)&&>(args)...);                   \
+            }                                                                 \
+        <% end %>                                                             \
+      ) ;                                                                     \
+    }                                                                         \
     template <typename T, typename... Args >                                  \
     auto construct_poly(T&& x, Args&&... argsForMake)                         \
     {                                                                         \
@@ -104,19 +117,6 @@ template< typename StorageType = dyno::remote_storage,                        \
                                                                               \
         if constexpr(not is_a_##name<RawT>::value)                            \
         {                                                                     \
-          auto make_concept_map = [&]                                         \
-          {                                                                   \
-            return ::dyno::make_concept_map(                                  \
-              <% args.each_with_index do |arg, i| %>                          \
-                <%= ',' if i > 0 %>                                           \
-                <%= dyno_string(arg) %> = [](auto&& self, auto&& ...args) -> decltype(auto) {\
-                    return static_cast<decltype(self)&&>(self)                \
-                      .DYNO_PP_VARIADIC_HEAD <%= arg %>                       \
-                        (static_cast<decltype(args)&&>(args)...);             \
-                  }                                                           \
-              <% end %>                                                       \
-            ) ;                                                               \
-          };                                                                  \
           if constexpr( dyno::detail::is_a_make<RawT> )                       \
           {                                                                   \
             return poly_t{::std::forward<T>(x),                               \
