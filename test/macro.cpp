@@ -462,9 +462,6 @@ void constructing_noncopyable_tests()
   using namespace dyno;
   Concept<remote_storage, non_copy_constructible> c1{ make<Model3Noncopyable> };
 
-  const auto macrosize = sizeof(c1);
-  (void)macrosize;
-
 // TODO: Test below static_assert
 //  Concept<remote_storage, non_copy_constructible> s2{ s1 }; // should fail to compile
 }
