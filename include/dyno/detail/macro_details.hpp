@@ -137,7 +137,7 @@ struct macro_traits
                             "macro property on interface creation.");
             }
             return poly_t{::std::forward<T>(x),
-                          make_concept_map()};
+                          Macro::make_concept_map()};
           }
         }
         else /* is_RawT_a_type_of_that_macro_template */
