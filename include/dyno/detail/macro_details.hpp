@@ -142,7 +142,8 @@ struct macro_traits
         }
         else /* is_RawT_a_type_of_that_macro_template */
         {
-          static_assert(Macro::config.is_copy_constructible,
+          static_assert(Macro::config.is_copy_constructible or
+                        not std::is_lvalue_reference_v<T>,
                         "Trying to copy or move a noncopyable object!");
           return poly_t{std::forward<T>(x).poly_};
         }

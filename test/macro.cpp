@@ -450,14 +450,22 @@ void placement_new_with_make_tests()
 //    }));
 }
 
-struct Model3Noncopyable : public Model3, public boost::noncopyable
+struct Model3Noncopyable : public Model3
 {
+  Model3Noncopyable() = default;
+  Model3Noncopyable(const Model3Noncopyable&) = delete;
+  Model3Noncopyable(Model3Noncopyable&&) = default;
+
   void doNothing(){}
 };
 
 void constructing_noncopyable_tests()
 {
   using namespace dyno;
+
+  Model3Noncopyable m;
+
+  auto m2 = std::move(m);
 
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
   {
@@ -474,6 +482,15 @@ void constructing_noncopyable_tests()
   {
       Concept<sbo_storage<sizeof(Model3Noncopyable)>, non_copy_constructible>
         c1{ make_inplace<Model3Noncopyable> };
+  }));
+
+
+//  test can still move if copy construction was deleted.
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EMovedWithVTable, [&]
+  {
+      Concept<sbo_storage<sizeof(Model3Noncopyable)>, non_copy_constructible>
+        c1{ make_inplace<Model3Noncopyable> };
+      Concept<remote_storage, non_copy_constructible> c2{ std::move(c1) };
   }));
 
 // TODO: Test below static_assert

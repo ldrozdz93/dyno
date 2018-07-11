@@ -73,7 +73,8 @@ end
         <% end %>,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \

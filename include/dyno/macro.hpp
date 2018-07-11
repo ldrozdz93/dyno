@@ -61,7 +61,8 @@
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -133,7 +134,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -238,7 +240,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -376,7 +379,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -547,7 +551,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -751,7 +756,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -988,7 +994,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -1258,7 +1265,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -1561,7 +1569,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -1897,7 +1906,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -2266,7 +2276,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -2668,7 +2679,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -3103,7 +3115,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -3571,7 +3584,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -4072,7 +4086,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -4606,7 +4621,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -5173,7 +5189,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -5773,7 +5790,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -6406,7 +6424,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -7072,7 +7091,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
@@ -7771,7 +7791,8 @@ template< typename StorageType = dyno::remote_storage,                        \
         ,                                                            \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
-                              some_neutral_concept>{}                         \
+                              some_neutral_concept>{},                        \
+        dyno::MoveConstructible{}                                             \
       );                                                                      \
     }                                                                         \
   };                                                                          \
