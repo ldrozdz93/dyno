@@ -1,7 +1,81 @@
 ## ldrozdz93 DISCLAIMER
 I forked this library in order to enchance the original macro-based interface
-creation mechanism, provided by ldionne in his great library.
+creation mechanism, provided by Louis Dionne in his great library.
 
+## Overview
+The following __Dyno__ fork is an attempt to remove some of the boilerplate and 
+customizability problems of the root __DYNO__ provided by Louis Dionne.
+The target was to add new possibilities with the __DYNO_INTERFACE__ macro,
+such as:
+1. to choose different storage policies than just (ldionne default) remote storage
+2. to construct and copy interface instances of different storage policies
+3. to create a given instance in-place, wthout the need to at least move it in
+4. to provide additional interface properties, ex. noncopyable
+
+## Using the library
+I assume you are familiar with how __Dyno__ works. If not, then scroll down
+below to the README file provided by ldionne.
+
+I'll jump straight to the most interesting __Dyno__ use case for my case - 
+using stack-based polimorphism without any dynamic allocations:
+
+```c++
+#include <dyno.hpp>
+#include <iostream>
+
+// Define the interface of something that can be drawn
+DYNO_INTERFACE(Drawable,
+  (draw, void (std::ostream&) const)
+);
+
+// Define a class which will be initialised with any Drawable object
+class UserOfDrawable
+{
+  using MyDrawable = Drawable<dyno::local_storage<16>>;
+
+public:
+  UserOfDrawable(MyDrawable p_drawable)
+    : drawable(std::move(p_drawable))
+  {}
+
+  void doIt()
+  {
+    drawable.draw(std::cout);
+  }
+
+private:
+  Drawable<dyno::local_storage<16>> drawable;
+};
+
+struct Square {
+  void draw(std::ostream& out) const { out << "Square"; }
+};
+
+struct Circle {
+  void draw(std::ostream& out) const { out << "Circle"; }
+};
+
+int main() {
+  UserOfDrawable user1{Square{}}; // polimorphism with no allocations
+  UserOfDrawable user2{Circle{}}; // polimorphism with no allocations
+
+  user1.doIt();
+  user2.doIt();
+}
+```
+This allows us to use dynamic polimorphism for example on memory-constrained
+embedded systems. The above example isn't fully optimal from performance pov, 
+(a forwarding reference could be used, of even make_inplace<> idiom -
+more below), but proves a general point: non-boilerplate stack-based
+polimorphism can be achived using this fork of __Dyno__.
+
+
+The main difference is that __DYNO_INTERFACE__ now defines not just a class,
+but a class template. The template default parameters are compatibile with
+vanilla __Dyno__, so a fully copyable object of [`dyno::remote_storage`] 
+policy is used by default.
+
+## legacy README provided by ldionne
 ## DISCLAIMER
 At this point, this library is experimental and it is a pure curiosity.
 No stability of interface or quality of implementation is guaranteed.
@@ -70,8 +144,7 @@ int main() {
 Alternatively, if you find this to be too much boilerplate and you can stand
 using a macro, the following is equivalent:
 
-<!-- Important: keep this in sync with example/overview.macro.cpp -->
-```c++
+<!-- Important: keep this in sync with example/overview.macro.```c++
 #include <dyno.hpp>
 #include <iostream>
 
@@ -96,7 +169,8 @@ int main() {
   f(Square{}); // prints Square
   f(Circle{}); // prints Circle
 }
-```
+``` -->
+cpp
 
 
 ## Compiler requirements
