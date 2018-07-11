@@ -9,7 +9,7 @@ The target was to add new possibilities with the __DYNO_INTERFACE__ macro,
 such as:
 1. to choose different storage policies than just (ldionne default) remote storage
 2. to construct and copy interface instances of different storage policies
-3. to create a given instance in-place, wthout the need to move it in
+3. to create a given instance in-place, without the need to move it in
 4. to provide additional interface properties, ex. noncopyable
 
 ## Using the library
