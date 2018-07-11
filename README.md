@@ -9,7 +9,7 @@ The target was to add new possibilities with the __DYNO_INTERFACE__ macro,
 such as:
 1. to choose different storage policies than just (ldionne default) remote storage
 2. to construct and copy interface instances of different storage policies
-3. to create a given instance in-place, wthout the need to at least move it in
+3. to create a given instance in-place, wthout the need to move it in
 4. to provide additional interface properties, ex. noncopyable
 
 ## Using the library
@@ -44,7 +44,7 @@ public:
   }
 
 private:
-  Drawable<dyno::local_storage<16>> drawable;
+  MyDrawable drawable;
 };
 
 struct Square {
@@ -65,7 +65,7 @@ int main() {
 ```
 This allows us to use dynamic polimorphism for example on memory-constrained
 embedded systems. The above example isn't fully optimal from performance pov, 
-(a forwarding reference could be used, of even make_inplace<> idiom -
+(a forwarding reference could be used, or even a make_inplace<> idiom -
 more below), but proves a general point: non-boilerplate stack-based
 polimorphism can be achived using this fork of __Dyno__.
 
