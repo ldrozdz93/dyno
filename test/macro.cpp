@@ -456,17 +456,17 @@ void make_inplace_tests()
   }));
 }
 
-struct Model3Noncopyable : public Model3
-{
-  Model3Noncopyable() = default;
-  Model3Noncopyable(const Model3Noncopyable&) = delete;
-  Model3Noncopyable(Model3Noncopyable&&) = default;
-
-  void doNothing(){}
-};
-
 void constructing_noncopyable_tests()
 {
+  struct Model3Noncopyable : public Model3
+  {
+    Model3Noncopyable() = default;
+    Model3Noncopyable(const Model3Noncopyable&) = delete;
+    Model3Noncopyable(Model3Noncopyable&&) = default;
+
+    void doNothing(){}
+  };
+
   using namespace dyno;
 
   // test noncopyable can be constructed inplace
@@ -476,12 +476,19 @@ void constructing_noncopyable_tests()
         c1{ make_inplace<Model3Noncopyable> };
   }));
 
-//  test can still move if copy construction was deleted.
+  //  test can still move from other concept if copy construction was deleted.
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EMovedWithVTable, [&]
   {
       Concept<sbo_storage<sizeof(Model3Noncopyable)>, non_copy_constructible>
         c1{ make_inplace<Model3Noncopyable> };
       Concept<remote_storage, non_copy_constructible> c2{ std::move(c1) };
+  }));
+
+  //  test can still move object if copy construction was deleted.
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EMovedWithVTable, [&]
+  {
+      auto model = Model3Noncopyable{};
+      Concept<remote_storage, non_copy_constructible> c1{ std::move(model) };
   }));
 
 // TODO: Test below static_assert
