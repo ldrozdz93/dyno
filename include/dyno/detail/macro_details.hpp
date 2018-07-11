@@ -89,14 +89,10 @@ protected:
 template< typename Concept, typename StorageType >
 struct macro_traits
 {
-    using T1 = Concept;
-    using T2 = StorageType;
-    using T3 = dyno::vtable<dyno::remote<dyno::everything>>;
-    using T4 = dyno::detail::PolyGuardMultipleDestructionPolicy;
-    using poly_t = ::dyno::poly<T1,
-                                T2,
-                                T3,
-                                T4 >;
+    using poly_t = ::dyno::poly<Concept,
+                                StorageType,
+                                dyno::vtable<dyno::remote<dyno::everything>>,
+                                dyno::detail::PolyGuardMultipleDestructionPolicy >;
 
     template <typename Macro, typename T, typename... Args >
     static auto construct_poly(T&& x, Args&&... argsForMake)
