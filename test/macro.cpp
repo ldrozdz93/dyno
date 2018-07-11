@@ -90,7 +90,7 @@ void shared_remote_storage_convertion_tests();
 void local_storage_convertion_tests();
 void sbo_storage_convertion_tests();
 void non_owning_storage_convertion_tests();
-void placement_new_with_make_tests();
+void make_inplace_tests();
 void constructing_noncopyable_tests();
 
 int main() {
@@ -116,7 +116,7 @@ int main() {
   local_storage_convertion_tests();
   sbo_storage_convertion_tests();
   non_owning_storage_convertion_tests();
-  placement_new_with_make_tests();
+  make_inplace_tests();
   constructing_noncopyable_tests();
 }
 
@@ -427,7 +427,7 @@ void non_owning_storage_convertion_tests()
   }));
 }
 
-void placement_new_with_make_tests()
+void make_inplace_tests()
 {
   Concept<dyno::remote_storage> r1 = Model3{};
 
@@ -443,11 +443,17 @@ void placement_new_with_make_tests()
       DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
   }));
 
-//    DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
-//    {
-//        Concept<dyno::local_storage<sizeof(Model3)>> r1{ dyno::make_inplace<Model3>{} };
-//        DYNO_CHECK(r1.f3(std::string{}) == std::make_tuple(91, '3'));
-//    }));
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
+  {
+      Concept<dyno::local_storage<sizeof(Model3)>> r2{ dyno::make_inplace<Model3> };
+      DYNO_CHECK(r2.f3(std::string{}) == std::make_tuple(91, '3'));
+  }));
+
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
+  {
+      Concept<dyno::sbo_storage<sizeof(Model3) / 2>> r2{ dyno::make_inplace<Model3> };
+      DYNO_CHECK(r2.f3(std::string{}) == std::make_tuple(91, '3'));
+  }));
 }
 
 struct Model3Noncopyable : public Model3
@@ -463,27 +469,12 @@ void constructing_noncopyable_tests()
 {
   using namespace dyno;
 
-  Model3Noncopyable m;
-
-  auto m2 = std::move(m);
-
-  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
-  {
-      Concept<remote_storage, non_copy_constructible> c1{ make_inplace<Model3Noncopyable> };
-  }));
-
-  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
-  {
-      Concept<local_storage<sizeof(Model3Noncopyable)>, non_copy_constructible>
-        c1{ make_inplace<Model3Noncopyable> };
-  }));
-
+  // test noncopyable can be constructed inplace
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
   {
       Concept<sbo_storage<sizeof(Model3Noncopyable)>, non_copy_constructible>
         c1{ make_inplace<Model3Noncopyable> };
   }));
-
 
 //  test can still move if copy construction was deleted.
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EMovedWithVTable, [&]
