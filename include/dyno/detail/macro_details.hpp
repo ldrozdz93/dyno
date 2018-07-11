@@ -19,8 +19,6 @@ enum
   all_default = 0,
   copy_constructible = 1,
   non_copy_constructible = 1 << 1,
-  exception_safe_constructible = 1 << 2,
-  exception_unsafe_constructible = 1 << 3,
 };
 
 } // namespace properties
@@ -31,12 +29,10 @@ namespace detail
 struct macro_config_raw
 {
   bool is_copy_constructible;
-  bool is_exception_safe_constructible;
 };
 
 constexpr macro_config_raw default_config{
     /*.is_copy_constructible =*/ true
-   ,/*.is_exception_safe_constructible =*/ true
 };
 
 struct macro_config : macro_config_raw
@@ -48,10 +44,6 @@ struct macro_config : macro_config_raw
       is_copy_constructible = copy_constructible & prop ? true :
                               non_copy_constructible & prop ? false :
                               default_config.is_copy_constructible;
-
-      is_exception_safe_constructible = exception_safe_constructible & prop ? true :
-                                        exception_unsafe_constructible & prop ? false :
-                                        default_config.is_exception_safe_constructible;
   }
 };
 
@@ -124,18 +116,7 @@ struct macro_traits
           else
           {
             static_assert(sizeof...(argsForMake) == 0,
-                         "Variable argument pack is only for make<T> idiom!");
-            if constexpr( Macro::config.is_exception_safe_constructible )
-            {
-              static_assert(noexcept(x.~RawT()),
-                            "Destructor must be noexcept to ensure "
-                            "exception safety of assignment.");
-              static_assert(noexcept(RawT(std::forward<T>(x))),
-                            "Constructor must be noexcept to ensure "
-                            "exception safety of a possible assignment. "
-                            "Please consider using exception_unsafe "
-                            "macro property on interface creation.");
-            }
+                         "Variable argument pack is only for make_inplace<T> idiom!");
             return poly_t{::std::forward<T>(x),
                           Macro::make_concept_map()};
           }
