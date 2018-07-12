@@ -20,7 +20,9 @@ enum
   copy_constructible = 1,
   non_copy_constructible = 1 << 1,
   move_constructible = 1 << 2,
-  non_move_constructible = 1 << 3
+  non_move_constructible = 1 << 3,
+  empty_constructible = 1 << 4,
+  non_empty_constructible = 1 << 5
 };
 
 } // namespace properties
@@ -32,11 +34,13 @@ struct macro_config_raw
 {
   bool is_copy_constructible;
   bool is_move_constructible;
+  bool is_empty_constructible;
 };
 
 constexpr macro_config_raw default_config{
     /*.is_copy_constructible =*/ true
    ,/*.is_move_constructible =*/ true
+   ,/*.is_empty_constructible =*/ true
 };
 
 struct macro_config : macro_config_raw
@@ -48,11 +52,15 @@ struct macro_config : macro_config_raw
     is_move_constructible = move_constructible & prop ? true :
                             non_move_constructible & prop ? false :
                             default_config.is_move_constructible;
+
     is_copy_constructible = not is_move_constructible ? false :
                             copy_constructible & prop ? true :
                             non_copy_constructible & prop ? false :
                             default_config.is_copy_constructible;
 
+    is_empty_constructible = empty_constructible & prop ? true :
+                             non_empty_constructible & prop ? false :
+                             default_config.is_empty_constructible;
   }
 };
 
