@@ -53,7 +53,8 @@
 
 
 #define DYNO_PP_INTERFACE_IMPL_0(name)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -62,16 +63,21 @@
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -123,7 +129,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_1(name, arg1)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -135,16 +142,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -226,7 +238,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_2(name, arg1, arg2)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -241,16 +254,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -362,7 +380,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_3(name, arg1, arg2, arg3)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -380,16 +399,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -531,7 +555,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_4(name, arg1, arg2, arg3, arg4)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -552,16 +577,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -733,7 +763,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_5(name, arg1, arg2, arg3, arg4, arg5)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -757,16 +788,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -968,7 +1004,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_6(name, arg1, arg2, arg3, arg4, arg5, arg6)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -995,16 +1032,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -1236,7 +1278,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_7(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -1266,16 +1309,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -1537,7 +1585,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_8(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -1570,16 +1619,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -1871,7 +1925,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_9(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -1907,16 +1962,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -2238,7 +2298,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_10(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -2277,16 +2338,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -2638,7 +2704,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_11(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -2680,16 +2747,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -3071,7 +3143,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_12(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -3116,16 +3189,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -3537,7 +3615,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_13(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -3585,16 +3664,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -4036,7 +4120,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_14(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -4087,16 +4172,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -4568,7 +4658,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_15(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -4622,16 +4713,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -5133,7 +5229,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_16(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -5190,16 +5287,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -5731,7 +5833,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_17(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -5791,16 +5894,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -6362,7 +6470,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_18(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -6425,16 +6534,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -7026,7 +7140,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_19(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -7092,16 +7207,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \
@@ -7723,7 +7843,8 @@ template< typename StorageType = dyno::remote_storage,                        \
 
 
 #define DYNO_PP_INTERFACE_IMPL_20(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20)\
-  template< bool isCopyConstructible >                                        \
+  template< bool isCopyConstructible,                                         \
+            bool isMoveConstructible>                                         \
   struct DYNO_PP_CONCAT(dyno_concept_for_, name) {                            \
     static auto make_type() {                                                 \
       using some_neutral_concept = dyno::MoveAssignable;                      \
@@ -7792,16 +7913,21 @@ template< typename StorageType = dyno::remote_storage,                        \
         std::conditional_t< isCopyConstructible,                              \
                               dyno::CopyConstructible,                        \
                               some_neutral_concept>{},                        \
-        dyno::MoveConstructible{}                                             \
+                                                                              \
+        std::conditional_t< isMoveConstructible,                              \
+                              dyno::MoveConstructible,                        \
+                              some_neutral_concept>{}                         \
       );                                                                      \
     }                                                                         \
   };                                                                          \
 template< typename StorageType = dyno::remote_storage,                        \
           uint32_t properties_bitfield = dyno::properties::all_default >      \
-  class name {                                                                \
+  class name : public dyno::detail::static_asserts_for_macro<properties_bitfield> \
+  {                                                                           \
     static constexpr dyno::detail::macro_config config{ properties_bitfield };\
     using concept_t =                                                         \
-      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible>::make_type());   \
+      decltype(DYNO_PP_CONCAT(dyno_concept_for_, name)<config.is_copy_constructible,                  \
+                                                       config.is_move_constructible>::make_type());   \
     using traits = dyno::detail::macro_traits< concept_t, StorageType >;      \
     using poly_t = typename traits::poly_t;                                   \
     template< typename, typename > friend class dyno::detail::macro_traits;   \

@@ -19,6 +19,8 @@ enum
   all_default = 0,
   copy_constructible = 1,
   non_copy_constructible = 1 << 1,
+  move_constructible = 1 << 2,
+  non_move_constructible = 1 << 3
 };
 
 } // namespace properties
@@ -29,10 +31,12 @@ namespace detail
 struct macro_config_raw
 {
   bool is_copy_constructible;
+  bool is_move_constructible;
 };
 
 constexpr macro_config_raw default_config{
     /*.is_copy_constructible =*/ true
+   ,/*.is_move_constructible =*/ true
 };
 
 struct macro_config : macro_config_raw
@@ -41,11 +45,28 @@ struct macro_config : macro_config_raw
 
   constexpr macro_config(const PropertiesBitfield prop)
   {
-      is_copy_constructible = copy_constructible & prop ? true :
-                              non_copy_constructible & prop ? false :
-                              default_config.is_copy_constructible;
+    is_move_constructible = move_constructible & prop ? true :
+                            non_move_constructible & prop ? false :
+                            default_config.is_move_constructible;
+    is_copy_constructible = not is_move_constructible ? false :
+                            copy_constructible & prop ? true :
+                            non_copy_constructible & prop ? false :
+                            default_config.is_copy_constructible;
+
   }
 };
+
+template< PropertiesBitfield prop >
+struct static_asserts_for_macro
+{
+  static_assert((copy_constructible & prop) ?
+                   not (non_move_constructible & prop) :
+                   true,
+                "Move construction must be enabled, when copy construction is.");
+};
+
+//constexpr macro_config mc<non_move_constructible>{ };
+//static_assert(not mc.is_move_constructible);
 
 /* The purpuse of below poly destruction policy is
  * to guard the storage from being destructed twice.
@@ -121,7 +142,10 @@ struct macro_traits
         {
           static_assert(Macro::config.is_copy_constructible or
                         not std::is_lvalue_reference_v<T>,
-                        "Trying to copy or move a noncopyable object!");
+                        "Trying to copy a noncopyable object!");
+          static_assert(Macro::config.is_move_constructible or
+                        std::is_lvalue_reference_v<T>,
+                        "Trying to move a nonmovable object!");
           return poly_t{std::forward<T>(x).poly_};
         }
     }

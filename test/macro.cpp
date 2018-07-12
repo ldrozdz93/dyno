@@ -92,6 +92,7 @@ void sbo_storage_convertion_tests();
 void non_owning_storage_convertion_tests();
 void make_inplace_tests();
 void constructing_noncopyable_tests();
+void constructing_nonmovable_tests();
 
 int main() {
   Model1 m1{};
@@ -118,6 +119,7 @@ int main() {
   non_owning_storage_convertion_tests();
   make_inplace_tests();
   constructing_noncopyable_tests();
+  constructing_nonmovable_tests();
 }
 
 void remote_storage_simple_construction_tests()
@@ -493,6 +495,40 @@ void constructing_noncopyable_tests()
 
 // TODO: Test below static_assert
 //  Concept<remote_storage, non_copy_constructible> c2{ c1 }; // should fail to compile
+}
+
+void constructing_nonmovable_tests()
+{
+  struct Model3Nonmovable : public Model3
+  {
+    Model3Nonmovable() = default;
+    Model3Nonmovable(Model3Nonmovable&&) = delete;
+  };
+
+  using namespace dyno;
+
+  // test nonmovable can be constructed inplace
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
+  {
+      Concept<sbo_storage<sizeof(Model3Nonmovable)>, non_move_constructible>
+        c1{ make_inplace<Model3Nonmovable> };
+  }));
+
+  // test the pointer still can be moved
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EOnlyBufferPointerMoved , [&]
+  {
+      Concept<remote_storage, non_move_constructible>
+        c1{ make_inplace<Model3Nonmovable> };
+      auto c2 = std::move(c1);
+  }));
+
+  // test the shared pointer still can still be copied (increase reference count)
+  DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EOnlyBufferPointerMoved , [&]
+  {
+      Concept<shared_remote_storage, non_move_constructible>
+        c1{ make_inplace<Model3Nonmovable> };
+      auto c2 = c1;
+  }));
 }
 
 
