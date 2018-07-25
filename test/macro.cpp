@@ -228,8 +228,8 @@ void non_owning_storage_simple_construction_tests()
 
   DYNO_CHECK(expectModel3Constructor( ENoConstructorInvocation, [&]
   {
-    Concept<dyno::non_owning_storage> n1 = m1;
-    Concept<dyno::non_owning_storage> n2 = n1;
+    Concept<dyno::visitor> n1 = m1;
+    Concept<dyno::visitor> n2 = n1;
     n2 = n1;
     n2 = std::move(n1);
     n2 = m1;
@@ -414,7 +414,7 @@ void local_storage_convertion_tests()
 void non_owning_storage_convertion_tests()
 {
   Model3 m1{};
-  Concept<dyno::non_owning_storage> n1 = m1;
+  Concept<dyno::visitor> n1 = m1;
   Concept<dyno::on_heap_shared> sr1 = Model3{};
   Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = Model3{};
