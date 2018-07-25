@@ -124,8 +124,8 @@ int main() {
 
 void remote_storage_simple_construction_tests()
 {
-  Concept<dyno::remote_storage> r1 = Model3{};
-  Concept<dyno::remote_storage> r2 = Model3{};
+  Concept<dyno::on_heap> r1 = Model3{};
+  Concept<dyno::on_heap> r2 = Model3{};
   Model3 m1{};
 
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EMovedWithVTable, [&]
@@ -151,16 +151,16 @@ void remote_storage_simple_construction_tests()
 
 void shared_remote_storage_simple_construction_tests()
 {
-  Concept<dyno::shared_remote_storage> s1 = Model3{};
+  Concept<dyno::on_heap_shared> s1 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ESharedPointerCopied, [&]
   {
-    Concept<dyno::shared_remote_storage> s2 = s1;
+    Concept<dyno::on_heap_shared> s2 = s1;
   }));
 
   DYNO_CHECK(expectModel3Constructor( ESharedPointerCopied, [&]
   {
-    Concept<dyno::shared_remote_storage> s2 = std::move(s1);
+    Concept<dyno::on_heap_shared> s2 = std::move(s1);
   }));
 }
 
@@ -238,11 +238,11 @@ void non_owning_storage_simple_construction_tests()
 
 void remote_storage_convertion_tests()
 {
-  Concept<dyno::remote_storage> r1 = Model3{};
+  Concept<dyno::on_heap> r1 = Model3{};
   Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
-  Concept<dyno::shared_remote_storage> sr1 = Model3{};
+  Concept<dyno::on_heap_shared> sr1 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
   {
@@ -280,11 +280,11 @@ void remote_storage_convertion_tests()
 
 void shared_remote_storage_convertion_tests()
 {
-  Concept<dyno::shared_remote_storage> sr1 = Model3{};
+  Concept<dyno::on_heap_shared> sr1 = Model3{};
   Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
-  Concept<dyno::remote_storage> r1 = Model3{};
+  Concept<dyno::on_heap> r1 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
   {
@@ -326,10 +326,10 @@ void sbo_storage_convertion_tests()
 {
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
-  Concept<dyno::shared_remote_storage> sr1 = Model3{};
+  Concept<dyno::on_heap_shared> sr1 = Model3{};
   Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
-  Concept<dyno::remote_storage> r1 = Model3{};
-  Concept<dyno::remote_storage> r2 = Model3{};
+  Concept<dyno::on_heap> r1 = Model3{};
+  Concept<dyno::on_heap> r2 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
   {
@@ -380,7 +380,7 @@ void local_storage_convertion_tests()
   constexpr auto model_size = sizeof(Model3);
   Concept<dyno::on_stack<model_size>> l1 = Model3{};
   Concept<dyno::on_stack<model_size * 2>> l_big = Model3{};
-  Concept<dyno::remote_storage> r1 = Model3{};
+  Concept<dyno::on_heap> r1 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
   {
@@ -415,10 +415,10 @@ void non_owning_storage_convertion_tests()
 {
   Model3 m1{};
   Concept<dyno::non_owning_storage> n1 = m1;
-  Concept<dyno::shared_remote_storage> sr1 = Model3{};
+  Concept<dyno::on_heap_shared> sr1 = Model3{};
   Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = Model3{};
-  Concept<dyno::remote_storage> r1 = Model3{};
+  Concept<dyno::on_heap> r1 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ENoConstructorInvocation, [&]
   {
@@ -431,7 +431,7 @@ void non_owning_storage_convertion_tests()
 
 void make_inplace_tests()
 {
-  Concept<dyno::remote_storage> r1 = Model3{};
+  Concept<dyno::on_heap> r1 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
   {
@@ -483,14 +483,14 @@ void constructing_noncopyable_tests()
   {
       Concept<sbo_storage<sizeof(Model3Noncopyable)>, non_copy_constructible>
         c1{ make_inplace<Model3Noncopyable> };
-      Concept<remote_storage, non_copy_constructible> c2{ std::move(c1) };
+      Concept<on_heap, non_copy_constructible> c2{ std::move(c1) };
   }));
 
   //  test can still move object if copy construction was deleted.
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EMovedWithVTable, [&]
   {
       auto model = Model3Noncopyable{};
-      Concept<remote_storage, non_copy_constructible> c1{ std::move(model) };
+      Concept<on_heap, non_copy_constructible> c1{ std::move(model) };
   }));
 
 // TODO: Test below static_assert
@@ -517,7 +517,7 @@ void constructing_nonmovable_tests()
   // test the pointer still can be moved
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EOnlyBufferPointerMoved , [&]
   {
-      Concept<remote_storage, non_move_constructible>
+      Concept<on_heap, non_move_constructible>
         c1{ make_inplace<Model3Nonmovable> };
       auto c2 = std::move(c1);
   }));
@@ -525,7 +525,7 @@ void constructing_nonmovable_tests()
   // test the shared pointer still can still be copied (increase reference count)
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed | EOnlyBufferPointerMoved , [&]
   {
-      Concept<shared_remote_storage, non_move_constructible>
+      Concept<on_heap_shared, non_move_constructible>
         c1{ make_inplace<Model3Nonmovable> };
       auto c2 = c1;
   }));
