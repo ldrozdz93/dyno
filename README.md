@@ -63,9 +63,10 @@ int main() {
   user2.doIt();
 }
 ```
-This allows us to use dynamic polimorphism for example on memory-constrained
-embedded systems. The above example isn't fully optimal from performance pov, 
-(a forwarding reference could be used, or even a make_inplace<> idiom -
+
+This allows us to use runtime on-stack polimorphism, for example on memory-constrained
+embedded systems. Of course the above example isn't fully optimal from performance pov, 
+(a forwarding reference could be used, of even make_inplace<> idiom -
 more below), but proves a general point: non-boilerplate stack-based
 polimorphism can be achived using this fork of __Dyno__.
 
