@@ -159,6 +159,11 @@ struct macro_traits
     }
 };
 
-}} // namespace dyno namespace detail
+}
+
+template<auto sz>
+using on_stack = local_storage<sz>;
+
+} // namespace dyno namespace detail
 
 #endif //DYNO_DETAIL_MACRO_DETAILS_HPP

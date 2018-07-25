@@ -166,18 +166,18 @@ void shared_remote_storage_simple_construction_tests()
 
 void local_storage_simple_construction_tests()
 {
-  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
-  Concept<dyno::local_storage<sizeof(Model3)>> l3 = Model3{};
-  const Concept<dyno::local_storage<sizeof(Model3)>> l4 = Model3{};
+  Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::on_stack<sizeof(Model3)>> l3 = Model3{};
+  const Concept<dyno::on_stack<sizeof(Model3)>> l4 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
   {
-    Concept<dyno::local_storage<sizeof(Model3)>> l2 { l4 };
+    Concept<dyno::on_stack<sizeof(Model3)>> l2 { l4 };
   }));
 
   DYNO_CHECK(expectModel3Constructor( EMovedWithVTable, [&]
   {
-    Concept<dyno::local_storage<sizeof(Model3)>> l2 = std::move(l1);
+    Concept<dyno::on_stack<sizeof(Model3)>> l2 = std::move(l1);
   }));
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
@@ -239,7 +239,7 @@ void non_owning_storage_simple_construction_tests()
 void remote_storage_convertion_tests()
 {
   Concept<dyno::remote_storage> r1 = Model3{};
-  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
   Concept<dyno::shared_remote_storage> sr1 = Model3{};
@@ -281,7 +281,7 @@ void remote_storage_convertion_tests()
 void shared_remote_storage_convertion_tests()
 {
   Concept<dyno::shared_remote_storage> sr1 = Model3{};
-  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
@@ -327,7 +327,7 @@ void sbo_storage_convertion_tests()
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1_stack = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3) / 2>> sb1_heap = Model3{};
   Concept<dyno::shared_remote_storage> sr1 = Model3{};
-  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
   Concept<dyno::remote_storage> r2 = Model3{};
 
@@ -378,8 +378,8 @@ void sbo_storage_convertion_tests()
 void local_storage_convertion_tests()
 {
   constexpr auto model_size = sizeof(Model3);
-  Concept<dyno::local_storage<model_size>> l1 = Model3{};
-  Concept<dyno::local_storage<model_size * 2>> l_big = Model3{};
+  Concept<dyno::on_stack<model_size>> l1 = Model3{};
+  Concept<dyno::on_stack<model_size * 2>> l_big = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
 
   DYNO_CHECK(expectModel3Constructor( ECopiedWithVTable, [&]
@@ -416,7 +416,7 @@ void non_owning_storage_convertion_tests()
   Model3 m1{};
   Concept<dyno::non_owning_storage> n1 = m1;
   Concept<dyno::shared_remote_storage> sr1 = Model3{};
-  Concept<dyno::local_storage<sizeof(Model3)>> l1 = Model3{};
+  Concept<dyno::on_stack<sizeof(Model3)>> l1 = Model3{};
   Concept<dyno::sbo_storage<sizeof(Model3)>> sb1 = Model3{};
   Concept<dyno::remote_storage> r1 = Model3{};
 
@@ -447,7 +447,7 @@ void make_inplace_tests()
 
   DYNO_CHECK(expectModel3Constructor( EDefaultConstructed , [&]
   {
-      Concept<dyno::local_storage<sizeof(Model3)>> r2{ dyno::make_inplace<Model3> };
+      Concept<dyno::on_stack<sizeof(Model3)>> r2{ dyno::make_inplace<Model3> };
       DYNO_CHECK(r2.f3(std::string{}) == std::make_tuple(91, '3'));
   }));
 
