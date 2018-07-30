@@ -12,11 +12,12 @@ such as:
 3. to create a given instance in-place, without the need to move it in
 4. to provide additional interface properties, ex. noncopyable
 
-## Using the library
-I assume you are familiar with how __Dyno__ works. If not, then scroll down
-below to the README file provided by ldionne.
+## Sample library usage
+I assume you are familiar with how __Dyno__ works. If not, then you could read the 
+[README][] file provided by ldionne, but just a simple usage does not require an in-depth 
+knowledge of __Dyno__.
 
-I'll jump straight to the most interesting __Dyno__ use case for my case - 
+I'll jump straight to the most interesting __Dyno__ use case for me - 
 using stack-based polimorphism without any dynamic allocations:
 
 ```c++
@@ -31,7 +32,7 @@ DYNO_INTERFACE(Drawable,
 // Define a class which will be initialised with any Drawable object
 class UserOfDrawable
 {
-  using MyDrawable = Drawable<dyno::local_storage<16>>;
+  using MyDrawable = Drawable<dyno::on_stack<16>>;
 
 public:
   UserOfDrawable(MyDrawable p_drawable)
@@ -716,6 +717,7 @@ private:
 
 
 <!-- Links -->
+[README]: https://github.com/ldionne/dyno/blob/master/README.md
 [`std::any`]: http://en.cppreference.com/w/cpp/utility/any
 [`std::function`]: http://en.cppreference.com/w/cpp/utility/functional/function
 [badge.Travis]: https://travis-ci.org/ldionne/dyno.svg?branch=master
