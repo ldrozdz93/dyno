@@ -7,6 +7,8 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <type_traits>
+#include <dyno/detail/dsl.hpp>
 
 namespace dyno
 {

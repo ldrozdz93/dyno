@@ -6,6 +6,8 @@
 #define DYNO_DETAIL_MACRO_DETAILS_HPP
 
 #include <type_traits>
+#include <cstdint>
+#include <dyno/poly.hpp>
 
 namespace dyno
 {
