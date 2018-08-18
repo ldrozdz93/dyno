@@ -127,7 +127,8 @@ public:
     return info.size <= sizeof(SBStorage) && alignof(SBStorage) % info.alignment == 0;
   }
 
-  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>,
+            typename = std::enable_if_t<not detail::is_a_make_inplace<RawOtherStorage>> >
   explicit sbo_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
     detail::static_assert_can_construct_from_storage<OtherStorage>();
@@ -344,7 +345,8 @@ public:
     new (&buffer_) RawT(std::forward<T>(t));
   }
 
-  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>,
+            typename = std::enable_if_t<not detail::is_a_make_inplace<RawOtherStorage>>>
   explicit local_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
     detail::static_assert_can_construct_from_storage<OtherStorage>();
@@ -441,7 +443,8 @@ struct remote_storage {
   remote_storage& operator=(remote_storage const&) = delete;
 
 public:
-  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>,
+            typename = std::enable_if_t<not detail::is_a_make_inplace<RawOtherStorage>> >
   explicit remote_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
     detail::static_assert_can_construct_from_storage<OtherStorage>();
@@ -560,7 +563,8 @@ struct shared_remote_storage {
     };
   }
 
-  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>,
+            typename = std::enable_if_t<not detail::is_a_make_inplace<RawOtherStorage>>>
   void* get_storage(OtherStorage&& other_storage, VTable const& vtable)
   {
     detail::static_assert_can_construct_from_storage<OtherStorage>();
