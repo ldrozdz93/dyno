@@ -55,7 +55,7 @@ The Drawable objects can be naturally copied, assigned or moved, ex:
 ```c++
 vec[0] = vec.back();
 ```
-Now, the first and the last element in the vector are the same.
+Now, the first element is a copy of the last element in the vector, ie. a `Circle`.
 
 ## Polymorphism without heap - on_stack<> storage
 
@@ -67,7 +67,7 @@ using namespace dyno::macro_storage;
 boost::container::static_vector< Drawable<on_stack<16> >, 10> stack_vec(
      vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
 ```
-`on_stack<16>` is a storage policy. It means that the size of the storage buffer in the Drawable object is 16 bytes (it's a lie, because the buffer is properly alligned anyway). In this case, size of the type-erased-object to be constructed can be no more than 4 bytes.
+`on_stack<16>` is a storage policy. It means that the size of the storage buffer in the Drawable object is 16 bytes. In this case, the size of the type-erased-object to be constructed can be no more than 16 bytes.
 
 Our stack_vec can now be used as usual. We could define a new Drawable class and add its object to our stack vector:
 ```c++
@@ -98,6 +98,8 @@ stack_vec.emplace_back( Sphere{} ); // will not copile!
 gives a static assertion error:
 > error: static assertion failed: dyno::local_storage: Trying to construct from an object that won't fit in the local storage.
 
+Does this example ring a bell of a more general use case? We could use runtime on-stack polimorphism with value sematics even on memory-constrained bare-metal systems with no dynamic memory. __Non-boilerplate stack-based polimorphism can be easily achived using this fork of Dyno__.
+
 ## Small Buffer Optimisation - on_stack_or_heap<> storage
 We might want to benefit from storing the object payload in a buffer inside the Drawable, but also not be constrained with a size limit if the situation demands it:
 ```c++
@@ -106,19 +108,78 @@ sbo_vec.emplace_back( Sphere{} );
 ```
 `on_stack_or_heap<16>` storage policy stores the object on stack if it fits in the buffer, which is 16 bytes in this case. If it's too large, the object is allocated on the heap. A Sphere{} is much larger than 16 bytes, so it will be stored with operator new. This approach is often considered an optimisation, as it is likely to reduce the ammount of cache misses.
 
-Drawable objects can be copied or moved among different storage policies without unnecessary constructor invocations. It means that the following code:
+## Shared objects - on_heap_shared storage
+Shared storage uses a `std::shared_ptr` in its implementation, so `on_heap_shared` objects are reference counted. A shared object can be created, apart from normal construction, by moving a 'standard' `on_heap` object into a `on_heap_shared` interface, just like creating a `std::shared_ptr` from a `std::unique_ptr`:
 ```c++
-Drawable<on_heap> someDrawable{ Sphere{} }; // Sphere default ctor + Sphere move ctor
-sbo_vec.emplace_back(std::move(Drawble)); // just a pointer moved
+Drawable<on_heap_shared> shared1{ std::move(vec.back()) };
+  vec.pop_back();
+  auto shared2{ shared1 };
+```
+Of course it's not possible bo create a `on_heap` object by moving a `on_heap_shared` one, because it would violate shared ownership. 
+
+## I'm just visiting - visitor non_owning storage
+Sometimes we might want to just use an object with no regard to it's ownership rules. The `visitor` storage policy is our way to go, for ex.:
+```c++
+auto drawOnCout = [](const Drawable<visitor>& d) // auto& not used just to prove a point ;)
+{
+    d.draw(std::cout);
+};
+Circle circle{};
+drawOnCout(circle);
+drawOnCout(vec[0]);
+drawOnCout(stack_vec[1]);
+drawOnCout(sbo_vec[2]);
+drawOnCout(shared1);
+// drawOnCout(Square{}); // will not compile with an rvalue
+```
+It's important to mention, that a visitor cannot be used to visit an rvalue. It's completely reasonable. In the above example, in `drawOnCout(Square{})` a visitor would try to use an object, which was allready destructed on the calling stack. This cannot be allowed.
+
+## Reasonable construction
+On object creation only necessary constructors are invoked. The behavior can by deduced from common sense, ex.:
+1. moving an `on_heap` object to another `on_heap` object does not invoke type-erased move ctor.
+2. moving anything to a `on_stack<>` object always invokes the type-erased move ctor.
+3. copying objects always invokes the type_erased copy ctor, with the exception of `on_heap_shared`, which can just increment it's reference count.
+4. etc.
+
+Common sense for `on_stack_or_heap<>` storage means that the following code:
+```c++
+Drawable<on_heap> someHeapDrawable{ Sphere{} }; // Sphere default ctor + Sphere move ctor
+sbo_vec.emplace_back(std::move(someHeapDrawable)); // just a pointer moved
 ```
 will invoke the Sphere constructor only twice:
 1. Default construction in constructor argument list
 2. Move construction of the created Sphere into the heap-allocated buffer
-The `sbo_vec` will keep a Sphere on the heap, due to its size. `someDrawable` allready allocated the Sphere on the heap, so the object will not be moved with Sphere's move constructor, but just with a pointer move. It's just like moving a `std::unique_ptr`.
 
-If `someDrawable` was initialized with an object of size less than 16 bytes, ex. Triangle{}, than moving a `on_heap` stored Triangle to a `on_stack_or_heap<16>` stored object would invoke a Triangle move constructor, as expected, because the Triangle is of size less than 16 bytes.
+The `sbo_vec` will want to keep a Sphere on the heap, due to its size. `someHeapDrawable` allready allocated the Sphere on the heap, so the object will not be moved with Sphere's move constructor, but just with a pointer move. It's just like moving a `std::unique_ptr`.
 
+If `someHeapDrawable` was initialized with an object of size less than 16 bytes, ex. Triangle{}, than moving a `on_heap` stored Triangle to a `on_stack_or_heap<16>` stored object would invoke a Triangle move constructor, as expected, because the Triangle is of size less than 16 bytes.
 
+## Construction-like assignment
+Assignment is the same as construction, apart from the fact, that the storage is first destructed. After destruction, it is constructed in a new buffer, or with placement-new whenever possible.
+
+Exception safety of such a destruction-construction is achived using a custom destruction policy, which makes sure, that the storage is always destructed only once. It's just in case that after a succesfull storage destruction, if the constructor threw an exception, the storage would not be destructed again due to stack unwinding.
+
+In other words, this __DYNO_INTERFACE__ macro does not require the objects's constructors or destructor to be noexcept to perform a safe assignment, although only an amateur or a lunatic would allow his destructor to throw ;)
+
+## Performance matters - in_place<> 
+__Don't pay for what you don't use.__ Don't construct an object in one place just to move it to another.
+Just like [`std::in_place`](https://en.cppreference.com/w/cpp/utility/in_place), we could use tag dispatch to construct the object directly in provided memory. In our Drawable example it would be:
+```c++
+struct Cuboid
+{
+    Cuboid(const char* name) : name{name} {}
+    void draw(std::ostream& out) const { out << name << "\n"; }
+    const char* name;
+};
+vec.emplace_back( in_place<Cuboid>, "Cuboid the Type Erased!" );
+vec.back().draw(std::cout);
+```
+The above code prints:
+> Cuboid the Type Erased!
+
+`in_place<>` is the optimal way to create objects __DYNO_INTERFACE__ objects.
+
+## Full example
 
 The full example in one place is given below:
 
@@ -134,12 +195,12 @@ DYNO_INTERFACE(Drawable,
   (draw, void (std::ostream&) const)
 );
 
-struct Square 
+struct Square
 {
   void draw(std::ostream& out) const { out << "Square\n"; }
 };
 
-struct Circle 
+struct Circle
 {
   void draw(std::ostream& out) const { out << "Circle\n"; }
 };
@@ -156,11 +217,11 @@ int main()
     boost::container::static_vector< Drawable<on_stack<4> >, 10> stack_vec(
          vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
 
-    struct Triangle 
+    struct Triangle
     {
       void draw(std::ostream& out) const { out << name << "\n"; }
       int doSomethingElse(){ return 0; }
-      const char* name {"Triangle"};
+      const char* name { "Triangle" };
     };
 
     if(stack_vec.size() < stack_vec.capacity())
@@ -169,6 +230,46 @@ int main()
     for(const auto& obj : stack_vec)
         obj.draw(std::cout);
 
+    struct Sphere
+    {
+      void draw(std::ostream& out) const { out << "Sphere" << "\n"; }
+      int points[100]{};
+    };
+//    stack_vec.emplace_back( Sphere{} ); // will not copile!
+
+    std::vector<Drawable<on_stack_or_heap<16>>> sbo_vec(stack_vec.begin(), stack_vec.end());
+    sbo_vec.emplace_back( Sphere{} );
+
+    for(const auto& obj : sbo_vec)
+        obj.draw(std::cout);
+
+    Drawable someHeapDrawable{ Sphere{} };
+    sbo_vec.emplace_back(std::move(someHeapDrawable));
+
+    Drawable<on_heap_shared> shared1{ std::move(vec.back()) };
+    vec.pop_back();
+    auto shared2{ shared1 };
+
+    auto drawOnCout = [](const Drawable<visitor>& d) // auto& not used just to prove a point ;)
+    {
+        d.draw(std::cout);
+    };
+    Circle circle{};
+    drawOnCout(circle);
+    drawOnCout(vec[0]);
+    drawOnCout(stack_vec[1]);
+    drawOnCout(sbo_vec[2]);
+    drawOnCout(shared1);
+//    drawOnCout(Square{}); // will not compile with an rvalue
+
+    struct Cuboid
+    {
+        Cuboid(const char* name) : name{name} {}
+        void draw(std::ostream& out) const { out << name << "\n"; }
+        const char* name;
+    };
+    vec.emplace_back( in_place<Cuboid>, "Cuboid the Type Erased!" );
+    vec.back().draw(std::cout);
 }
 ```
 
@@ -176,6 +277,7 @@ This shows we could use runtime on-stack polimorphism with value sematics even o
 bare-metal systems with no dynamic memory. Of course the above example isn't fully optimal from performance pov (a make_inplace<> idiom could be used -
 more below), but proves a general point: non-boilerplate stack-based
 polimorphism can be achived using this fork of __Dyno__.
+
 
 
 Another example of stack-based polimorphism without any dynamic allocations:
