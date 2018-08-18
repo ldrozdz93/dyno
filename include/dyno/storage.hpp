@@ -652,7 +652,8 @@ struct non_owning_storage {
   non_owning_storage& operator=(non_owning_storage&&) = delete;
   non_owning_storage& operator=(non_owning_storage const&) = delete;
 
-  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+  template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>,
+            typename = std::enable_if_t<not detail::is_a_make_inplace<RawOtherStorage>> >
   non_owning_storage(OtherStorage&& other_storage, VTable const&)
     : ptr_{other_storage.get()}
   {
