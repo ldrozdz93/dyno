@@ -28,11 +28,13 @@ DYNO_INTERFACE(Drawable,
   (draw, void(std::ostream&) const)
 );
 
-struct Square {
+struct Square 
+{
   void draw(std::ostream& out) const { out << "Square\n"; }
 };
 
-struct Circle {
+struct Circle 
+{
   void draw(std::ostream& out) const { out << "Circle\n"; }
 };
 ```
@@ -41,7 +43,7 @@ Then, we could store some drawable objects in a container:
 ```c++
 std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
 ```
-By default, the instances are stored on the heap, so the vector will in fact contain pointers to polymorphic objects managed on the heap (refer to `dyno::remote_storage` for details).
+By default, the instances are stored on the heap, so the vector will in fact contain pointers to polymorphic objects managed on the heap (refer to `dyno::remote_storage` for details) and pointers to appropriate static vtables (refer to `dyno::remote_vtable` for details).
 
 The type-erased objects can now be accessed in a natural syntax, ex:
 ```c++
@@ -55,22 +57,22 @@ vec[0] = vec.back();
 ```
 Now, the first and the last element in the vector are the same.
 
-## Polymorphism without heap
+## Polymorphism without heap - on_stack<> storage
 
 Lets say we performed some performance benchmarks in our application and came to a conclusion, that our `vec` is the bottleneck. Iterating over stored drawable objects turnes out to cause a lots of cache misses due to actual objects being held on the heap in different places, because `vec` stores only the pointers to storage and vtable. What's more, we could also want to neglect the effect of vector heap indirection and use a boost::container::static_vector, which stores its data directly on the stack.
 
 Assume we want to store at most 10 drawable objects. We could copy them from heap to stack, i.e. from `vec` to `stack_vec`:
 ```c++
 using namespace dyno::macro_storage;
-boost::container::static_vector< Drawable<on_stack<4> >, 10> stack_vec{};
-boost::range::copy( vec | boost::adaptors::sliced(0, std::min(vec.size(), stack_vec.capacity())),
-                    std::back_inserter(stack_vec));
+boost::container::static_vector< Drawable<on_stack<16> >, 10> stack_vec(
+     vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
 ```
-`on_stack<4>` is a storage policy. It means that the size of the storage buffer in the Drawable object is 4 bytes (it's a lie, because the buffer is properly alligned anyway). In this case, size of type-erased-object to be constructed can be no more than 4 bytes, or a compile-time or runtime error will occur, whichever is detected.
+`on_stack<16>` is a storage policy. It means that the size of the storage buffer in the Drawable object is 16 bytes (it's a lie, because the buffer is properly alligned anyway). In this case, size of the type-erased-object to be constructed can be no more than 4 bytes.
 
 Our stack_vec can now be used as usual. We could define a new Drawable class and add its object to our stack vector:
 ```c++
-struct Triangle {
+struct Triangle 
+{
   void draw(std::ostream& out) const { out << name << "\n"; }
   int doSomethingElse(){ return 0; }
   const char* name {"Triangle"};
@@ -83,6 +85,40 @@ for(const auto& obj : stack_vec)
     obj.draw(std::cout);
 ```
 Notice the Triangle can have excessive methods and fields. It can be treated like a Drawable as long as if fulfills the Drawable interface and fits in the given on_stack<> storage.
+
+If the compiler detects an attemp to construct a `Drawable<on_stack<16>>` from a struct of size bigger than 16 bytes, a static assert is launched, ex:
+```c++
+struct Sphere
+{
+  void draw(std::ostream& out) const { out << "Sphere" << "\n"; }
+  int points[100]{};
+};
+stack_vec.emplace_back( Sphere{} ); // will not copile!
+```
+gives a static assertion error:
+> error: static assertion failed: dyno::local_storage: Trying to construct from an object that won't fit in the local storage.
+
+## Small Buffer Optimisation - on_stack_or_heap<> storage
+We might want to benefit from storing the object payload in a buffer inside the Drawable, but also not be constrained with a size limit if the situation demands it:
+```c++
+std::vector<Drawable<on_stack_or_heap<16>>> sbo_vec(stack_vec.begin(), stack_vec.end());
+sbo_vec.emplace_back( Sphere{} );
+```
+`on_stack_or_heap<16>` storage policy stores the object on stack if it fits in the buffer, which is 16 bytes in this case. If it's too large, the object is allocated on the heap. A Sphere{} is much larger than 16 bytes, so it will be stored with operator new. This approach is often considered an optimisation, as it is likely to reduce the ammount of cache misses.
+
+Drawable objects can be copied or moved among different storage policies without unnecessary constructor invocations. It means that the following code:
+```c++
+Drawable<on_heap> someDrawable{ Sphere{} }; // Sphere default ctor + Sphere move ctor
+sbo_vec.emplace_back(std::move(Drawble)); // just a pointer moved
+```
+will invoke the Sphere constructor only twice:
+1. Default construction in constructor argument list
+2. Move construction of the created Sphere into the heap-allocated buffer
+The `sbo_vec` will keep a Sphere on the heap, due to its size. `someDrawable` allready allocated the Sphere on the heap, so the object will not be moved with Sphere's move constructor, but just with a pointer move. It's just like moving a `std::unique_ptr`.
+
+If `someDrawable` was initialized with an object of size less than 16 bytes, ex. Triangle{}, than moving a `on_heap` stored Triangle to a `on_stack_or_heap<16>` stored object would invoke a Triangle move constructor, as expected, because the Triangle is of size less than 16 bytes.
+
+
 
 The full example in one place is given below:
 
@@ -98,28 +134,30 @@ DYNO_INTERFACE(Drawable,
   (draw, void (std::ostream&) const)
 );
 
-struct Square {
+struct Square 
+{
   void draw(std::ostream& out) const { out << "Square\n"; }
 };
 
-struct Circle {
+struct Circle 
+{
   void draw(std::ostream& out) const { out << "Circle\n"; }
 };
 
 int main()
 {
-        std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
+    std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
     for(const auto& obj : vec)
         obj.draw(std::cout);
 
     vec[0] = vec.back();
 
     using namespace dyno::macro_storage;
-    boost::container::static_vector< Drawable<on_stack<4> >, 10> stack_vec{};
-    boost::range::copy( vec | boost::adaptors::sliced(0, std::min(vec.size(), stack_vec.capacity())),
-                        std::back_inserter(stack_vec));
+    boost::container::static_vector< Drawable<on_stack<4> >, 10> stack_vec(
+         vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
 
-    struct Triangle {
+    struct Triangle 
+    {
       void draw(std::ostream& out) const { out << name << "\n"; }
       int doSomethingElse(){ return 0; }
       const char* name {"Triangle"};
@@ -130,6 +168,7 @@ int main()
 
     for(const auto& obj : stack_vec)
         obj.draw(std::cout);
+
 }
 ```
 
