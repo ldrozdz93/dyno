@@ -2982,6 +2982,7 @@ example/overview.macro.cpp
 example/readme.cpp
 example/readme.non_member.cpp
 example/vtable_traits.cpp
+example/macro2.cpp
 include/dyno.hpp
 include/dyno/builtin.hpp
 include/dyno/concept.hpp

@@ -155,11 +155,14 @@ struct macro_traits
 
 }
 
+inline namespace macro_storage
+{
 template<auto sz> using on_stack = local_storage<sz>;
 template<auto sz> using on_stack_or_heap = sbo_storage<sz>;
 using on_heap = remote_storage;
 using on_heap_shared = shared_remote_storage;
 using visitor = non_owning_storage;
+}
 
 } // namespace dyno namespace detail
 
