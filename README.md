@@ -1,4 +1,4 @@
-## DISCLAIMER
+# DISCLAIMER
 I forked this library in order to enchance the original macro-based interface
 creation mechanism, provided by Louis Dionne in his great library.
 
@@ -21,7 +21,9 @@ knowledge of __Dyno__.
 
 In the following readme, I will refer to original __Dyno__ written by Louis Dionne as "legacy __DYNO__".
 
-## Basic library usage
+All the customizability keywords are in namespace `dyno::macro`
+
+# Basic library usage
 Let's assume we want to work on objects capable of drawing themselves on the given 'std::ostream'. First, we define a drawable interface and some structs to fulfill it:
 ```c++
 DYNO_INTERFACE(Drawable,
@@ -63,7 +65,7 @@ Lets say we performed some performance benchmarks in our application and came to
 
 Assume we want to store at most 10 drawable objects. We could copy them from heap to stack, i.e. from `vec` to `stack_vec`:
 ```c++
-using namespace dyno::macro_storage;
+using namespace dyno::macro;
 boost::container::static_vector< Drawable<on_stack<16> >, 10> stack_vec(
      vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
 ```
@@ -161,7 +163,7 @@ Exception safety of such a destruction-construction is achived using a custom de
 
 In other words, this __DYNO_INTERFACE__ macro does not require the objects's constructors or destructor to be noexcept to perform a safe assignment, although only an amateur or a lunatic would allow his destructor to throw ;)
 
-## Performance matters - in_place<> 
+## Performance matters - in_place<> construction
 __Don't pay for what you don't use.__ Don't construct an object in one place just to move it to another.
 Just like [`std::in_place`](https://en.cppreference.com/w/cpp/utility/in_place), we could use tag dispatch to construct the object directly in provided memory. In our Drawable example it would be:
 ```c++
@@ -171,13 +173,16 @@ struct Cuboid
     void draw(std::ostream& out) const { out << name << "\n"; }
     const char* name;
 };
-vec.emplace_back( in_place<Cuboid>, "Cuboid the Type Erased!" );
-vec.back().draw(std::cout);
+vec.emplace_back( in_place<Cuboid>, "Cuboid the Type Erased!" ).draw(std::cout);
 ```
 The above code prints:
 > Cuboid the Type Erased!
 
-`in_place<>` is the optimal way to create objects __DYNO_INTERFACE__ objects.
+`in_place<>` is the optimal way to create __DYNO_INTERFACE__ objects.
+
+
+## Advanced properties
+By default, type-erased objects must be copy and move-constructible. This requirement can be tailored using predefined properties
 
 ## Full example
 
