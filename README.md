@@ -182,159 +182,54 @@ The above code prints:
 
 
 ## Advanced properties
-By default, type-erased objects must be copy and move-constructible. This requirement can be tailored using predefined properties
+#### non_copy_constructible
+By default, type-erased objects must be copy and move-constructible. But what if you want your interface to be noncopyable? No problem! Just define it as an additional property of an interface instance:
+```c++
+struct NoncopyableLine
+{
+    NoncopyableLine(const NoncopyableLine&) = delete;
+    NoncopyableLine(NoncopyableLine&&) = default;
+    void draw(std::ostream& out) const { out << "NoncopyableLine" << "\n"; }
+};
+//  Drawable<on_heap> noncopyableDrawable{ NoncopyableLine{} }; // won't compile!
+Drawable<on_heap, non_copy_constructible> noncopyableDrawable{ NoncopyableLine{} };
+```
+Our `noncopyableDrawable` can only be moved, not copied. By "copy" we mean a copy performed on the stored object payload with the copy cotr stored in the vtable. It means we still can copy a shared interface, which would increse the reference count:
+
+```c++
+Drawable<on_heap_shared, non_copy_constructible> noncopyableShared1{ std::move(noncopyableDrawable) };
+auto noncopyableShared2{ noncopyableShared1 };
+```
+#### non_move_constructible
+By analogy to copy ctor, we can loosen the requirement on move ctor of our type_erased object:
+```c++
+struct NonmovableLine
+{
+    NonmovableLine() = default;
+    NonmovableLine(const NonmovableLine&) = delete;
+    NonmovableLine(NonmovableLine&&) = delete;
+    void draw(std::ostream& out) const { out << "NonmovableLine" << "\n"; }
+};
+Drawable<on_heap, non_move_constructible> nonmovableDrawable{ in_place<NonmovableLine> }; // must use in_place<>
+Drawable<on_heap, non_move_constructible> nonmovableDrawable2{ std::move(nonmovableDrawable) }; // move a pointer - legal
+//  Drawable<on_stack<16>, non_move_constructible> nonmovableDrawable3{ std::move(nonmovableDrawable2) }; // move to stack with a vtable - illegal!
+```
+The `NonmovableLine`, due to a lack of a move constructor, must be created with `in_place<>`, because it can't be moved inside the object.
+
+Again, `non_move_constructible` refers to the type-erased payload, not the interface object itself. Moving a `on_heap` object is just a pointer move, where a "move-construct" vtable entry is not needed. Moving a `on_heap` object into a `on_stack<>` one would requires an invocation of a move constructor, so it won't compile.
 
 ## Full example
 
-The full example in one place is given below:
+The full example of provided __DYNO_INTERFACE__ macro functionalities is in [example/macro2.cpp](https://github.com/ldrozdz93/dyno/blob/master/example/macro2.cpp)
 
-```c++
-#include <dyno.hpp>
-#include <iostream>
-#include <vector>
-#include <boost/range/adaptor/sliced.hpp>
-#include <boost/range/algorithm/copy.hpp>
-#include <boost/container/static_vector.hpp>
-
-DYNO_INTERFACE(Drawable,
-  (draw, void (std::ostream&) const)
-);
-
-struct Square
-{
-  void draw(std::ostream& out) const { out << "Square\n"; }
-};
-
-struct Circle
-{
-  void draw(std::ostream& out) const { out << "Circle\n"; }
-};
-
-int main()
-{
-    std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
-    for(const auto& obj : vec)
-        obj.draw(std::cout);
-
-    vec[0] = vec.back();
-
-    using namespace dyno::macro_storage;
-    boost::container::static_vector< Drawable<on_stack<4> >, 10> stack_vec(
-         vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
-
-    struct Triangle
-    {
-      void draw(std::ostream& out) const { out << name << "\n"; }
-      int doSomethingElse(){ return 0; }
-      const char* name { "Triangle" };
-    };
-
-    if(stack_vec.size() < stack_vec.capacity())
-        stack_vec.emplace_back( Triangle{} );
-
-    for(const auto& obj : stack_vec)
-        obj.draw(std::cout);
-
-    struct Sphere
-    {
-      void draw(std::ostream& out) const { out << "Sphere" << "\n"; }
-      int points[100]{};
-    };
-//    stack_vec.emplace_back( Sphere{} ); // will not copile!
-
-    std::vector<Drawable<on_stack_or_heap<16>>> sbo_vec(stack_vec.begin(), stack_vec.end());
-    sbo_vec.emplace_back( Sphere{} );
-
-    for(const auto& obj : sbo_vec)
-        obj.draw(std::cout);
-
-    Drawable someHeapDrawable{ Sphere{} };
-    sbo_vec.emplace_back(std::move(someHeapDrawable));
-
-    Drawable<on_heap_shared> shared1{ std::move(vec.back()) };
-    vec.pop_back();
-    auto shared2{ shared1 };
-
-    auto drawOnCout = [](const Drawable<visitor>& d) // auto& not used just to prove a point ;)
-    {
-        d.draw(std::cout);
-    };
-    Circle circle{};
-    drawOnCout(circle);
-    drawOnCout(vec[0]);
-    drawOnCout(stack_vec[1]);
-    drawOnCout(sbo_vec[2]);
-    drawOnCout(shared1);
-//    drawOnCout(Square{}); // will not compile with an rvalue
-
-    struct Cuboid
-    {
-        Cuboid(const char* name) : name{name} {}
-        void draw(std::ostream& out) const { out << name << "\n"; }
-        const char* name;
-    };
-    vec.emplace_back( in_place<Cuboid>, "Cuboid the Type Erased!" );
-    vec.back().draw(std::cout);
-}
-```
 
 This shows we could use runtime on-stack polimorphism with value sematics even on memory-constrained
-bare-metal systems with no dynamic memory. Of course the above example isn't fully optimal from performance pov (a make_inplace<> idiom could be used -
-more below), but proves a general point: non-boilerplate stack-based
-polimorphism can be achived using this fork of __Dyno__.
+bare-metal systems with no dynamic memory.
 
-
-
-Another example of stack-based polimorphism without any dynamic allocations:
-
-```c++
-#include <dyno.hpp>
-#include <iostream>
-
-// Define the interface of something that can be drawn
-DYNO_INTERFACE(Drawable,
-  (draw, void (std::ostream&) const)
-);
-
-// Define a class which will be initialised with any Drawable object
-class UserOfDrawable
-{
-  using MyDrawable = Drawable<dyno::on_stack<16>>;
-
-public:
-  UserOfDrawable(MyDrawable p_drawable)
-    : drawable(std::move(p_drawable))
-  {}
-
-  void doIt()
-  {
-    drawable.draw(std::cout);
-  }
-
-private:
-  MyDrawable drawable;
-};
-
-struct Square {
-  void draw(std::ostream& out) const { out << "Square"; }
-};
-
-struct Circle {
-  void draw(std::ostream& out) const { out << "Circle"; }
-};
-
-int main() {
-  UserOfDrawable user1{Square{}}; // polimorphism with no allocations
-  UserOfDrawable user2{Circle{}}; // polimorphism with no allocations
-
-  user1.doIt();
-  user2.doIt();
-}
-```
-
+## How it works
 The main difference is that __DYNO_INTERFACE__ now defines not just a class,
 but a class template. The template default parameters are compatibile with
-vanilla __Dyno__, so a fully copyable object of [`dyno::remote_storage`] 
+legacy __Dyno__, so a fully copyable object of [`dyno::remote_storage`] 
 policy is used by default.
 
 <!-- Links -->
