@@ -163,6 +163,7 @@ using on_heap = remote_storage;
 using on_heap_shared = shared_remote_storage;
 using visitor = non_owning_storage;
 template< typename T > inline constexpr auto in_place = detail::make_inplace<T>;
+using namespace properties;
 }
 
 } // namespace dyno namespace detail

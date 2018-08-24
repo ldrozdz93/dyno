@@ -88,5 +88,29 @@ int main()
     };
 
     vec.emplace_back( in_place<Cuboid>, "Cuboid the Type Erased!" ).draw(std::cout);
+
+    struct NoncopyableLine
+    {
+        NoncopyableLine(const NoncopyableLine&) = delete;
+        NoncopyableLine(NoncopyableLine&&) = default;
+        void draw(std::ostream& out) const { out << "NoncopyableLine" << "\n"; }
+    };
+//    Drawable<on_heap> noncopyableDrawable{ NoncopyableLine{} }; // won't compile!
+    Drawable<on_heap, non_copy_constructible> noncopyableDrawable{ NoncopyableLine{} };
+
+    Drawable<on_heap_shared, non_copy_constructible> noncopyableShared1{ std::move(noncopyableDrawable) };
+    auto noncopyableShared2{ noncopyableShared1 };
+
+    struct NonmovableLine
+    {
+        NonmovableLine() = default;
+        NonmovableLine(const NonmovableLine&) = delete;
+        NonmovableLine(NonmovableLine&&) = delete;
+        void draw(std::ostream& out) const { out << "NonmovableLine" << "\n"; }
+    };
+    Drawable<on_heap, non_move_constructible> nonmovableDrawable{ in_place<NonmovableLine> }; // must use in_place<>
+    Drawable<on_heap, non_move_constructible> nonmovableDrawable2{ std::move(nonmovableDrawable) }; // move a pointer - legal
+//    Drawable<on_stack<16>, non_move_constructible> nonmovableDrawable3{ std::move(nonmovableDrawable2) }; // move to stack with a vtable - illegal!
+
 }
 //////////////////////////////////////////////////////////////////////////////
