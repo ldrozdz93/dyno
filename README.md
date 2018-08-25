@@ -114,15 +114,15 @@ sbo_vec.emplace_back( Sphere{} );
 Shared storage uses a `std::shared_ptr` in its implementation, so `on_heap_shared` objects are reference counted. A shared object can be created, apart from normal construction, by moving a 'standard' `on_heap` object into a `on_heap_shared` interface, just like creating a `std::shared_ptr` from a `std::unique_ptr`:
 ```c++
 Drawable<on_heap_shared> shared1{ std::move(vec.back()) };
-  vec.pop_back();
-  auto shared2{ shared1 };
+vec.pop_back();
+auto shared2{ shared1 };
 ```
 Of course it's not possible bo create a `on_heap` object by moving a `on_heap_shared` one, because it would violate shared ownership. 
 
-## I'm just visiting - visitor non_owning storage
-Sometimes we might want to just use an object with no regard to it's ownership rules. The `visitor` storage policy is our way to go, for ex.:
+## I'm just visiting - visited storage
+Sometimes we might want to just use an object with no regard to it's ownership rules. The `visited` storage policy is our way to go, for ex.:
 ```c++
-auto drawOnCout = [](const Drawable<visitor>& d) // auto& not used just to prove a point ;)
+auto drawOnCout = [](const Drawable<visited>& d) // auto& not used just to prove a point ;)
 {
     d.draw(std::cout);
 };
@@ -134,7 +134,8 @@ drawOnCout(sbo_vec[2]);
 drawOnCout(shared1);
 // drawOnCout(Square{}); // will not compile with an rvalue
 ```
-It's important to mention, that a visitor cannot be used to visit an rvalue. It's completely reasonable. In the above example, in `drawOnCout(Square{})` a visitor would try to use an object, which was allready destructed on the calling stack. This cannot be allowed.
+It's important to mention, that a `visited` cannot be used to visit an rvalue. It's completely reasonable. In the above example, in `drawOnCout(Square{})` a visitor
+would try to use an object, which was allready destructed on the calling stack. This cannot be allowed.
 
 ## Reasonable construction
 On object creation only necessary constructors are invoked. The behavior can by deduced from common sense, ex.:
@@ -165,7 +166,7 @@ In other words, this __DYNO_INTERFACE__ macro does not require the objects's con
 
 ## Performance matters - in_place<> construction
 __Don't pay for what you don't use.__ Don't construct an object in one place just to move it to another.
-Just like [`std::in_place`](https://en.cppreference.com/w/cpp/utility/in_place), we could use tag dispatch to construct the object directly in provided memory. In our Drawable example it would be:
+Just like [`std::in_place`](https://en.cppreference.com/w/cpp/utility/in_place), we could use a template tag to construct the object directly in provided memory. In our Drawable example it would be:
 ```c++
 struct Cuboid
 {
@@ -194,7 +195,7 @@ struct NoncopyableLine
 //  Drawable<on_heap> noncopyableDrawable{ NoncopyableLine{} }; // won't compile!
 Drawable<on_heap, non_copy_constructible> noncopyableDrawable{ NoncopyableLine{} };
 ```
-Our `noncopyableDrawable` can only be moved, not copied. By "copy" we mean a copy performed on the stored object payload with the copy cotr stored in the vtable. It means we still can copy a shared interface, which would increse the reference count:
+Our `noncopyableDrawable` can only be moved, not copied. By "copy" we mean a copy performed on the stored object payload with the copy ctor stored in the vtable. It means we still can copy a shared interface, which would just increse the reference count:
 
 ```c++
 Drawable<on_heap_shared, non_copy_constructible> noncopyableShared1{ std::move(noncopyableDrawable) };
@@ -231,6 +232,8 @@ The main difference is that __DYNO_INTERFACE__ now defines not just a class,
 but a class template. The template default parameters are compatibile with
 legacy __Dyno__, so a fully copyable object of [`dyno::remote_storage`] 
 policy is used by default.
+
+My chages mostly concentrated on compile-time code, but also added some minor & necesasary runtime footprint, ex. with convertions between storage types.
 
 <!-- Links -->
 [README]: https://github.com/ldionne/dyno/blob/master/README.md
