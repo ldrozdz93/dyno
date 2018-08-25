@@ -68,7 +68,7 @@ int main()
     vec.pop_back();
     auto shared2{ shared1 };
 
-    auto drawOnCout = [](const Drawable<visitor>& d) // auto& not used just to prove a point ;)
+    auto drawOnCout = [](const Drawable<visited>& d) // auto& not used just to prove a point ;)
     {
         d.draw(std::cout);
     };
