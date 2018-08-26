@@ -15,13 +15,93 @@ DYNO_INTERFACE(Drawable,
 
 struct Square
 {
-  void draw(std::ostream& out) const { out << "Square\n"; }
+  void draw(std::ostream& out) const { out << "Square,"; }
 };
 
 struct Circle
 {
-  void draw(std::ostream& out) const { out << "Circle\n"; }
+  void draw(std::ostream& out) const { out << "Circle,"; }
 };
+
+void basicExample()
+{
+    std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
+    // ^ 'Drawable' is a template with default parameters, so in above context it must have <>
+
+    for(const auto& obj : vec)
+        obj.draw(std::cout);
+    //  ^ prints Square,Circle,Square,Circle,
+
+    vec[0] = vec.back();
+
+    for(const auto& obj : vec)
+        obj.draw(std::cout);
+    //  ^ prints Circle,Circle,Square,Circle,
+}
+
+void onStackExample()
+{
+    using namespace dyno::macro;
+    std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
+
+    boost::container::static_vector< Drawable<on_stack<4> >, 10> stack_vec(
+         vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
+
+    for(const auto& obj : stack_vec)
+        obj.draw(std::cout);
+
+    struct Triangle
+    {
+      void draw(std::ostream& out) const { out << name << ","; }
+      int doSomethingElse(){ return 0; }
+      const char* name { "Triangle" };
+    };
+
+    if(stack_vec.size() < stack_vec.capacity())
+        stack_vec.emplace_back( Triangle{} );
+
+    struct BigSphere
+    {
+      void draw(std::ostream& out) const { out << "BigSphere,"; }
+      int points[100]{};
+    };
+//    stack_vec.emplace_back( BigSphere{} ); // will not copile!
+}
+
+void sboExample()
+{
+    using namespace dyno::macro;
+    std::vector<Drawable<on_stack_or_heap<16>>>
+            sbo_vec{ Square{}, Circle{}, Square{}, Circle{} };
+
+    struct BigSphere
+    {
+      void draw(std::ostream& out) const { out << "BigSphere,"; }
+      int points[100]{};
+    };
+
+    sbo_vec.emplace_back( BigSphere{} );
+    // ^ BigSphere does not fit inside the object buffer, so it's stored on the heap
+
+    for(const auto& obj : sbo_vec)
+        obj.draw(std::cout);
+    //  ^ prints Circle,Circle,Square,Circle,BigSphere,
+}
+
+void onHeapSharedExample()
+{
+    using namespace dyno::macro;
+    Drawable<on_heap_shared> shared1{ Circle{} };
+    auto shared2{ shared1 };
+    // ^ shared1 and shared2 refer to the same Circle;
+
+    Drawable someHeapDrawable{ Circle{} };
+    Drawable<on_heap_shared> shared3{ std::move(someHeapDrawable) };
+    // ^ 'on_heap_shared' can be created from a 'on_heap' object
+
+    //Drawable someOtherHeapDrawable{ std::move(shared1) };
+    // ^ won't compile!
+}
 
 int main()
 {
@@ -37,7 +117,7 @@ int main()
 
     struct Triangle
     {
-      void draw(std::ostream& out) const { out << name << "\n"; }
+      void draw(std::ostream& out) const { out << name << ","; }
       int doSomethingElse(){ return 0; }
       const char* name { "Triangle" };
     };
@@ -50,7 +130,7 @@ int main()
 
     struct Sphere
     {
-      void draw(std::ostream& out) const { out << "Sphere" << "\n"; }
+      void draw(std::ostream& out) const { out << "Sphere,"; }
       int points[100]{};
     };
 //    stack_vec.emplace_back( Sphere{} ); // will not copile!
@@ -83,7 +163,7 @@ int main()
     struct Cuboid
     {
         Cuboid(const char* name) : name{name} {}
-        void draw(std::ostream& out) const { out << name << "\n"; }
+        void draw(std::ostream& out) const { out << name << ","; }
         const char* name;
     };
 
@@ -93,7 +173,7 @@ int main()
     {
         NoncopyableLine(const NoncopyableLine&) = delete;
         NoncopyableLine(NoncopyableLine&&) = default;
-        void draw(std::ostream& out) const { out << "NoncopyableLine" << "\n"; }
+        void draw(std::ostream& out) const { out << "NoncopyableLine,"; }
     };
 //    Drawable<on_heap> noncopyableDrawable{ NoncopyableLine{} }; // won't compile!
     Drawable<on_heap, non_copy_constructible> noncopyableDrawable{ NoncopyableLine{} };
@@ -106,11 +186,13 @@ int main()
         NonmovableLine() = default;
         NonmovableLine(const NonmovableLine&) = delete;
         NonmovableLine(NonmovableLine&&) = delete;
-        void draw(std::ostream& out) const { out << "NonmovableLine" << "\n"; }
+        void draw(std::ostream& out) const { out << "NonmovableLine,"; }
     };
     Drawable<on_heap, non_move_constructible> nonmovableDrawable{ in_place<NonmovableLine> }; // must use in_place<>
     Drawable<on_heap, non_move_constructible> nonmovableDrawable2{ std::move(nonmovableDrawable) }; // move a pointer - legal
 //    Drawable<on_stack<16>, non_move_constructible> nonmovableDrawable3{ std::move(nonmovableDrawable2) }; // move to stack with a vtable - illegal!
 
+    basicExample();
+    onStackExample();
+    sboExample();
 }
-//////////////////////////////////////////////////////////////////////////////
