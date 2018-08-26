@@ -7,17 +7,13 @@ __Dyno__ is a type-erasure library, which lets you use runtime polomorphism with
 customizability problems of the root __Dyno__ provided by Louis Dionne.
 The target was to add new possibilities with the __DYNO_INTERFACE__ macro,
 such as:
-1. to choose different storage policies than just (ldionne default) remote storage
+1. to choose different storage policies than just (default from Louis Dionne) remote storage
 2. to construct and copy interface instances of different storage policies
 3. to create a given instance in-place, without the need to move it in
 4. to provide additional interface properties, ex. noncopyable
 5. to optimize-out the amount of unnecessary copies and moves
 
-The target was to provide changes to __DYNO_INTERFACE__ macro, leaving all the not macro-based functionalities as they were implemented by Louis Dionne.
-
-I assume you are familiar with how __Dyno__ works. If not, then you could read the 
-[README][] file provided by ldionne, but a simple usage does not require an in-depth 
-knowledge of __Dyno__.
+The target was to provide changes to __DYNO_INTERFACE__ macro, leaving all the not macro-based functionalities as they were implemented by Louis Dionne. Usage of the  macro does not require an in-depth knowledge of __Dyno__. However, if you want to know how __Dyno__ works under the hood, then you could read the [README][] file by Louis Dionne.
 
 In the following readme, I will refer to original __Dyno__ written by Louis Dionne as "legacy __DYNO__".
 
@@ -32,18 +28,19 @@ DYNO_INTERFACE(Drawable,
 
 struct Square 
 {
-  void draw(std::ostream& out) const { out << "Square\n"; }
+  void draw(std::ostream& out) const { out << "Square,"; }
 };
 
 struct Circle 
 {
-  void draw(std::ostream& out) const { out << "Circle\n"; }
+  void draw(std::ostream& out) const { out << "Circle,"; }
 };
 ```
 
 Then, we could store some drawable objects in a container:
 ```c++
 std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
+// ^ 'Drawable' is a template with default parameters, so in above context it must have <>
 ```
 By default, the instances are stored on the heap, so the vector will in fact contain pointers to polymorphic objects managed on the heap (refer to `dyno::remote_storage` for details) and pointers to appropriate static vtables (refer to `dyno::remote_vtable` for details).
 
@@ -52,6 +49,8 @@ The type-erased objects can now be accessed in a natural syntax, ex:
 for(const auto& obj : vec)
     obj.draw(std::cout);
 ```
+The above prints:
+> Square,Circle,Square,Circle,
 
 The Drawable objects can be naturally copied, assigned or moved, ex:
 ```c++
@@ -60,64 +59,95 @@ vec[0] = vec.back();
 Now, the first element is a copy of the last element in the vector, ie. a `Circle`.
 
 ## Polymorphism without heap - on_stack<> storage
-
+##### Non-boilerplate stack-based polimorphism can be easily achived using this fork of Dyno.
 Lets say we performed some performance benchmarks in our application and came to a conclusion, that our `vec` is the bottleneck. Iterating over stored drawable objects turnes out to cause a lots of cache misses due to actual objects being held on the heap in different places, because `vec` stores only the pointers to storage and vtable. What's more, we could also want to neglect the effect of vector heap indirection and use a boost::container::static_vector, which stores its data directly on the stack.
 
 Assume we want to store at most 10 drawable objects. We could copy them from heap to stack, i.e. from `vec` to `stack_vec`:
 ```c++
 using namespace dyno::macro;
-boost::container::static_vector< Drawable<on_stack<16> >, 10> stack_vec(
+std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
+
+boost::container::static_vector< Drawable<on_stack<4> >, 10> stack_vec(
      vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
+
+for(const auto& obj : stack_vec)
+    obj.draw(std::cout);
 ```
+The above prints as expected:
+> Square,Circle,Square,Circle,
+
 `on_stack<16>` is a storage policy. It means that the size of the storage buffer in the Drawable object is 16 bytes. In this case, the size of the type-erased-object to be constructed can be no more than 16 bytes.
 
-Our stack_vec can now be used as usual. We could define a new Drawable class and add its object to our stack vector:
+We could define a new class fulfilling the Drawable interface and add its object to our stack vector:
 ```c++
 struct Triangle 
 {
-  void draw(std::ostream& out) const { out << name << "\n"; }
+  void draw(std::ostream& out) const { out << name << ","; }
   int doSomethingElse(){ return 0; }
   const char* name {"Triangle"};
 };
 
 if(stack_vec.size() < stack_vec.capacity())
     stack_vec.emplace_back( Triangle{} );
-
-for(const auto& obj : stack_vec)
-    obj.draw(std::cout);
 ```
 Notice the Triangle can have excessive methods and fields. It can be treated like a Drawable as long as if fulfills the Drawable interface and fits in the given on_stack<> storage.
 
 If the compiler detects an attemp to construct a `Drawable<on_stack<16>>` from a struct of size bigger than 16 bytes, a static assert is launched, ex:
 ```c++
-struct Sphere
+struct BigSphere
 {
-  void draw(std::ostream& out) const { out << "Sphere" << "\n"; }
+  void draw(std::ostream& out) const { out << "BigSphere,"; }
   int points[100]{};
 };
-stack_vec.emplace_back( Sphere{} ); // will not copile!
+stack_vec.emplace_back( BigSphere{} ); // will not copile!
 ```
 gives a static assertion error:
 > error: static assertion failed: dyno::local_storage: Trying to construct from an object that won't fit in the local storage.
 
-Does this example ring a bell of a more general use case? We could use runtime on-stack polimorphism with value sematics even on memory-constrained bare-metal systems with no dynamic memory. __Non-boilerplate stack-based polimorphism can be easily achived using this fork of Dyno__.
+Does this example ring a bell of a more general use case? We could use runtime on-stack polimorphism with value sematics even on memory-constrained bare-metal systems with no dynamic memory. 
 
 ## Small Buffer Optimisation - on_stack_or_heap<> storage
 We might want to benefit from storing the object payload in a buffer inside the Drawable, but also not be constrained with a size limit if the situation demands it:
 ```c++
-std::vector<Drawable<on_stack_or_heap<16>>> sbo_vec(stack_vec.begin(), stack_vec.end());
-sbo_vec.emplace_back( Sphere{} );
+using namespace dyno::macro;
+std::vector<Drawable<on_stack_or_heap<16>>>
+        sbo_vec{ Square{}, Circle{}, Square{}, Circle{} };
+
+struct BigSphere
+{
+  void draw(std::ostream& out) const { out << "BigSphere,"; }
+  int points[100]{};
+};
+
+sbo_vec.emplace_back( BigSphere{} );
+// ^ BigSphere does not fit inside the object buffer, so it's stored on the heap
+
+for(const auto& obj : sbo_vec)
+    obj.draw(std::cout);
+//  ^ prints Circle,Circle,Square,Circle,BigSphere,
 ```
-`on_stack_or_heap<16>` storage policy stores the object on stack if it fits in the buffer, which is 16 bytes in this case. If it's too large, the object is allocated on the heap. A Sphere{} is much larger than 16 bytes, so it will be stored with operator new. This approach is often considered an optimisation, as it is likely to reduce the ammount of cache misses.
+`on_stack_or_heap<16>` storage policy stores the object on stack if it fits in the buffer, which is 16 bytes in this case. If it's too large, the object is allocated on the heap. A BigSphere{} is much larger than 16 bytes, so it will be stored with operator new. This approach is often considered an optimisation, as it is likely to reduce the ammount of cache misses, but it should always be measured first.
 
 ## Shared objects - on_heap_shared storage
+
+```c++
+using namespace dyno::macro;
+Drawable<on_heap_shared> shared1{ Circle{} };
+auto shared2{ shared1 };
+// ^ shared1 and shared2 refer to the same Sphere;
+```
 Shared storage uses a `std::shared_ptr` in its implementation, so `on_heap_shared` objects are reference counted. A shared object can be created, apart from normal construction, by moving a 'standard' `on_heap` object into a `on_heap_shared` interface, just like creating a `std::shared_ptr` from a `std::unique_ptr`:
 ```c++
-Drawable<on_heap_shared> shared1{ std::move(vec.back()) };
-vec.pop_back();
-auto shared2{ shared1 };
+Drawable someHeapDrawable{ Circle{} };
+Drawable<on_heap_shared> shared3{ std::move(someHeapDrawable) };
+// ^ 'on_heap_shared' can be created from a 'on_heap' object
 ```
+
 Of course it's not possible bo create a `on_heap` object by moving a `on_heap_shared` one, because it would violate shared ownership. 
+```c++
+Drawable someOtherHeapDrawable{ std::move(shared1) };
+// ^ won't compile! 
+```
 
 ## I'm just visiting - visited storage
 Sometimes we might want to just use an object with no regard to it's ownership rules. The `visited` storage policy is our way to go, for ex.:
@@ -171,7 +201,7 @@ Just like [`std::in_place`](https://en.cppreference.com/w/cpp/utility/in_place),
 struct Cuboid
 {
     Cuboid(const char* name) : name{name} {}
-    void draw(std::ostream& out) const { out << name << "\n"; }
+    void draw(std::ostream& out) const { out << name << ","; }
     const char* name;
 };
 vec.emplace_back( in_place<Cuboid>, "Cuboid the Type Erased!" ).draw(std::cout);
@@ -190,7 +220,7 @@ struct NoncopyableLine
 {
     NoncopyableLine(const NoncopyableLine&) = delete;
     NoncopyableLine(NoncopyableLine&&) = default;
-    void draw(std::ostream& out) const { out << "NoncopyableLine" << "\n"; }
+    void draw(std::ostream& out) const { out << "NoncopyableLine,"; }
 };
 //  Drawable<on_heap> noncopyableDrawable{ NoncopyableLine{} }; // won't compile!
 Drawable<on_heap, non_copy_constructible> noncopyableDrawable{ NoncopyableLine{} };
@@ -209,7 +239,7 @@ struct NonmovableLine
     NonmovableLine() = default;
     NonmovableLine(const NonmovableLine&) = delete;
     NonmovableLine(NonmovableLine&&) = delete;
-    void draw(std::ostream& out) const { out << "NonmovableLine" << "\n"; }
+    void draw(std::ostream& out) const { out << "NonmovableLine,"; }
 };
 Drawable<on_heap, non_move_constructible> nonmovableDrawable{ in_place<NonmovableLine> }; // must use in_place<>
 Drawable<on_heap, non_move_constructible> nonmovableDrawable2{ std::move(nonmovableDrawable) }; // move a pointer - legal
