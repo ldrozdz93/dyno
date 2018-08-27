@@ -152,47 +152,32 @@ Drawable someOtherHeapDrawable{ std::move(shared1) };
 ## I'm just visiting - visited storage
 Sometimes we might want to just use an object with no regard to it's ownership rules. The `visited` storage policy is our way to go, for ex.:
 ```c++
-auto drawOnCout = [](const Drawable<visited>& d) // auto& not used just to prove a point ;)
+void drawOnCout(const Drawable<dyno::macro::visited>& d)
 {
     d.draw(std::cout);
-};
-Circle circle{};
-drawOnCout(circle);
-drawOnCout(vec[0]);
-drawOnCout(stack_vec[1]);
-drawOnCout(sbo_vec[2]);
-drawOnCout(shared1);
-// drawOnCout(Square{}); // will not compile with an rvalue
+}
 ```
+The function can be invoked with any object fulfilling the `Drawable` interface, ex:
+```c++
+using namespace dyno::macro;
+Circle circle{};
+Drawable<on_heap>             drawableOnHeap{ Circle{} };
+Drawable<on_stack<8>>         drawableOnStack{ Square{} };
+Drawable<on_heap_shared>      drawableShared{ Circle{} };
+Drawable<on_stack_or_heap<8>> drawableSbo{ Square{} };
+
+drawOnCout(circle);
+drawOnCout(drawableOnHeap);
+drawOnCout(drawableOnStack);
+drawOnCout(drawableShared);
+drawOnCout(drawableSbo);
+// drawOnCout(Square{}); // will not compile with an rvalue!
+```
+
+You could say: "Just use a template function!" A template definition in general must be placed in a header file, whereas an implementation of a function with `visited` parameters can be moved to a different translation unit.
+
 It's important to mention, that a `visited` cannot be used to visit an rvalue. It's completely reasonable. In the above example, in `drawOnCout(Square{})` a visitor
 would try to use an object, which was allready destructed on the calling stack. This cannot be allowed.
-
-## Reasonable construction
-On object creation only necessary constructors are invoked. The behavior can by deduced from common sense, ex.:
-1. moving an `on_heap` object to another `on_heap` object does not invoke type-erased move ctor.
-2. moving anything to a `on_stack<>` object always invokes the type-erased move ctor.
-3. copying objects always invokes the type_erased copy ctor, with the exception of `on_heap_shared`, which can just increment it's reference count.
-4. etc.
-
-Common sense for `on_stack_or_heap<>` storage means that the following code:
-```c++
-Drawable<on_heap> someHeapDrawable{ Sphere{} }; // Sphere default ctor + Sphere move ctor
-sbo_vec.emplace_back(std::move(someHeapDrawable)); // just a pointer moved
-```
-will invoke the Sphere constructor only twice:
-1. Default construction in constructor argument list
-2. Move construction of the created Sphere into the heap-allocated buffer
-
-The `sbo_vec` will want to keep a Sphere on the heap, due to its size. `someHeapDrawable` allready allocated the Sphere on the heap, so the object will not be moved with Sphere's move constructor, but just with a pointer move. It's just like moving a `std::unique_ptr`.
-
-If `someHeapDrawable` was initialized with an object of size less than 16 bytes, ex. Triangle{}, than moving a `on_heap` stored Triangle to a `on_stack_or_heap<16>` stored object would invoke a Triangle move constructor, as expected, because the Triangle is of size less than 16 bytes.
-
-## Construction-like assignment
-Assignment is the same as construction, apart from the fact, that the storage is first destructed. After destruction, it is constructed in a new buffer, or with placement-new whenever possible.
-
-Exception safety of such a destruction-construction is achived using a custom destruction policy, which makes sure, that the storage is always destructed only once. It's just in case that after a succesfull storage destruction, if the constructor threw an exception, the storage would not be destructed again due to stack unwinding.
-
-In other words, this __DYNO_INTERFACE__ macro does not require the objects's constructors or destructor to be noexcept to perform a safe assignment, although only an amateur or a lunatic would allow his destructor to throw ;)
 
 ## Performance matters - in_place<> construction
 __Don't pay for what you don't use.__ Don't construct an object in one place just to move it to another.
@@ -210,6 +195,82 @@ The above code prints:
 > Cuboid the Type Erased!
 
 `in_place<>` is the optimal way to create __DYNO_INTERFACE__ objects.
+
+## Reasonable construction
+With this __Dyno__ fork, in comparrison to legacy __Dyno__, when using __DYNO_INTERFACE__ macro copy and move ctors are invoked only when necessary. 
+
+To present this, we will define a `CountedCircle` class, which counts the number of move-constructor and copy-constructor invocatons:
+```c++
+struct CountedConstruction
+{
+    CountedConstruction() = default;
+    CountedConstruction(const CountedConstruction&) { ++copiedCount; }
+    CountedConstruction(CountedConstruction&&) { ++movedCount; }
+
+    inline static int copiedCount = 0 ;
+    inline static int movedCount = 0 ;
+    static int reset(){ copiedCount = movedCount = 0; }
+};
+
+struct CountedCircle : Circle, CountedConstruction
+{};
+```
+The rules for the interface objects construction can be deduced from common sense and are as follows:
+
+1. Creating a type-erased object from an __lvalue__ always invokes a __copy__ ctor exactly once, regardless of the storage policy:
+```c++
+CountedCircle circle{};
+Drawable<on_heap> drawable{ circle };
+assert(1 == CountedCircle::copiedCount);
+```
+2. Creating a type-erased object from an __rvalue__ always invokes a __move__ ctor exactly once, regardless of the storage policy:
+```c++
+Drawable<on_stack<8>> drawable2{ CountedCircle{} };
+assert(1 == CountedCircle::movedCount);
+```
+3. Creating a type-erased object using an `in_place<>` tag __does not require any copy/move construction__. The constructor is invoked directly in memory:
+```c++
+Drawable<on_stack<8>> drawable3{ in_place<CountedCircle> };
+assert(0 == CountedCircle::copiedCount);
+assert(0 == CountedCircle::movedCount);
+```
+4. Copying/moving type-erased objects from/to an `on_stack<>` policy based object always invokes the copy/move ctor:
+```c++
+Drawable<on_stack<8>> drawable4{ in_place<CountedCircle> };
+auto drawable4 = drawable5
+auto drawable5 = std::move(drawable6);
+assert(0 == CountedCircle::copiedCount);
+assert(0 == CountedCircle::movedCount);
+```
+5. Copying a type-erased object always invokes the copy ctor regardless of the storage policy, apart from `on_heap_shared` copy, which just increases the reference count:
+```c++
+Drawable<on_heap_shared> drawable7{ in_place<CountedCircle> };
+Drawable<on_heap_shared> drawable8{ drawable7 };
+assert(0 == CountedCircle::copiedCount);
+
+Drawable<on_heap> drawable9{ drawable7 };
+assert(1 == CountedCircle::copiedCount);
+```
+6. Constructing an `on_heap` policy based object by moving another `on_heap` into it does not invoke the move ctor. It's like a shallow pointer move:
+```c++
+Drawable<on_heap> drawable10{ in_place<CountedCircle> };
+Drawable<on_heap> drawable11{ std::move(drawable10) };
+assert(0 == CountedCircle::movedCount);
+```
+
+<!---
+The `sbo_vec` will want to keep a Sphere on the heap, due to its size. `someHeapDrawable` allready allocated the Sphere on the heap, so the object will not be moved with Sphere's move constructor, but just with a pointer move. It's just like moving a `std::unique_ptr`.
+
+If `someHeapDrawable` was initialized with an object of size less than 16 bytes, ex. Triangle{}, than moving a `on_heap` stored Triangle to a `on_stack_or_heap<16>` stored object would invoke a Triangle move constructor, as expected, because the Triangle is of size less than 16 bytes.
+-->
+## Construction-like assignment
+Assignment is the same as construction, apart from the fact, that the storage is first destructed. After destruction, it is constructed in a new buffer, or with placement-new whenever possible.
+
+Exception safety of such a destruction-construction is achived using a custom destruction policy, which makes sure, that the storage is always destructed only once. It's just in case that after a succesfull storage destruction, if the constructor threw an exception, the storage would not be destructed again due to stack unwinding.
+
+In other words, this __DYNO_INTERFACE__ macro does not require the objects's constructors or destructor to be noexcept to perform a safe assignment, although only an amateur or a lunatic would allow his destructor to throw ;)
+
+
 
 
 ## Advanced properties
