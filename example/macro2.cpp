@@ -176,6 +176,27 @@ void reasonableConstructionExample()
     Drawable<on_heap> drawable10{ in_place<CountedCircle> };
     Drawable<on_heap> drawable11{ std::move(drawable10) };
     assert(0 == CountedCircle::movedCount);
+
+    CountedConstruction::reset();
+
+    struct BigCountedCircle : CountedCircle
+    {
+        char additionalSize[100];
+    };
+
+    Drawable<on_heap> drawable12{ in_place<BigCountedCircle> };
+    Drawable<on_stack_or_heap<8>> drawable13{ std::move(drawable12) };
+    Drawable<on_stack_or_heap<8>> drawable14{ std::move(drawable13) };
+    assert(0 == CountedCircle::movedCount);
+
+    Drawable<on_heap> drawable15{ in_place<CountedCircle> };
+    Drawable<on_stack_or_heap<8>> drawable16{ std::move(drawable15) };
+    Drawable<on_stack_or_heap<8>> drawable17{ std::move(drawable16) };
+    assert(2 == CountedCircle::movedCount);
+
+    CountedConstruction::reset();
+
+
 }
 
 int main()
