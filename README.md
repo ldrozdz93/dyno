@@ -215,15 +215,15 @@ struct CountedConstruction
 struct CountedCircle : Circle, CountedConstruction
 {};
 ```
-The rules for the interface objects construction can be deduced from common sense and are as follows:
+When using the __DYNO_INTERFACE__ macro, the copy and move constructors are generally invoked only when you'd expect them to. If that is not enough for you and you want more details, the rules for the type-erased objects construction are as follows:
 
-1. Creating a type-erased object from an __lvalue__ always invokes a __copy__ ctor exactly once, regardless of the storage policy:
+1. Creating a type-erased object from a concrete-type __lvalue__ always invokes a __copy__ ctor exactly once, regardless of the storage policy:
 ```c++
 CountedCircle circle{};
 Drawable<on_heap> drawable{ circle };
 assert(1 == CountedCircle::copiedCount);
 ```
-2. Creating a type-erased object from an __rvalue__ always invokes a __move__ ctor exactly once, regardless of the storage policy:
+2. Creating a type-erased object from a concrete-type __rvalue__ always invokes a __move__ ctor exactly once, regardless of the storage policy:
 ```c++
 Drawable<on_stack<8>> drawable2{ CountedCircle{} };
 assert(1 == CountedCircle::movedCount);
@@ -239,8 +239,8 @@ assert(0 == CountedCircle::movedCount);
 Drawable<on_stack<8>> drawable4{ in_place<CountedCircle> };
 auto drawable4 = drawable5
 auto drawable5 = std::move(drawable6);
-assert(0 == CountedCircle::copiedCount);
-assert(0 == CountedCircle::movedCount);
+assert(1 == CountedCircle::copiedCount);
+assert(1 == CountedCircle::movedCount);
 ```
 5. Copying a type-erased object always invokes the copy ctor regardless of the storage policy, apart from `on_heap_shared` copy, which just increases the reference count:
 ```c++
@@ -251,24 +251,40 @@ assert(0 == CountedCircle::copiedCount);
 Drawable<on_heap> drawable9{ drawable7 };
 assert(1 == CountedCircle::copiedCount);
 ```
-6. Constructing an `on_heap` policy based object by moving another `on_heap` into it does not invoke the move ctor. It's like a shallow pointer move:
+6. Constructing an `on_heap` policy based object by moving another `on_heap` into it does not invoke the move ctor. It's just a pointer move:
 ```c++
 Drawable<on_heap> drawable10{ in_place<CountedCircle> };
 Drawable<on_heap> drawable11{ std::move(drawable10) };
 assert(0 == CountedCircle::movedCount);
 ```
+7. Moving a type-erased object into a `on_stack_or_heap<>` storage is dependent on the size of the object. 
 
-<!---
-The `sbo_vec` will want to keep a Sphere on the heap, due to its size. `someHeapDrawable` allready allocated the Sphere on the heap, so the object will not be moved with Sphere's move constructor, but just with a pointer move. It's just like moving a `std::unique_ptr`.
+If the type-erased object in-move does not fit in the predefined bufer __and__ is allready on the heap (i.e. is stored with a `on_heap` or `on_stack_or_heap<>` storage policy), then it is moved with just a pointer move (just like 6.):
+```c++
+struct BigCountedCircle : CountedCircle
+{
+    char additionalSize[100];
+};
 
-If `someHeapDrawable` was initialized with an object of size less than 16 bytes, ex. Triangle{}, than moving a `on_heap` stored Triangle to a `on_stack_or_heap<16>` stored object would invoke a Triangle move constructor, as expected, because the Triangle is of size less than 16 bytes.
--->
+Drawable<on_heap> drawable12{ in_place<BigCountedCircle> };
+Drawable<on_stack_or_heap<8>> drawable13{ std::move(drawable12) };
+Drawable<on_stack_or_heap<8>> drawable14{ std::move(drawable13) };
+assert(0 == CountedCircle::movedCount);
+```
+Otherwise, the type-erased object in-move is moved in with the move ctor:
+```c++
+Drawable<on_heap> drawable15{ in_place<CountedCircle> };
+Drawable<on_stack_or_heap<8>> drawable16{ std::move(drawable15) };
+Drawable<on_stack_or_heap<8>> drawable17{ std::move(drawable16) };
+assert(2 == CountedCircle::movedCount);
+```
+
 ## Construction-like assignment
-Assignment is the same as construction, apart from the fact, that the storage is first destructed. After destruction, it is constructed in a new buffer, or with placement-new whenever possible.
+__Assignment rules are the same as construction__, apart from the fact, that the storage is first destructed. After destruction, it is constructed with allready listed construction rules.
 
-Exception safety of such a destruction-construction is achived using a custom destruction policy, which makes sure, that the storage is always destructed only once. It's just in case that after a succesfull storage destruction, if the constructor threw an exception, the storage would not be destructed again due to stack unwinding.
+NOTE: Exception safety of such a destruction-construction is achived using a custom destruction policy, which makes sure, that in a situation of an exception thrown, the storage is always destructed only once. It's just in case that after a succesfull storage destruction, if the constructor threw an exception, the storage is not destructed again during to stack unwinding due to a boolean check.
 
-In other words, this __DYNO_INTERFACE__ macro does not require the objects's constructors or destructor to be noexcept to perform a safe assignment, although only an amateur or a lunatic would allow his destructor to throw ;)
+In other words, this __DYNO_INTERFACE__ macro does not require the objects's constructors or destructor to be noexcept to perform a safe assignment, although __only an amateur or a lunatic would allow his destructor to throw__ ;)
 
 
 
