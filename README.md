@@ -257,9 +257,9 @@ Drawable<on_heap> drawable10{ in_place<CountedCircle> };
 Drawable<on_heap> drawable11{ std::move(drawable10) };
 assert(0 == CountedCircle::movedCount);
 ```
-7. Moving a type-erased object into a `on_stack_or_heap<>` storage is dependent on the size of the object. 
+7. Moving a type-erased object into a `on_stack_or_heap<>` storage is dependent on the size of the moved object. 
 
-If the type-erased object in-move does not fit in the predefined bufer __and__ is allready on the heap (i.e. is stored with a `on_heap` or `on_stack_or_heap<>` storage policy), then it is moved with just a pointer move (just like 6.):
+If the type-erased object in-move does not fit in the predefined bufer __and__ is allready on the heap (i.e. is stored with a `on_heap` or `on_stack_or_heap<>` storage policy with size large enough), then it is moved with just a pointer move (just like 6.):
 ```c++
 struct BigCountedCircle : CountedCircle
 {
@@ -271,23 +271,41 @@ Drawable<on_stack_or_heap<8>> drawable13{ std::move(drawable12) };
 Drawable<on_stack_or_heap<8>> drawable14{ std::move(drawable13) };
 assert(0 == CountedCircle::movedCount);
 ```
-Otherwise, the type-erased object in-move is moved in with the move ctor:
+Otherwise, the type-erased object in-move is moved with the move ctor:
 ```c++
 Drawable<on_heap> drawable15{ in_place<CountedCircle> };
 Drawable<on_stack_or_heap<8>> drawable16{ std::move(drawable15) };
 Drawable<on_stack_or_heap<8>> drawable17{ std::move(drawable16) };
 assert(2 == CountedCircle::movedCount);
 ```
+8. `on_stack<N>` object with size N can be constructed from a type-erased object of policy `on_stack<M>` with size M only if `sizeof(aligned_storage_t<M>)<=sizeof(aligned_storage_t<N>)`:
+```c++
+Drawable<on_stack<8>> drawable1{ Circle{} };
+Drawable<on_stack<64>> drawable2{ Square{} };
+
+// drawable1 = drawable2; // won't copile!
+drawable2 = drawable1;
+```
 
 ## Construction-like assignment
-__Assignment rules are the same as construction__, apart from the fact, that the storage is first destructed. After destruction, it is constructed with allready listed construction rules.
+__Assignment rules are the same as construction__, apart from the fact, that the storage is first destructed. After destruction, it is constructed with allready listed construction rules. Example:
+```c++
+using namespace dyno::macro;
 
-NOTE: Exception safety of such a destruction-construction is achived using a custom destruction policy, which makes sure, that in a situation of an exception thrown, the storage is always destructed only once. It's just in case that after a succesfull storage destruction, if the constructor threw an exception, the storage is not destructed again during to stack unwinding due to a boolean check.
+Drawable drawable1{ Circle{} };
+// ^ default storage policy, i.e. on_heap
+Drawable<on_stack<8>> drawable2{ Circle{} };
+
+drawable2 = drawable1;
+drawable2 = in_place<Circle>;
+
+drawable2.draw(std::cout);
+// prints "Circle,"
+```
+
+NOTE: Exception safety of such a destruction-construction is achived using a custom destruction policy, which makes sure, that in a situation of an exception thrown, the storage is always destructed only once. It's just in case that after a succesfull storage destruction, if the constructor throws an exception, the storage is not destructed again during stack unwinding due to a boolean check.
 
 In other words, this __DYNO_INTERFACE__ macro does not require the objects's constructors or destructor to be noexcept to perform a safe assignment, although __only an amateur or a lunatic would allow his destructor to throw__ ;)
-
-
-
 
 ## Advanced properties
 #### non_copy_constructible
@@ -331,8 +349,14 @@ Again, `non_move_constructible` refers to the type-erased payload, not the inter
 The full example of provided __DYNO_INTERFACE__ macro functionalities is in [example/macro2.cpp](https://github.com/ldrozdz93/dyno/blob/master/example/macro2.cpp)
 
 
-This shows we could use runtime on-stack polimorphism with value sematics even on memory-constrained
+This also shows we could use runtime on-stack polimorphism with value sematics even on memory-constrained
 bare-metal systems with no dynamic memory.
+
+## TODO list:
+#### Things ready
+My main priority was to implement a fully __type-safe stack-based runtime polimorphism__ support. __This task is finished.__ There is no dynamic memory management, thus no risk of allocation exceptions. The size of objects to be crated or assigned is verified in compile time to fit in the predefined stack buffer.
+
+This makes __DYNO_INTERFACE__ stack-based polimorphism to be safely used on virtually every hardware. No matter if you are building for x86-64 or Cortex-M0. A virtual call cost is just a one pointer indirection on the vtable, compared with a statically typed object. On the other hand you get an opportunity to write efficient object-oriented, unit-testable (mockable) code.
 
 ## How it works
 The main difference is that __DYNO_INTERFACE__ now defines not just a class,
@@ -340,7 +364,7 @@ but a class template. The template default parameters are compatibile with
 legacy __Dyno__, so a fully copyable object of [`dyno::remote_storage`] 
 policy is used by default.
 
-My chages mostly concentrated on compile-time code, but also added some minor & necesasary runtime footprint, ex. with convertions between storage types.
+My chages mostly concentrated on compile-time code, but also added some minor & necesasary runtime footprint during construction of objects, ex. with convertions between storage types.
 
 <!-- Links -->
 [README]: https://github.com/ldionne/dyno/blob/master/README.md
