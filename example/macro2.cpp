@@ -195,8 +195,32 @@ void reasonableConstructionExample()
     assert(2 == CountedCircle::movedCount);
 
     CountedConstruction::reset();
+}
 
+void on_stackConstructionExample()
+{
+    using namespace dyno::macro;
 
+    Drawable<on_stack<8>> drawable1{ Circle{} };
+    Drawable<on_stack<64>> drawable2{ Square{} };
+
+//    drawable1 = drawable2; // won't copile!
+    drawable2 = drawable1;
+}
+
+void assignmentExample()
+{
+    using namespace dyno::macro;
+
+    Drawable drawable1{ Circle{} };
+    // ^ default storage policy, i.e. on_heap
+    Drawable<on_stack<8>> drawable2{ Circle{} };
+
+    drawable2 = drawable1;
+    drawable2 = in_place<Circle>;
+
+    drawable2.draw(std::cout);
+    // prints "Circle,"
 }
 
 int main()
@@ -207,4 +231,6 @@ int main()
     onHeapSharedExample();
     visitedExample();
     reasonableConstructionExample();
+    on_stackConstructionExample();
+    assignmentExample();
 }
