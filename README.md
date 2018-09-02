@@ -58,37 +58,40 @@ vec[0] = vec.back();
 ```
 Now, the first element is a copy of the last element in the vector, ie. a `Circle`.
 
+# Custom storage policy
 ## Polymorphism without heap - on_stack<> storage
 ##### Non-boilerplate stack-based polimorphism can be easily achived using this fork of Dyno.
-Lets say we performed some performance benchmarks in our application and came to a conclusion, that our `vec` is the bottleneck. Iterating over stored drawable objects turnes out to cause a lots of cache misses due to actual objects being held on the heap in different places, because `vec` stores only the pointers to storage and vtable. What's more, we could also want to neglect the effect of vector heap indirection and use a boost::container::static_vector, which stores its data directly on the stack.
-
-Assume we want to store at most 10 drawable objects. We could copy them from heap to stack, i.e. from `vec` to `stack_vec`:
+This __Dyno__ fork lets you use __runtime polymorphism with no dynamic memory allocation__. In the following example, using a `boost::container::static_vector`, all type-erased objects are kept directly on stack:
 ```c++
 using namespace dyno::macro;
-std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
 
-boost::container::static_vector< Drawable<on_stack<4> >, 10> stack_vec(
-     vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
+boost::container::static_vector< Drawable<on_stack<16> >, 10>
+    vecOnStack{ Square{}, Circle{}, Square{}, Circle{} };
 
-for(const auto& obj : stack_vec)
+for(const auto& obj : vecOnStack)
     obj.draw(std::cout);
 ```
 The above prints as expected:
 > Square,Circle,Square,Circle,
 
+We could also copy objects from heap storage to stack storage with ease:
+```c++
+std::vector<Drawable<>> vecOnHeap{ Square{}, Circle{}, Square{}, Circle{} };
+std::copy(vecOnHeap.begin(), vecOnHeap.end(), std::back_inserter(vecOnStack));
+```
 `on_stack<16>` is a storage policy. It means that the size of the storage buffer in the Drawable object is 16 bytes. In this case, the size of the type-erased-object to be constructed can be no more than 16 bytes.
 
 We could define a new class fulfilling the Drawable interface and add its object to our stack vector:
 ```c++
-struct Triangle 
+struct Triangle
 {
   void draw(std::ostream& out) const { out << name << ","; }
   int doSomethingElse(){ return 0; }
-  const char* name {"Triangle"};
+  const char* name { "Triangle" };
 };
 
-if(stack_vec.size() < stack_vec.capacity())
-    stack_vec.emplace_back( Triangle{} );
+if(vecOnStack.size() < vecOnStack.capacity())
+    vecOnStack.emplace_back( Triangle{} );
 ```
 Notice the Triangle can have excessive methods and fields. It can be treated like a Drawable as long as if fulfills the Drawable interface and fits in the given on_stack<> storage.
 
@@ -99,7 +102,7 @@ struct BigSphere
   void draw(std::ostream& out) const { out << "BigSphere,"; }
   int points[100]{};
 };
-stack_vec.emplace_back( BigSphere{} ); // will not copile!
+//    vecOnStack.emplace_back( BigSphere{} ); // will not copile!
 ```
 gives a static assertion error:
 > error: static assertion failed: dyno::local_storage: Trying to construct from an object that won't fit in the local storage.
@@ -129,12 +132,11 @@ for(const auto& obj : sbo_vec)
 `on_stack_or_heap<16>` storage policy stores the object on stack if it fits in the buffer, which is 16 bytes in this case. If it's too large, the object is allocated on the heap. A BigSphere{} is much larger than 16 bytes, so it will be stored with operator new. This approach is often considered an optimisation, as it is likely to reduce the ammount of cache misses, but it should always be measured first.
 
 ## Shared objects - on_heap_shared storage
-
 ```c++
 using namespace dyno::macro;
 Drawable<on_heap_shared> shared1{ Circle{} };
 auto shared2{ shared1 };
-// ^ shared1 and shared2 refer to the same Sphere;
+// ^ shared1 and shared2 refer to the same Circle;
 ```
 Shared storage uses a `std::shared_ptr` in its implementation, so `on_heap_shared` objects are reference counted. A shared object can be created, apart from normal construction, by moving a 'standard' `on_heap` object into a `on_heap_shared` interface, just like creating a `std::shared_ptr` from a `std::unique_ptr`:
 ```c++
@@ -345,19 +347,17 @@ The `NonmovableLine`, due to a lack of a move constructor, must be created with 
 Again, `non_move_constructible` refers to the type-erased payload, not the interface object itself. Moving a `on_heap` object is just a pointer move, where a "move-construct" vtable entry is not needed. Moving a `on_heap` object into a `on_stack<>` one would requires an invocation of a move constructor, so it won't compile.
 
 ## Full example
-
 The full example of provided __DYNO_INTERFACE__ macro functionalities is in [example/macro2.cpp](https://github.com/ldrozdz93/dyno/blob/master/example/macro2.cpp)
-
 
 This also shows we could use runtime on-stack polimorphism with value sematics even on memory-constrained
 bare-metal systems with no dynamic memory.
 
 ## TODO list:
 #### Things ready
-My main priority was to implement a fully __type-safe stack-based runtime polimorphism__ support. __This task is finished.__ There is no dynamic memory management, thus no risk of allocation exceptions. The size of objects to be crated or assigned is verified in compile time to fit in the predefined stack buffer.
+My main priority was to implement a fully __type-safe stack-based runtime polimorphism__ support. __This task is finished__ from safety point of view. If there is no dynamic memory management, there is no risk of allocation exceptions. The size of objects to be crated or assigned is verified in compile time to fit in the predefined stack buffer.
 
 This lets __DYNO_INTERFACE__ stack-based polimorphism to be safely used on virtually any hardware. No matter if you are building for x86-64 or Cortex-M0. A virtual call cost is just a one pointer indirection on the vtable, compared with a statically typed object. On the other hand you get an opportunity to write efficient object-oriented, unit-testable (mockable) code, even on a bare-metal hardware.
-#### Thing waiting to be done
+#### Things waiting to be done
 There are still a few functionalities missing in forked __Dyno__, mostly considering memory and excepton safety. They are planned to be added in the future:
 1. Custom allocators support. At the moment, only `std::malloc` is supported.
 2. Custom alocation error handlers. At the moment, a simple assertion is used:
