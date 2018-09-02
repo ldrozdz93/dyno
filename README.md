@@ -356,30 +356,20 @@ bare-metal systems with no dynamic memory.
 #### Things ready
 My main priority was to implement a fully __type-safe stack-based runtime polimorphism__ support. __This task is finished.__ There is no dynamic memory management, thus no risk of allocation exceptions. The size of objects to be crated or assigned is verified in compile time to fit in the predefined stack buffer.
 
-This makes __DYNO_INTERFACE__ stack-based polimorphism to be safely used on virtually every hardware. No matter if you are building for x86-64 or Cortex-M0. A virtual call cost is just a one pointer indirection on the vtable, compared with a statically typed object. On the other hand you get an opportunity to write efficient object-oriented, unit-testable (mockable) code.
+This lets __DYNO_INTERFACE__ stack-based polimorphism to be safely used on virtually any hardware. No matter if you are building for x86-64 or Cortex-M0. A virtual call cost is just a one pointer indirection on the vtable, compared with a statically typed object. On the other hand you get an opportunity to write efficient object-oriented, unit-testable (mockable) code, even on a bare-metal hardware.
+#### Thing waiting to be done
+There are still a few functionalities missing in forked __Dyno__, mostly considering memory and excepton safety. They are planned to be added in the future:
+1. Custom allocators support. At the moment, only `std::malloc` is supported.
+2. Custom alocation error handlers. At the moment, a simple assertion is used:
+```c++
+assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
+```
+3. Fix exception safety of construction after allocation. Allocating and then calling the constructor is not exception-safe if the constructor throws.
+4. Support for `noexcept` as a part of a method signature (C++17) in a __DYNO_INTERFACE__.
+5. Support for method names overloading. At the moment, every method in a __DYNO_INTERFACE__ must have a different name.
 
-## How it works
-The main difference is that __DYNO_INTERFACE__ now defines not just a class,
-but a class template. The template default parameters are compatibile with
-legacy __Dyno__, so a fully copyable object of [`dyno::remote_storage`] 
-policy is used by default.
 
-My chages mostly concentrated on compile-time code, but also added some minor & necesasary runtime footprint during construction of objects, ex. with convertions between storage types.
 
 <!-- Links -->
 [README]: https://github.com/ldionne/dyno/blob/master/README.md
-[`std::any`]: http://en.cppreference.com/w/cpp/utility/any
-[`std::function`]: http://en.cppreference.com/w/cpp/utility/functional/function
-[badge.Travis]: https://travis-ci.org/ldionne/dyno.svg?branch=master
-[Boost.CallableTraits]: https://github.com/badair/callable_traits
-[Boost.Hana]: https://github.com/boostorg/hana
-[Boost.TypeErasure]: http://www.boost.org/doc/libs/release/doc/html/boost_typeerasure.html
-[C++0x Concept Maps]: https://isocpp.org/wiki/faq/cpp0x-concepts-history#cpp0x-concept-maps
-[Go interfaces]: https://gobyexample.com/interfaces
-[Google Benchmark]: https://github.com/google/benchmark
-[Haskell type classes]: http://learnyouahaskell.com/types-and-typeclasses
-[libawful]: https://github.com/ldionne/libawful
-[Mpark.Variant]: https://github.com/mpark/variant
-[Rust trait objects]: https://doc.rust-lang.org/book/first-edition/trait-objects.html
-[type erasure]: https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Type_Erasure
-[virtual concepts]: https://github.com/andyprowl/virtual-concepts
+
