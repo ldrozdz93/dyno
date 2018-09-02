@@ -39,16 +39,20 @@ void basicExample()
     //  ^ prints Circle,Circle,Square,Circle,
 }
 
+#include <algorithm>
 void onStackExample()
 {
     using namespace dyno::macro;
-    std::vector<Drawable<>> vec{ Square{}, Circle{}, Square{}, Circle{} };
 
-    boost::container::static_vector< Drawable<on_stack<4> >, 10> stack_vec(
-         vec.begin(), vec.begin() + std::min(vec.size(), 10ul));
+    boost::container::static_vector< Drawable<on_stack<16> >, 10>
+        vecOnStack{ Square{}, Circle{}, Square{}, Circle{} };
 
-    for(const auto& obj : stack_vec)
+    for(const auto& obj : vecOnStack)
         obj.draw(std::cout);
+
+    std::vector<Drawable<>> vecOnHeap{ Square{}, Circle{}, Square{}, Circle{} };
+
+    std::copy(vecOnHeap.begin(), vecOnHeap.end(), std::back_inserter(vecOnStack));
 
     struct Triangle
     {
@@ -57,15 +61,17 @@ void onStackExample()
       const char* name { "Triangle" };
     };
 
-    if(stack_vec.size() < stack_vec.capacity())
-        stack_vec.emplace_back( Triangle{} );
+    if(vecOnStack.size() < vecOnStack.capacity())
+        vecOnStack.emplace_back( Triangle{} );
 
     struct BigSphere
     {
       void draw(std::ostream& out) const { out << "BigSphere,"; }
       int points[100]{};
     };
-//    stack_vec.emplace_back( BigSphere{} ); // will not copile!
+//    vecOnStack.emplace_back( BigSphere{} ); // will not copile!
+
+
 }
 
 void sboExample()
