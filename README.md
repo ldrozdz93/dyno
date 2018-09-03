@@ -3,7 +3,7 @@ I forked this library in order to enchance the original macro-based interface
 creation mechanism, provided by Louis Dionne in his great library.
 
 ## Overview
-__Dyno__ is a type-erasure library, which lets you use runtime polomorphism without the need to explicitly define an inheritance hierarchy. The following __Dyno__ fork is an attempt to remove some of the boilerplate and 
+__Dyno__ is a type-erasure library, which lets you use runtime polymorphism without the need to explicitly define an inheritance hierarchy. The following __Dyno__ fork is an attempt to remove some of the boilerplate and 
 customizability problems of the root __Dyno__ provided by Louis Dionne.
 The target was to add new possibilities with the __DYNO_INTERFACE__ macro,
 such as:
@@ -13,7 +13,7 @@ such as:
 4. to provide additional interface properties, ex. noncopyable
 5. to optimize-out the amount of unnecessary copies and moves
 
-The target was to provide changes to __DYNO_INTERFACE__ macro, leaving all the not macro-based functionalities as they were implemented by Louis Dionne. Usage of the  macro does not require an in-depth knowledge of __Dyno__. However, if you want to know how __Dyno__ works under the hood, then you could read the [README][] file by Louis Dionne.
+The target was to provide changes to __DYNO_INTERFACE__ macro, leaving all the not macro-based functionalities as they were implemented by Louis Dionne. Usage of the  macro does not require an in-depth knowledge of __Dyno__. However, if you want to know how __Dyno__ works under the hood, then I recommend reading the [README][] file by Louis Dionne.
 
 In the following readme, I will refer to original __Dyno__ written by Louis Dionne as "legacy __DYNO__".
 
@@ -60,7 +60,7 @@ Now, the first element is a copy of the last element in the vector, ie. a `Circl
 
 # Custom storage policy
 ## Polymorphism without heap - on_stack<> storage
-##### Non-boilerplate stack-based polimorphism can be easily achived using this fork of Dyno.
+##### Non-boilerplate stack-based polymorphism can be easily achived using this fork of Dyno.
 This __Dyno__ fork lets you use __runtime polymorphism with no dynamic memory allocation__. In the following example, using a `boost::container::static_vector`, all type-erased objects are kept directly on stack:
 ```c++
 using namespace dyno::macro;
@@ -290,7 +290,7 @@ drawable2 = drawable1;
 ```
 
 ## Construction-like assignment
-__Assignment rules are the same as construction__, apart from the fact, that the storage is first destructed. After destruction, it is constructed with allready listed construction rules. Example:
+__Assignment rules are the same as construction__, apart from the fact, that the storage is first destructed. After destruction, it is constructed with above listed construction rules. Example:
 ```c++
 using namespace dyno::macro;
 
@@ -367,6 +367,8 @@ assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
 3. Fix exception safety of construction after allocation. Allocating and then calling the constructor is not exception-safe if the constructor throws.
 4. Support for `noexcept` as a part of a method signature (C++17) in a __DYNO_INTERFACE__.
 5. Support for method names overloading. At the moment, every method in a __DYNO_INTERFACE__ must have a different name.
+5. Support for constructing type-erased objects from other type-erased objects which happen to be modelled by different __DYNO_INTERFACE__ macros, but with similar methods.
+6. Refactor of unit tests. Testing static_asserts.
 
 
 
