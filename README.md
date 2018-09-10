@@ -305,9 +305,10 @@ drawable2.draw(std::cout);
 // prints "Circle,"
 ```
 
-NOTE: Exception safety of such a destruction-construction is achived using a custom destruction policy, which makes sure, that in a situation of an exception thrown, the storage is always destructed only once. It's just in case that after a succesfull storage destruction, if the constructor throws an exception, the storage is not destructed again during stack unwinding due to a boolean check.
+NOTE: A custom destruction policy makes sure, that in a situation of an exception thrown, the storage is always destructed only once. It's just in case that after a succesfull storage destruction, if the constructor throws an exception, the storage is not destructed again during stack unwinding due to a boolean check. This does not guarantee any level of exception safety.
 
-In other words, this __DYNO_INTERFACE__ macro does not require the objects's constructors or destructor to be noexcept to perform a safe assignment, although __only an amateur or a lunatic would allow his destructor to throw__ ;)
+## Exception safety
+Currently, only `on_stack<>` objects construction and assignment provide basic exception safety (no resource leaks). It is planned to add strong exception safety for both stack- and heap-stored objects. 
 
 ## Advanced properties
 #### non_copy_constructible
@@ -354,7 +355,7 @@ bare-metal systems with no dynamic memory.
 
 ## TODO list:
 #### Things ready
-My main priority was to implement a fully __type-safe stack-based runtime polimorphism__ support. __This task is finished__ from safety point of view. If there is no dynamic memory management, there is no risk of allocation exceptions. The size of objects to be crated or assigned is verified in compile time to fit in the predefined stack buffer.
+My main priority was to implement a fully __type-safe stack-based runtime polimorphism__ support. __This task is 'almost' finished__ from safety point of view. 'Almost', because only basic exception safety is provided for `on_stack<>`. If there is no dynamic memory management, there is no risk of allocation exceptions.  The size of objects to be crated or assigned is verified in compile time to fit in the predefined stack buffer.
 
 This lets __DYNO_INTERFACE__ stack-based polimorphism to be safely used on virtually any hardware. No matter if you are building for x86-64 or Cortex-M0. A virtual call cost is just a one pointer indirection on the vtable, compared with a statically typed object. On the other hand you get an opportunity to write efficient object-oriented, unit-testable (mockable) code, even on a bare-metal hardware.
 #### Things waiting to be done
@@ -364,7 +365,7 @@ There are still a few functionalities missing in forked __Dyno__, mostly conside
 ```c++
 assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
 ```
-3. Fix exception safety of construction after allocation. Allocating and then calling the constructor is not exception-safe if the constructor throws.
+3. Fix exception safety of construction after allocation. Allocating and then calling the constructor is not exception-safe if the constructor throws. Destructing before construction violates strong exception safety, because the constructor could throw, leaving the object in an invalid (destructed) state.
 4. Support for `noexcept` as a part of a method signature (C++17) in a __DYNO_INTERFACE__.
 5. Support for method names overloading. At the moment, every method in a __DYNO_INTERFACE__ must have a different name.
 5. Support for constructing type-erased objects from other type-erased objects which happen to be modelled by different __DYNO_INTERFACE__ macros, but with similar methods.
