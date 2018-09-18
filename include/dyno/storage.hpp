@@ -433,7 +433,7 @@ public:
 struct remote_storage {
   // TODO: change access specifiers
   template< std::size_t, std::size_t > friend class sbo_storage;
-  friend class shared_remote_storage;
+  friend struct shared_remote_storage;
   template< typename T > friend void* detail::movePtrFrom(T&);
 
   remote_storage() = delete;
@@ -458,8 +458,7 @@ public:
         }
     }
 
-    ptr_ = detail::alloc_with_vtable(vtable);
-    detail::construct_with_vtable(ptr_, std::forward<OtherStorage>(other_storage), vtable);
+    ptr_ = detail::alloc_and_construct_with_vtable(std::forward<OtherStorage>(other_storage), vtable);
   }
 
   template <typename T,
@@ -578,8 +577,7 @@ struct shared_remote_storage {
         }
     }
 
-    void* ptr = detail::alloc_with_vtable(vtable);
-    detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
+    void* ptr = detail::alloc_and_construct_with_vtable(std::forward<OtherStorage>(other_storage), vtable);
     return ptr;
   }
 

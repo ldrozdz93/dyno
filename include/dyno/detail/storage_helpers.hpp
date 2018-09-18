@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <type_traits>
 #include <dyno/detail/dsl.hpp>
+#include <memory>
 
 namespace dyno
 {
@@ -68,6 +69,39 @@ void* alloc_with_vtable(const VTable& vtable)
   // TODO: That's not a really nice way to handle this
   assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
   return ptr_;
+}
+
+class VoidPtrWithRAII
+{
+  void* ptr;
+
+public:
+  explicit VoidPtrWithRAII(void* source) noexcept
+      : ptr{source}
+  {}
+  ~VoidPtrWithRAII()
+  {
+    if (nullptr == ptr) return;
+    std::free(ptr);
+  }
+
+  void* get() noexcept { return ptr; }
+
+  void* release() noexcept
+  {
+    auto res = ptr;
+    ptr = nullptr;
+    return res;
+  }
+
+};
+
+template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
+void* alloc_and_construct_with_vtable(OtherStorage&& other_storage, const VTable& vtable)
+{
+  VoidPtrWithRAII safePtr{ alloc_with_vtable(vtable) };
+  construct_with_vtable(safePtr.get(), std::forward<OtherStorage>(other_storage), vtable);
+  return safePtr.release();
 }
 
 template< typename OtherStorage >
