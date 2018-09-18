@@ -167,12 +167,7 @@ public:
       new (&sb_) RawT(std::forward<T>(t));
     } else {
       uses_heap_ = true;
-      ptr_ = std::malloc(sizeof(RawT));
-      // TODO: Allocating and then calling the constructor is not
-      //       exception-safe if the constructor throws.
-      // TODO: That's not a really nice way to handle this
-      assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
-      new (ptr_) RawT(std::forward<T>(t));
+      ptr_ = detail::alloc_and_construct_with_T(std::forward<T>(t));
     }
   }
 

@@ -93,16 +93,40 @@ public:
     ptr = nullptr;
     return res;
   }
-
 };
 
 template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
 void* alloc_and_construct_with_vtable(OtherStorage&& other_storage, const VTable& vtable)
 {
-  VoidPtrWithRAII safePtr{ alloc_with_vtable(vtable) };
-  construct_with_vtable(safePtr.get(), std::forward<OtherStorage>(other_storage), vtable);
-  return safePtr.release();
+  VoidPtrWithRAII ptr{ alloc_with_vtable(vtable) };
+  construct_with_vtable(ptr.get(), std::forward<OtherStorage>(other_storage), vtable);
+  return ptr.release();
 }
+
+template <typename GivenT = void, typename T, typename RawT = std::decay_t<T>>
+void* alloc_and_construct_with_T(T&& t) // TODO: handle variable arguments
+{
+  using TtoBeConstructed = std::conditional_t<std::is_same<GivenT, void>::value,
+                                                RawT, GivenT>;
+  VoidPtrWithRAII ptr{ std::malloc(sizeof(TtoBeConstructed)) };
+
+  // TODO: That's not a really nice way to handle this
+  assert(ptr.get() != nullptr && "std::malloc failed, we're doomed");
+
+
+  new (ptr.get()) TtoBeConstructed(std::forward<T>(t));
+  return ptr.release();
+}
+
+/*
+      ptr_ = std::malloc(sizeof(RawT));
+      // TODO: Allocating and then calling the constructor is not
+      //       exception-safe if the constructor throws.
+      // TODO: That's not a really nice way to handle this
+      assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
+      new (ptr_) RawT(std::forward<T>(t));
+*/
+
 
 template< typename OtherStorage >
 void* movePtrFrom(OtherStorage& other_storage)
