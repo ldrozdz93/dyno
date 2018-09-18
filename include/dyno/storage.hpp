@@ -145,20 +145,16 @@ public:
       }
     }
 
-    void* ptr = [&]{
-      if( fits_in_local_storage )
-      {
-        uses_heap_ = false;
-        return static_cast<void*>(&sb_);
-      }
-      else
-      {
-        uses_heap_ = true;
-        return ptr_ = detail::alloc_with_vtable(vtable);
-      }
-    }();
-
-    detail::construct_with_vtable(ptr, std::forward<OtherStorage>(other_storage), vtable);
+    if( fits_in_local_storage )
+    {
+      uses_heap_ = false;
+      detail::construct_with_vtable(static_cast<void*>(&sb_), std::forward<OtherStorage>(other_storage), vtable);
+    }
+    else
+    {
+      uses_heap_ = true;
+      ptr_ = detail::alloc_and_construct_with_vtable(std::forward<OtherStorage>(other_storage), vtable);
+    }
   }
 
   template <typename T, typename RawT = std::decay_t<T>>
