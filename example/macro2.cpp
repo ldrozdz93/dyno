@@ -229,6 +229,25 @@ void assignmentExample()
     // prints "Circle,"
 }
 
+void exceptionOnConstructionExample()
+{
+    struct ThrowingCountedCircle : CountedCircle
+    {
+        ThrowingCountedCircle() = default;
+        ThrowingCountedCircle(const ThrowingCountedCircle&)
+        {
+            throw 0;
+        }
+    };
+    using namespace dyno::macro;
+
+    try
+    {
+        Drawable<on_heap> drawable10{ ThrowingCountedCircle{} };
+    }
+    catch (...){ }
+}
+
 int main()
 {
     basicExample();
@@ -239,4 +258,5 @@ int main()
     reasonableConstructionExample();
     on_stackConstructionExample();
     assignmentExample();
+    exceptionOnConstructionExample();
 }

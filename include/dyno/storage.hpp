@@ -455,12 +455,8 @@ public:
   template <typename T,
             typename RawT = std::decay_t<T> >
   explicit remote_storage(T&& t)
-    : ptr_{std::malloc(sizeof(RawT))}
   {
-    // TODO: That's not a really nice way to handle this
-    assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
-
-    new (ptr_) RawT(std::forward<T>(t));
+    ptr_ = detail::alloc_and_construct_with_T<RawT>(std::forward<T>(t));
   }
 
   template <typename T,

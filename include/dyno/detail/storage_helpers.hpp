@@ -79,14 +79,15 @@ public:
   explicit VoidPtrWithRAII(void* source) noexcept
       : ptr{source}
   {}
+  VoidPtrWithRAII(const VoidPtrWithRAII&) = delete;
   ~VoidPtrWithRAII()
   {
-    if (nullptr == ptr) return;
     std::free(ptr);
   }
 
   void* get() noexcept { return ptr; }
 
+  [[nodiscard]]
   void* release() noexcept
   {
     auto res = ptr;
@@ -103,11 +104,11 @@ void* alloc_and_construct_with_vtable(OtherStorage&& other_storage, const VTable
   return ptr.release();
 }
 
-template <typename GivenT = void, typename T, typename RawT = std::decay_t<T>>
+template <typename ExplicitT = void, typename T, typename RawT = std::decay_t<T>>
 void* alloc_and_construct_with_T(T&& t) // TODO: handle variable arguments
 {
-  using TtoBeConstructed = std::conditional_t<std::is_same<GivenT, void>::value,
-                                                RawT, GivenT>;
+  using TtoBeConstructed = std::conditional_t<std::is_same<ExplicitT, void>::value,
+                                                RawT, ExplicitT>;
   VoidPtrWithRAII ptr{ std::malloc(sizeof(TtoBeConstructed)) };
 
   // TODO: That's not a really nice way to handle this
