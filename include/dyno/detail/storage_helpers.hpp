@@ -71,16 +71,16 @@ void* alloc_with_vtable(const VTable& vtable)
   return ptr_;
 }
 
-class VoidPtrWithRAII
+class ScopedVoidPtr
 {
   void* ptr;
 
 public:
-  explicit VoidPtrWithRAII(void* source) noexcept
+  explicit ScopedVoidPtr(void* source) noexcept
       : ptr{source}
   {}
-  VoidPtrWithRAII(const VoidPtrWithRAII&) = delete;
-  ~VoidPtrWithRAII()
+  ScopedVoidPtr(const ScopedVoidPtr&) = delete;
+  ~ScopedVoidPtr()
   {
     std::free(ptr);
   }
@@ -99,17 +99,17 @@ public:
 template <typename OtherStorage, typename VTable, typename RawOtherStorage = std::decay_t<OtherStorage>>
 void* alloc_and_construct_with_vtable(OtherStorage&& other_storage, const VTable& vtable)
 {
-  VoidPtrWithRAII ptr{ alloc_with_vtable(vtable) };
+  ScopedVoidPtr ptr{ alloc_with_vtable(vtable) };
   construct_with_vtable(ptr.get(), std::forward<OtherStorage>(other_storage), vtable);
   return ptr.release();
 }
 
 template <typename ExplicitT = void, typename T, typename RawT = std::decay_t<T>>
-void* alloc_and_construct_with_T(T&& t) // TODO: handle variable arguments
+void* alloc_and_construct_with_T(T&& t) // TODO: handle variable arguments!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 {
   using TtoBeConstructed = std::conditional_t<std::is_same<ExplicitT, void>::value,
                                                 RawT, ExplicitT>;
-  VoidPtrWithRAII ptr{ std::malloc(sizeof(TtoBeConstructed)) };
+  ScopedVoidPtr ptr{ std::malloc(sizeof(TtoBeConstructed)) };
 
   // TODO: That's not a really nice way to handle this
   assert(ptr.get() != nullptr && "std::malloc failed, we're doomed");
