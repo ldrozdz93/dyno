@@ -151,32 +151,38 @@ template< typename T > struct is_a_make_inplace_t< make_inplace_t<T> > : std::tr
 template< typename T > constexpr auto is_a_make_inplace = detail::is_a_make_inplace_t<std::decay_t<T>>::value;
 template< typename T > inline constexpr auto make_inplace = detail::make_inplace_t<T>{};
 
-template <typename ExplicitT = void, typename T, typename RawT = std::decay_t<T>,
-          typename = std::enable_if_t<not is_a_make_inplace<T>>>
-void* alloc_and_construct_with_T(T&& t)
+template <typename ExplicitT = void, typename... Args>
+void* alloc_and_construct_with_T(Args&&... args)
 {
-  using TtoBeConstructed = std::conditional_t<std::is_same<ExplicitT, void>::value,
-                                                RawT, ExplicitT>;
-  ScopedVoidPtr ptr{ std::malloc(sizeof(TtoBeConstructed)) };
+  if constexpr(sizeof...(Args) == 1)
+  {
+    using T = typename std::tuple_element<0, std::tuple<Args...>>::type;
+    using TtoBeConstructed = std::conditional_t<std::is_same<ExplicitT, void>::value,
+                                                std::decay_t<T>, ExplicitT>;
+    ScopedVoidPtr ptr{ std::malloc(sizeof(TtoBeConstructed)) };
 
-  // TODO: That's not a really nice way to handle this
-  assert(ptr.get() != nullptr && "std::malloc failed, we're doomed");
+    // TODO: That's not a really nice way to handle this
+    assert(ptr.get() != nullptr && "std::malloc failed, we're doomed");
 
-  new (ptr.get()) TtoBeConstructed(std::forward<T>(t));
-  return ptr.release();
-}
+    new (ptr.get()) TtoBeConstructed(std::forward<Args>(args)...);
+    return ptr.release();
+  }
+  else
+  {
+    static_assert (not std::is_same_v<ExplicitT, void>,
+                 "T to be constructed must be explicitly specified to use a variable argument constructor!");
 
-template <typename ExplicitT = void, typename T, typename... Args>
-void* alloc_and_construct_with_T(detail::make_inplace_t<T>, Args&&... args)
-{
-  using TtoBeConstructed = std::decay_t<T>;
-  ScopedVoidPtr ptr{ std::malloc(sizeof(TtoBeConstructed)) };
+    using TtoBeConstructed = ExplicitT;
+    ScopedVoidPtr ptr{ std::malloc(sizeof(TtoBeConstructed)) };
 
-  // TODO: That's not a really nice way to handle this
-  assert(ptr.get() != nullptr && "std::malloc failed, we're doomed");
+    // TODO: That's not a really nice way to handle this
+    assert(ptr.get() != nullptr && "std::malloc failed, we're doomed");
 
-  new (ptr.get()) TtoBeConstructed(std::forward<Args>(args)...);
-  return ptr.release();
+    new (ptr.get()) TtoBeConstructed(std::forward<Args>(args)...);
+    return ptr.release();
+  }
+
+
 }
 
 } // namespace detail

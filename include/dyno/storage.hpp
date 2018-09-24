@@ -459,10 +459,11 @@ public:
   }
 
   template <typename T,
+            typename TtoBeConstructed = std::decay_t<T>,
             typename... Args>
   explicit remote_storage(detail::make_inplace_t<T>, Args&&... args)
   {
-    ptr_ = detail::alloc_and_construct_with_T(detail::make_inplace<T>, std::forward<Args>(args)...);
+    ptr_ = detail::alloc_and_construct_with_T<TtoBeConstructed>(std::forward<Args>(args)...);
   }
 
   template <typename VTable>
