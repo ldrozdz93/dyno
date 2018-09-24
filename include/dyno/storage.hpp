@@ -452,15 +452,13 @@ public:
     ptr_ = detail::alloc_and_construct_with_vtable(std::forward<OtherStorage>(other_storage), vtable);
   }
 
-  template <typename T,
-            typename RawT = std::decay_t<T> >
+  template <typename T>
   explicit remote_storage(T&& t)
   {
-    ptr_ = detail::alloc_and_construct_with_T<RawT>(std::forward<T>(t));
+    ptr_ = detail::alloc_and_construct_with_T(std::forward<T>(t));
   }
 
   template <typename T,
-            typename TtoBeConstructed = typename detail::make_inplace_t<T>::type,
             typename... Args>
   explicit remote_storage(detail::make_inplace_t<T>, Args&&... args)
   {
