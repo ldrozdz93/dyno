@@ -463,12 +463,8 @@ public:
             typename TtoBeConstructed = typename detail::make_inplace_t<T>::type,
             typename... Args>
   explicit remote_storage(detail::make_inplace_t<T>, Args&&... args)
-    : ptr_{std::malloc(sizeof(TtoBeConstructed))}
   {
-    // TODO: That's not a really nice way to handle this
-    assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
-
-    new (ptr_) TtoBeConstructed(std::forward<Args>(args)...);
+    ptr_ = detail::alloc_and_construct_with_T(detail::make_inplace<T>, std::forward<Args>(args)...);
   }
 
   template <typename VTable>

@@ -536,25 +536,43 @@ void constructing_nonmovable_tests()
 
 void exceptionSafetyTests()
 {
-      auto basicExceptionSafetyDuringMoveConstrucion = []()
-      {
-          struct ThrowingModel3 : Model3
-          {
-              ThrowingModel3() = default;
-              ThrowingModel3(const ThrowingModel3&)
-              {
-                  throw 0;
-              }
-          };
-          using namespace dyno::macro;
+    using namespace dyno::macro;
+    auto basicExceptionSafetyDuringMoveConstrucion = []()
+    {
+        struct ThrowingModel3 : Model3
+        {
+            ThrowingModel3() = default;
+            ThrowingModel3(const ThrowingModel3&)
+            {
+                throw 0;
+            }
+        };
 
-          try
-          {
-              Concept<on_heap> drawable10{ ThrowingModel3{} };
-          }
-          catch (...){ }
-          //no leaks detected with valgrind;
-      };
+        try
+        {
+            Concept<on_heap> drawable10{ ThrowingModel3{} };
+        }
+        catch (...){ }
+        //no leaks detected with valgrind;
+    };
 
-      basicExceptionSafetyDuringMoveConstrucion();
+    auto basicExceptionSafetyDuringInPlaceConstrucion = []()
+    {
+        struct ThrowingModel3 : Model3
+        {
+            ThrowingModel3()
+            {
+                throw 0;
+            }
+        };
+
+        try
+        {
+            Concept<on_heap> drawable10{ in_place<ThrowingModel3> };
+        }
+        catch (...){ }
+    };
+
+    basicExceptionSafetyDuringMoveConstrucion();
+    basicExceptionSafetyDuringInPlaceConstrucion();
 }
