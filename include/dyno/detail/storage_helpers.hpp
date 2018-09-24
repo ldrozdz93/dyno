@@ -119,16 +119,6 @@ void* alloc_and_construct_with_T(T&& t) // TODO: handle variable arguments!!!!!!
   return ptr.release();
 }
 
-/*
-      ptr_ = std::malloc(sizeof(RawT));
-      // TODO: Allocating and then calling the constructor is not
-      //       exception-safe if the constructor throws.
-      // TODO: That's not a really nice way to handle this
-      assert(ptr_ != nullptr && "std::malloc failed, we're doomed");
-      new (ptr_) RawT(std::forward<T>(t));
-*/
-
-
 template< typename OtherStorage >
 void* movePtrFrom(OtherStorage& other_storage)
 {

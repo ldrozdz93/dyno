@@ -93,6 +93,8 @@ void non_owning_storage_convertion_tests();
 void make_inplace_tests();
 void constructing_noncopyable_tests();
 void constructing_nonmovable_tests();
+void exceptionSafetyTests();
+
 
 int main() {
   Model1 m1{};
@@ -120,6 +122,7 @@ int main() {
   make_inplace_tests();
   constructing_noncopyable_tests();
   constructing_nonmovable_tests();
+  exceptionSafetyTests();
 }
 
 void remote_storage_simple_construction_tests()
@@ -531,4 +534,27 @@ void constructing_nonmovable_tests()
   }));
 }
 
+void exceptionSafetyTests()
+{
+      auto basicExceptionSafetyDuringMoveConstrucion = []()
+      {
+          struct ThrowingModel3 : Model3
+          {
+              ThrowingModel3() = default;
+              ThrowingModel3(const ThrowingModel3&)
+              {
+                  throw 0;
+              }
+          };
+          using namespace dyno::macro;
 
+          try
+          {
+              Concept<on_heap> drawable10{ ThrowingModel3{} };
+          }
+          catch (...){ }
+          //no leaks detected with valgrind;
+      };
+
+      basicExceptionSafetyDuringMoveConstrucion();
+}
